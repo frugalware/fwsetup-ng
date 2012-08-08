@@ -66,3 +66,4 @@ extern struct master *master;
 extern struct slave *slaves;
 
 extern struct slave *beginning_initialize(void);
+extern struct slave *ending_initialize(void);

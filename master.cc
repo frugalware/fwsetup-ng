@@ -40,6 +40,10 @@ extern int main(int argc,char **argv)
 
 	slaves = beginning_initialize();
 
+	insque(slaves,0);
+
+	insque(ending_initialize(),slaves);
+
 	for( slave = slaves ; slave ; )
 	{
 		enum order order;
