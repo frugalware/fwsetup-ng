@@ -1,6 +1,6 @@
 # Setup general C++ flags.
 CXXFLAGS ?= -O2
-CXXFLAGS := $(CXXFLAGS) -Wall -Wextra -Wno-unused-parameter
+CXXFLAGS := $(CXXFLAGS) -Wall -Wextra -Wno-unused-parameter -ggdb3
 
 # Set library includes.
 CXXFLAGS := $(CXXFLAGS) -I/usr/include/yui

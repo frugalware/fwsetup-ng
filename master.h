@@ -35,6 +35,14 @@
 #include <YReplacePoint.h>
 #include <cstdio>
 #include <cstring>
+#include <search.h>
+
+enum order
+{
+	ORDER_NONE,
+	ORDER_PREVIOUS,
+	ORDER_NEXT
+};
 
 struct master
 {
@@ -46,4 +54,15 @@ struct master
 	YPushButton *next;
 };
 
+struct slave
+{
+	struct slave *next;
+	struct slave *previous;
+	std::string *name;
+	enum order (*run) (void);
+};
+
 extern struct master *master;
+extern struct slave *slaves;
+
+extern struct slave *beginning_initialize(void);
