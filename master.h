@@ -34,3 +34,16 @@
 #include <YRadioButtonGroup.h>
 #include <YReplacePoint.h>
 #include <cstdio>
+#include <cstring>
+
+struct master
+{
+	YDialog *dialog;
+	YLayoutBox *verticalbox;
+	YReplacePoint *contents;
+	YButtonBox *buttonbox;
+	YPushButton *previous;
+	YPushButton *next;
+};
+
+extern struct master *master;
