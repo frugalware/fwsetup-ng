@@ -6,14 +6,11 @@ struct config
 	gint s_height; // Screen Height
 	gint w_width;  // Window Width
 	gint w_height; // Window Height
+	gint w_left;   // Window offset from left edge
+	gint w_top;    // Window offset from top edge
 };
 
 static struct config *config;
-
-static inline gint scale_integer(gint x,gdouble y)
-{
-	return (gint) ((gdouble) x * y);
-}
 
 #ifdef NEWT
 #include <newt.h>
@@ -34,9 +31,13 @@ static gboolean newt_begin(void)
 		return FALSE;
 	}
 
-	config->w_width = scale_integer(config->s_width-2,0.90);
+	config->w_width = (gint) ((gdouble) (config->s_width-2) * 0.90);
 
-	config->w_height = scale_integer(config->s_height-2,0.90);
+	config->w_height = (gint) ((gdouble) (config->s_height-2) * 0.90);
+
+	config->w_left = (config->s_width - config->w_width) / 2;
+
+	config->w_top = (config->s_height - config->w_height) / 2;
 
 	return TRUE;
 }
@@ -53,7 +54,7 @@ extern gint main(void)
 
 	newt_begin();
 
-	newtOpenWindow((config->s_width - config->w_width) / 2,(config->s_height - config->w_height) / 2,config->w_width,config->w_height,"Frugalware Linux Installer");
+	newtOpenWindow(config->w_left,config->w_right,config->w_width,config->w_height,"Frugalware Linux Installer");
 
 	newtRefresh();
 
