@@ -4,8 +4,12 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include <string.h>
 #include <unistd.h>
 #include <assert.h>
+
+#define _(S) S
+#define memzero(P,N) memset(P,0,N)
 
 #ifdef NEWT
 #include <newt.h>
@@ -23,9 +27,18 @@ struct database
 #error "No known user interface is defined."
 #endif
 
+enum order
+{
+  ORDER_NONE,
+  ORDER_ERROR,
+  ORDER_PREVIOUS,
+  ORDER_NEXT
+};
+
 struct module
 {
-  bool (*run) (struct database *);
+  const char *name;
+  enum order (*run) (struct database *);
 };
 
 extern void eprintf(const char *s,...) __attribute__((format(printf,1,2)));;

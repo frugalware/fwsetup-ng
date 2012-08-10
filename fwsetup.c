@@ -2,7 +2,9 @@
 
 extern int main(void)
 {
-  struct database db = {0};
+  struct database db;
+
+  memzero(&db,sizeof(struct database));
 
 #ifdef NEWT
   if(newtInit() != 0)
