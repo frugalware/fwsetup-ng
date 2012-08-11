@@ -58,5 +58,6 @@ struct module
 extern void eprintf(const char *s,...) __attribute__((format(printf,1,2)));;
 extern int main(void);
 extern struct module begin_module;
+extern struct module end_module;
 
 // -%- strip: yes; add-newline: yes; use-tabs: no; indent-width: 2; tab-width: 2; -%-
