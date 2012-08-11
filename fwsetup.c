@@ -1,10 +1,21 @@
 #include "fwsetup.h"
 
+#define MODULE_COUNT (2 + 1)
+#define EMPTY_MODULE (&(struct module) { 0, 0 })
+
+static struct database db;
+
+static struct module modules[MODULE_COUNT];
+
 extern int main(void)
 {
-  struct database db;
+  struct module *module = &modules[1];
 
   memzero(&db,sizeof(struct database));
+
+  memzero(&modules,sizeof(struct module) * MODULE_COUNT);
+
+  modules[1] = begin_module;
 
   db.locale = setlocale(LC_ALL,"");
 
@@ -28,7 +39,28 @@ extern int main(void)
 
   db.window_y = (db.screen_height - db.window_height) / 2;
 
-  module_begin.run(&db);
+  while(memcmp(module,EMPTY_MODULE,sizeof(struct module)) != 0)
+    switch(module->run(&db))
+    {
+      case ORDER_NONE:
+        assert_not_reached();
+        break;
+
+      case ORDER_ERROR:
+        break;
+
+      case ORDER_PREVIOUS:
+        --module;
+        break;
+
+      case ORDER_NEXT:
+        ++module;
+        break;
+
+      default:
+        assert_not_reached();
+        break;
+    }
 
   newtFinished();
 #endif
