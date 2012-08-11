@@ -6,7 +6,7 @@
 "Please click 'Next' to continue.\n"           \
 )
 
-static enum order run_begin(struct database *db)
+static enum order begin_run(struct database *db)
 {
   assert(db != 0);
 
@@ -62,10 +62,10 @@ static enum order run_begin(struct database *db)
   return ORDER_NEXT;
 }
 
-struct module module_begin =
+struct module begin_module =
 {
   __FILE__,
-  run_begin
+  begin_run
 };
 
 // -%- strip: yes; add-newline: yes; use-tabs: no; indent-width: 2; tab-width: 2; -%-
