@@ -28,6 +28,8 @@ extern int main(void)
 
   db.window_y = (db.screen_height - db.window_height) / 2;
 
+  module_begin.run(&db);
+
   newtFinished();
 #endif
 
