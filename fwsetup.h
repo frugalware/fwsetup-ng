@@ -58,8 +58,17 @@ struct module
   enum order (*run) (struct database *);
 };
 
+struct string
+{
+  struct string *prev;
+  struct string *next;
+  char *data;
+};
+
 extern void eprintf(const char *s,...) __attribute__((format(printf,1,2)));;
 extern void *list_append(void *list,size_t n);
+extern void *list_find_start(void *list);
+extern void *list_find_end(void *list);
 extern int main(void);
 extern struct module begin_module;
 extern struct module partition_setup_module;

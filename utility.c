@@ -82,6 +82,30 @@ extern void *list_append(void *list,size_t n)
   return b;
 }
 
+extern void *list_find_start(void *list)
+{
+  assert(list != 0);
+
+  struct list *p = list;
+
+  while(p->prev)
+    p = p->prev;
+
+  return p;
+}
+
+extern void *list_find_end(void *list)
+{
+  assert(list != 0);
+
+  struct list *p = list;
+
+  while(p->next)
+    p = p->next;
+
+  return p;
+}
+
 #ifdef NEWT
 extern bool get_text_size(const char *text,int *width,int *height)
 {
