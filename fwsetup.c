@@ -11,7 +11,7 @@ extern int main(void)
 #ifdef NEWT
   if(newtInit() != 0)
   {
-    eprintf("Failed to initialize NEWT.\n");
+    eprintf(NEWTINIT_TEXT);
 
     return EXIT_FAILURE;
   }

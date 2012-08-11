@@ -12,10 +12,14 @@
 
 #define _(S) S
 #define memzero(P,N) memset(P,0,N)
-#define WINDOW_TITLE _("Frugalware Linux Installer")
+#define WINDOWTITLE_TEXT _("Frugalware Linux Installer")
 
 #ifdef NEWT
 #include <newt.h>
+
+#define TEXTSIZE_TEXT _("Failed to retrieve a text block's screen dimensions.\n")
+#define NEWTWINDOW_TEXT _("Failed to open a NEWT window.\n")
+#define NEWTINIT_TEXT _("Failed to initialize NEWT.\n")
 
 struct database
 {
@@ -29,6 +33,7 @@ struct database
 };
 
 extern bool get_text_size(const char *text,int *width,int *height);
+extern bool get_button_size(const char *text,int *width,int *height);
 #else
 #error "No known user interface is defined."
 #endif
