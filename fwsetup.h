@@ -6,16 +6,20 @@
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
+#include <locale.h>
 #include <assert.h>
+#include <wchar.h>
 
 #define _(S) S
 #define memzero(P,N) memset(P,0,N)
+#define WINDOW_TITLE _("Frugalware Linux Installer")
 
 #ifdef NEWT
 #include <newt.h>
 
 struct database
 {
+  char *locale;
   int screen_width;
   int screen_height;
   int window_width;

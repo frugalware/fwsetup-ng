@@ -6,6 +6,8 @@ extern int main(void)
 
   memzero(&db,sizeof(struct database));
 
+  db.locale = setlocale(LC_ALL,"");
+
 #ifdef NEWT
   if(newtInit() != 0)
   {
