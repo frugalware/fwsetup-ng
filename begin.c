@@ -44,6 +44,8 @@ static enum order begin_run(struct database *db)
 
   newtFormAddComponents(form,tb,nb,(void *) 0);
 
+  newtFormSetCurrent(form,nb);
+
   while(true)
   {
     newtFormRun(form,&es);
