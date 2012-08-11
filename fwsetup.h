@@ -7,12 +7,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <locale.h>
+#include <fcntl.h>
 #include <assert.h>
 #include <wchar.h>
 
 #define _(S) S
 #define memzero(P,N) memset(P,0,N)
 #define assert_not_reached() assert(0)
+#define LOGFILE "fwsetup.log"
 #define WINDOWTITLE_TEXT _("Frugalware Linux Installer")
 #define NEXTBUTTON_TEXT _("Next")
 #define PREVIOUSBUTTON_TEXT _("Previous")

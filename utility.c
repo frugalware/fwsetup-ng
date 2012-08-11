@@ -1,10 +1,48 @@
 #include "fwsetup.h"
 
+static FILE *redirect_std_stream(FILE *oldfp,int oldfd)
+{
+  assert(oldfp != 0);
+  assert(oldfd != -1);
+
+  int newfd = fileno(oldfp);
+  FILE *newfp = 0;
+
+  fclose(oldfp);
+
+  close(newfd);
+
+  dup2(oldfd,newfd);
+
+  newfp = fdopen(newfd,"wb");
+
+  setbuf(newfp,0);
+
+  return newfp;
+}
+
 extern void eprintf(const char *s,...)
 {
   assert(s != 0);
 
   va_list args;
+  static bool prepared = false;
+
+  if(!prepared)
+  {
+    int fd = open(LOGFILE,O_CREAT|O_TRUNC|O_WRONLY,0644);
+
+    if(fd == -1)
+      return;
+
+    stderr = redirect_std_stream(stderr,fd);
+
+#ifndef NEWT
+    stdout = redirect_std_stream(stdout,fd);
+#endif
+
+    prepared = true;
+  }
 
   va_start(args,s);
 
