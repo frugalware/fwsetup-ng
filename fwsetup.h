@@ -27,6 +27,8 @@ struct database
   int window_x;
   int window_y;
 };
+
+extern bool get_text_size(const char *text,int *width,int *height);
 #else
 #error "No known user interface is defined."
 #endif
