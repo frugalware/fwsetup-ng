@@ -6,10 +6,6 @@
 "Please click 'Next' to continue.\n"           \
 )
 
-#define NEXTBUTTON_TEXT _("Next")
-
-
-
 static enum order run_begin(struct database *db)
 {
   assert(db != 0);

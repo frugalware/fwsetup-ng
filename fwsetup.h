@@ -13,6 +13,8 @@
 #define _(S) S
 #define memzero(P,N) memset(P,0,N)
 #define WINDOWTITLE_TEXT _("Frugalware Linux Installer")
+#define NEXTBUTTON_TEXT _("Next")
+#define PREVIOUSBUTTON_TEXT _("Previous")
 
 #ifdef NEWT
 #include <newt.h>
