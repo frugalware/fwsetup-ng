@@ -80,6 +80,22 @@ extern bool get_text_size(const char *text,int *width,int *height)
 
   return true;
 }
+
+extern bool get_button_size(const char *text,int *width,int *height)
+{
+  assert(text != 0);
+  assert(width != 0);
+  assert(height != 0);
+
+  if(!get_text_size(text,width,height))
+    return false;
+
+  *width += 5;
+
+  *height += 3;
+
+  return true;
+}
 #endif
 
 // -%- strip: yes; add-newline: yes; use-tabs: no; indent-width: 2; tab-width: 2; -%-
