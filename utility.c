@@ -1,5 +1,11 @@
 #include "fwsetup.h"
 
+struct list
+{
+  struct list *prev;
+  struct list *next;
+};
+
 static FILE *redirect_std_stream(FILE *oldfp,int oldfd)
 {
   assert(oldfp != 0);
@@ -49,6 +55,31 @@ extern void eprintf(const char *s,...)
   vfprintf(stderr,s,args);
 
   va_end(args);
+}
+
+extern void *list_append(void *list,size_t n)
+{
+  assert(n > sizeof(struct list));
+
+  struct list *a = list;
+  struct list *b = malloc(n);
+
+  if(a == 0)
+  {
+    b->prev = 0;
+
+    b->next = 0;
+  }
+  else
+  {
+    a->next = b;
+
+    b->prev = a;
+
+    b->next = 0;
+  }
+
+  return b;
 }
 
 #ifdef NEWT

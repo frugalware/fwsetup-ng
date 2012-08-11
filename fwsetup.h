@@ -59,6 +59,7 @@ struct module
 };
 
 extern void eprintf(const char *s,...) __attribute__((format(printf,1,2)));;
+extern void *list_append(void *list,size_t n);
 extern int main(void);
 extern struct module begin_module;
 extern struct module partition_setup_module;
