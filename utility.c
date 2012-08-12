@@ -88,7 +88,7 @@ extern void *list_find_start(void *list)
 
   struct list *p = list;
 
-  while(p->prev)
+  while(p->prev != 0)
     p = p->prev;
 
   return p;
@@ -100,10 +100,39 @@ extern void *list_find_end(void *list)
 
   struct list *p = list;
 
-  while(p->next)
+  while(p->next != 0)
     p = p->next;
 
   return p;
+}
+
+extern void list_free(void *list,void (*cb) (void *))
+{
+  assert(list != 0);
+  assert(cb != 0);
+
+  struct list *a = list_find_start(list);
+  struct list *b = 0;
+
+  while(a != 0)
+  {
+    b = a->next;
+
+    cb(a);
+
+    free(a);
+
+    a = b;
+  }
+}
+
+extern void string_free(void *string)
+{
+  assert(string != 0);
+
+  struct string *p = string;
+
+  free(p->data);
 }
 
 #ifdef NEWT
