@@ -83,8 +83,8 @@ struct partition
 {
   struct partition *prev;
   struct partition *next;
-  char *name;
   uint64_t num;
+  char *name;
   uint64_t start;
   uint64_t end;
   uint64_t sectors;
@@ -93,6 +93,7 @@ struct partition
     uint8_t type_n;
     char *type_s;
   };
+  uint64_t flags;
 };
 
 struct device

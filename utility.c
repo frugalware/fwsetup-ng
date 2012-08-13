@@ -226,6 +226,7 @@ extern struct device *read_device_data(const char *path)
   blkid_loff_t partsize = 0;
   int parttype_n = 0;
   const char *parttype_s = 0;
+  unsigned long long partflags = 0;
 
   memzero(&st,sizeof(struct stat));
 
@@ -300,6 +301,8 @@ extern struct device *read_device_data(const char *path)
 
             parttype_s = blkid_partition_get_type_string(partition);
 
+            partflags = blkid_partition_get_flags(partition);
+
             partitions->num = partnum;
 
             partitions->name = (partname != 0) ? strdup(partname) : 0;
@@ -314,6 +317,8 @@ extern struct device *read_device_data(const char *path)
               partitions->type_n = parttype_n;
             else if(strcmp(label,"gpt") == 0)
               partitions->type_s = strdup(parttype_s);
+
+            partitions->flags = partflags;
 
             ++i;
           }
