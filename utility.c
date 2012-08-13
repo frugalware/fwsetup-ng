@@ -380,19 +380,19 @@ extern bool write_device_data(const struct device *device)
   assert(device != 0);
   assert(device->label != 0);
 
-  char cmd[LINE_MAX] = {0};
+  char cmd[_POSIX_ARG_MAX] = {0};
   const struct partition *part = 0;
   size_t len = 0;
   int n = 0;
 
   if(strcmp(device->label,"dos") == 0)
   {
-    part = device->partitions;
-
     n = snprintf(cmd+len,sizeof(cmd)-len,"echo -n -e '");
 
     if(n > 0)
       len += n;
+
+    part = device->partitions;
 
     while(part != 0)
     {
@@ -408,9 +408,53 @@ extern bool write_device_data(const struct device *device)
 
     if(n > 0)
       len += n;
-
-    return true;
   }
+  else if(strcmp(device->label,"gpt") == 0)
+  {
+    n = snprintf(cmd+len,sizeof(cmd)-len,"sgdisk --clear");
+
+    if(n > 0)
+      len += n;
+
+    part = device->partitions;
+
+    while(part != 0)
+    {
+      n = snprintf(cmd+len,sizeof(cmd)-len," --new=%llu:%llu:%llu",part->num,part->start,part->end);
+
+      if(n > 0)
+       len += n;
+
+      n = snprintf(cmd+len,sizeof(cmd)-len," --change-name=%llu:'%s'",part->num,part->name);
+
+      if(n > 0)
+       len += n;
+
+      n = snprintf(cmd+len,sizeof(cmd)-len," --partition-guid=%llu:'%s'",part->num,part->uuid);
+
+      if(n > 0)
+       len += n;
+
+      n = snprintf(cmd+len,sizeof(cmd)-len," --typecode=%llu:'%s'",part->num,part->type_s);
+
+      if(n > 0)
+       len += n;
+
+      n = snprintf(cmd+len,sizeof(cmd)-len," --attributes=%llu:set:0x%llx",part->num,part->flags);
+
+      if(n > 0)
+       len += n;
+
+      part = part->next;
+    }
+
+    n = snprintf(cmd+len,sizeof(cmd)-len," %s",device->path);
+
+    if(n > 0)
+      len += n;
+  }
+
+  eprintf("%s\n",cmd);
 
   return true;
 }
