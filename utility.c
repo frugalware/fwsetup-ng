@@ -27,6 +27,73 @@ static FILE *redirect_std_stream(FILE *oldfp,int oldfd)
   return newfp;
 }
 
+static inline bool is_ide_disk(const struct stat *st)
+{
+  switch(major(st->st_dev))
+  {
+    case IDE0_MAJOR:
+    case IDE1_MAJOR:
+    case IDE2_MAJOR:
+    case IDE3_MAJOR:
+    case IDE4_MAJOR:
+    case IDE5_MAJOR:
+    case IDE6_MAJOR:
+    case IDE7_MAJOR:
+    case IDE8_MAJOR:
+    case IDE9_MAJOR:
+      return true;
+    default:
+      return false;
+  }
+}
+
+static inline bool is_scsi_disk(const struct stat *st)
+{
+  switch(major(st->st_dev))
+  {
+    case SCSI_DISK0_MAJOR:
+    case SCSI_DISK1_MAJOR:
+    case SCSI_DISK2_MAJOR:
+    case SCSI_DISK3_MAJOR:
+    case SCSI_DISK4_MAJOR:
+    case SCSI_DISK5_MAJOR:
+    case SCSI_DISK6_MAJOR:
+    case SCSI_DISK7_MAJOR:
+    case SCSI_DISK8_MAJOR:
+    case SCSI_DISK9_MAJOR:
+    case SCSI_DISK10_MAJOR:
+    case SCSI_DISK11_MAJOR:
+    case SCSI_DISK12_MAJOR:
+    case SCSI_DISK13_MAJOR:
+    case SCSI_DISK14_MAJOR:
+    case SCSI_DISK15_MAJOR:
+      return true;
+    default:
+      return false;
+  }
+}
+
+static inline bool is_virtio_disk(const struct stat *st)
+{
+  return (major(st->st_dev) == VIRTBLK_MAJOR);
+}
+
+static inline bool is_mdadm_device(const struct stat *st)
+{
+  return (major(st->st_dev) == MD_MAJOR);
+}
+
+extern void *malloc0(size_t n)
+{
+  assert(n > 0);
+
+  void *p = malloc(n);
+
+  memzero(p,n);
+
+  return p;
+}
+
 extern void eprintf(const char *s,...)
 {
   assert(s != 0);
@@ -133,6 +200,78 @@ extern void string_free(void *string)
   struct string *p = string;
 
   free(p->data);
+}
+
+extern struct device *read_device_data(const char *path)
+{
+  assert(path != 0);
+
+  int fd = -1;
+  blkid_probe probe = 0;
+  blkid_topology topology = 0;
+  uint64_t sector_size = 0;
+  struct stat st;
+  enum devicetype type = 0;
+  struct device *device = 0;
+
+  memzero(&st,sizeof(struct stat));
+
+  fd = open(path,O_RDONLY);
+
+  if(fd == -1)
+    goto bail;
+
+  probe = blkid_new_probe();
+
+  if(probe == 0)
+    goto bail;
+
+  if(blkid_probe_set_device(probe,fd,0,0) != 0)
+    goto bail;
+
+  topology = blkid_probe_get_topology(probe);
+
+  if(topology == 0)
+    goto bail;
+
+  sector_size = blkid_topology_get_physical_sector_size(topology);
+
+  if(sector_size == 0)
+    goto bail;
+
+  if(fstat(fd,&st) != 0)
+    goto bail;
+
+  if(is_ide_disk(&st))
+    type = DEVICETYPE_IDE;
+  else if(is_scsi_disk(&st))
+    type = DEVICETYPE_SCSI;
+  else if(is_virtio_disk(&st))
+    type = DEVICETYPE_VIRTIO;
+  else if(is_mdadm_device(&st))
+    type = DEVICETYPE_MDADM;
+  else
+    goto bail;
+
+  device = malloc0(sizeof(struct device));
+
+  device->path = strdup(path);
+
+  device->sector_size = sector_size;
+
+  device->type = type;
+
+bail:
+
+  if(fd != -1)
+    close(fd);
+
+  if(probe != 0)
+    blkid_free_probe(probe);
+
+  // TODO: write destruction function for devices
+
+  return device;
 }
 
 #ifdef NEWT

@@ -10,11 +10,17 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <wchar.h>
-#include <parted/parted.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <linux/major.h>
+#include <stdint.h>
+#include <blkid.h>
 
 #define _(S) S
 #define memzero(P,N) memset(P,0,N)
 #define assert_not_reached() assert(0)
+#define VIRTBLK_MAJOR 253
+#define DM_MAJOR 254
 #define LOGFILE "fwsetup.log"
 #define WINDOWTITLE_TEXT _("Frugalware Linux Installer")
 #define NEXTBUTTON_TEXT _("Next")
@@ -52,6 +58,14 @@ enum order
   ORDER_NEXT
 };
 
+enum devicetype
+{
+  DEVICETYPE_IDE,
+  DEVICETYPE_SCSI,
+  DEVICETYPE_VIRTIO,
+  DEVICETYPE_MDADM
+};
+
 struct module
 {
   const char *name;
@@ -65,12 +79,34 @@ struct string
   char *data;
 };
 
+struct partition
+{
+  struct partition *prev;
+  struct partition *next;
+  char *name;
+  uint64_t start;
+  uint64_t end;
+  uint64_t sectors;
+  uint16_t type;
+};
+
+struct device
+{
+  struct device *prev;
+  struct device *next;
+  char *path;
+  uint64_t sector_size;
+  enum devicetype type;
+};
+
+extern void *malloc0(size_t n);
 extern void eprintf(const char *s,...) __attribute__((format(printf,1,2)));;
 extern void *list_append(void *list,size_t n);
 extern void *list_find_start(void *list);
 extern void *list_find_end(void *list);
 extern void list_free(void *list,void (*cb) (void *));
 extern void string_free(void *string);
+extern struct device *read_device_data(const char *path);
 extern int main(void);
 extern struct module begin_module;
 extern struct module partition_setup_module;
