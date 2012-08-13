@@ -12,6 +12,7 @@
 #include <wchar.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <linux/major.h>
 #include <limits.h>
 #include <blkid.h>
@@ -112,6 +113,7 @@ struct device
 };
 
 extern void *malloc0(size_t n);
+extern pid_t execute(const char *cmd);
 extern void eprintf(const char *s,...) __attribute__((format(printf,1,2)));;
 extern void *list_append(void *list,size_t n);
 extern void *list_find_start(void *list);

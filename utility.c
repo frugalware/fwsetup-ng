@@ -6,26 +6,7 @@ struct list
   struct list *next;
 };
 
-static FILE *redirect_std_stream(FILE *oldfp,int oldfd)
-{
-  assert(oldfp != 0);
-  assert(oldfd != -1);
-
-  int newfd = fileno(oldfp);
-  FILE *newfp = 0;
-
-  fclose(oldfp);
-
-  close(newfd);
-
-  dup2(oldfd,newfd);
-
-  newfp = fdopen(newfd,"wb");
-
-  setbuf(newfp,0);
-
-  return newfp;
-}
+static FILE *logfile = 0;
 
 static inline bool is_ide_disk(const struct stat *st)
 {
@@ -94,32 +75,65 @@ extern void *malloc0(size_t n)
   return p;
 }
 
+extern pid_t execute(const char *cmd)
+{
+  assert(cmd != 0);
+
+  pid_t pid = -1;
+  int fd = -1;
+
+  pid = fork();
+
+  if(pid == 0)
+  {
+    fd = open(LOGFILE,O_WRONLY|O_APPEND|O_CREAT,0644);
+
+    if(fd == -1)
+      _exit(200);
+
+    dup2(fd,STDOUT_FILENO);
+
+    dup2(fd,STDERR_FILENO);
+
+    close(fd);
+
+    execl("/bin/sh","/bin/sh","-c",cmd,(void *) 0);
+
+    _exit(250);
+  }
+
+  return pid;
+}
+
 extern void eprintf(const char *s,...)
 {
   assert(s != 0);
 
   va_list args;
-  static bool prepared = false;
+  int fd = -1;
 
-  if(!prepared)
+  if(logfile == 0)
   {
-    int fd = open(LOGFILE,O_CREAT|O_TRUNC|O_WRONLY,0644);
+    fd = open(LOGFILE,O_WRONLY|O_APPEND|O_CREAT,0644);
 
     if(fd == -1)
       return;
 
-    stderr = redirect_std_stream(stderr,fd);
+    logfile = fdopen(fd,"ab");
 
-#ifndef NEWT
-    stdout = redirect_std_stream(stdout,fd);
-#endif
+    if(logfile == 0)
+    {
+      close(fd);
 
-    prepared = true;
+      return;
+    }
+
+    setbuf(logfile,0);
   }
 
   va_start(args,s);
 
-  vfprintf(stderr,s,args);
+  vfprintf(logfile,s,args);
 
   va_end(args);
 }
