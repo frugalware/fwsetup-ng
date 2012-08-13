@@ -13,7 +13,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <linux/major.h>
-#include <stdint.h>
+#include <limits.h>
 #include <blkid.h>
 
 #define _(S) S
@@ -83,18 +83,18 @@ struct partition
 {
   struct partition *prev;
   struct partition *next;
-  uint64_t num;
+  unsigned long long num;
   char *name;
   char *uuid;
-  uint64_t start;
-  uint64_t end;
-  uint64_t sectors;
+  unsigned long long start;
+  unsigned long long end;
+  unsigned long long sectors;
   union
   {
-    uint8_t type_n;
+    unsigned char type_n;
     char *type_s;
   };
-  uint64_t flags;
+  unsigned long long flags;
   bool primary;
   bool extended;
   bool logical;
@@ -105,7 +105,7 @@ struct device
   struct device *prev;
   struct device *next;
   char *path;
-  uint64_t sector_size;
+  unsigned long long sector_size;
   enum devicetype type;
   char *label;
   struct partition *partitions;
@@ -119,6 +119,7 @@ extern void *list_find_end(void *list);
 extern void list_free(void *list,void (*cb) (void *));
 extern void string_free(void *string);
 extern struct device *read_device_data(const char *path);
+extern bool write_device_data(const struct device *device);
 extern void free_device(struct device *device);
 extern int main(void);
 extern struct module begin_module;

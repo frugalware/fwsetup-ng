@@ -209,7 +209,7 @@ extern struct device *read_device_data(const char *path)
   int fd = -1;
   blkid_probe probe = 0;
   blkid_topology topology = 0;
-  uint64_t sector_size = 0;
+  unsigned long long sector_size = 0;
   struct stat st;
   enum devicetype type = 0;
   struct device *device = 0;
@@ -373,6 +373,46 @@ bail:
     blkid_free_probe(probe);
 
   return device;
+}
+
+extern bool write_device_data(const struct device *device)
+{
+  assert(device != 0);
+  assert(device->label != 0);
+
+  char cmd[LINE_MAX] = {0};
+  const struct partition *part = 0;
+  size_t len = 0;
+  int n = 0;
+
+  if(strcmp(device->label,"dos") == 0)
+  {
+    part = device->partitions;
+
+    n = snprintf(cmd+len,sizeof(cmd)-len,"echo -n -e '");
+
+    if(n > 0)
+      len += n;
+
+    while(part != 0)
+    {
+      n = snprintf(cmd+len,sizeof(cmd)-len,"%llu %llu 0x%hhx %c\\n",part->start,part->sectors,part->type_n,(part->flags == 0x80) ? '*' : '-');
+
+      if(n > 0)
+        len += n;
+
+      part = part->next;
+    }
+
+    n = snprintf(cmd+len,sizeof(cmd)-len,"' | sfdisk -u S -L %s",device->path);
+
+    if(n > 0)
+      len += n;
+
+    return true;
+  }
+
+  return true;
 }
 
 extern void free_device(struct device *device)
