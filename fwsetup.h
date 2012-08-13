@@ -85,6 +85,7 @@ struct partition
   struct partition *next;
   uint64_t num;
   char *name;
+  char *uuid;
   uint64_t start;
   uint64_t end;
   uint64_t sectors;

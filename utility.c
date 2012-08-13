@@ -222,6 +222,7 @@ extern struct device *read_device_data(const char *path)
   struct partition *partitions = 0;
   int partnum = 0;
   const char *partname = 0;
+  const char *partuuid = 0;
   blkid_loff_t partstart = 0;
   blkid_loff_t partsize = 0;
   int parttype_n = 0;
@@ -296,6 +297,8 @@ extern struct device *read_device_data(const char *path)
 
             partname = blkid_partition_get_name(partition);
 
+            partuuid = blkid_partition_get_uuid(partition);
+
             partstart = blkid_partition_get_start(partition);
 
             partsize = blkid_partition_get_size(partition);
@@ -315,6 +318,8 @@ extern struct device *read_device_data(const char *path)
             partitions->num = partnum;
 
             partitions->name = (partname != 0) ? strdup(partname) : 0;
+
+            partitions->uuid = (partuuid != 0) ? strdup(partuuid) : 0;
 
             partitions->start = partstart;
 
