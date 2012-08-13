@@ -227,6 +227,9 @@ extern struct device *read_device_data(const char *path)
   int parttype_n = 0;
   const char *parttype_s = 0;
   unsigned long long partflags = 0;
+  int primary = 0;
+  int extended = 0;
+  int logical = 0;
 
   memzero(&st,sizeof(struct stat));
 
@@ -303,6 +306,12 @@ extern struct device *read_device_data(const char *path)
 
             partflags = blkid_partition_get_flags(partition);
 
+            primary = blkid_partition_is_primary(partition);
+
+            extended = blkid_partition_is_extended(partition);
+
+            logical = blkid_partition_is_logical(partition);
+
             partitions->num = partnum;
 
             partitions->name = (partname != 0) ? strdup(partname) : 0;
@@ -319,6 +328,12 @@ extern struct device *read_device_data(const char *path)
               partitions->type_s = strdup(parttype_s);
 
             partitions->flags = partflags;
+
+            partitions->primary = (primary != 0);
+
+            partitions->extended = (extended != 0);
+
+            partitions->logical = (logical != 0);
 
             ++i;
           }

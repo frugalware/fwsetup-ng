@@ -94,6 +94,9 @@ struct partition
     char *type_s;
   };
   uint64_t flags;
+  bool primary;
+  bool extended;
+  bool logical;
 };
 
 struct device
