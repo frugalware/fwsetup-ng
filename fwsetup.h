@@ -97,6 +97,7 @@ struct device
   char *path;
   uint64_t sector_size;
   enum devicetype type;
+  char *label;
 };
 
 extern void *malloc0(size_t n);

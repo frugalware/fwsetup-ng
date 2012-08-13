@@ -29,7 +29,7 @@ static FILE *redirect_std_stream(FILE *oldfp,int oldfd)
 
 static inline bool is_ide_disk(const struct stat *st)
 {
-  switch(major(st->st_dev))
+  switch(major(st->st_rdev))
   {
     case IDE0_MAJOR:
     case IDE1_MAJOR:
@@ -49,7 +49,7 @@ static inline bool is_ide_disk(const struct stat *st)
 
 static inline bool is_scsi_disk(const struct stat *st)
 {
-  switch(major(st->st_dev))
+  switch(major(st->st_rdev))
   {
     case SCSI_DISK0_MAJOR:
     case SCSI_DISK1_MAJOR:
@@ -75,12 +75,12 @@ static inline bool is_scsi_disk(const struct stat *st)
 
 static inline bool is_virtio_disk(const struct stat *st)
 {
-  return (major(st->st_dev) == VIRTBLK_MAJOR);
+  return (major(st->st_rdev) == VIRTBLK_MAJOR);
 }
 
 static inline bool is_mdadm_device(const struct stat *st)
 {
-  return (major(st->st_dev) == MD_MAJOR);
+  return (major(st->st_rdev) == MD_MAJOR);
 }
 
 extern void *malloc0(size_t n)
@@ -213,6 +213,9 @@ extern struct device *read_device_data(const char *path)
   struct stat st;
   enum devicetype type = 0;
   struct device *device = 0;
+  blkid_partlist partlist = 0;
+  blkid_parttable parttable = 0;
+  const char *label = 0;
 
   memzero(&st,sizeof(struct stat));
 
@@ -253,6 +256,24 @@ extern struct device *read_device_data(const char *path)
   else
     goto bail;
 
+  partlist = blkid_probe_get_partitions(probe);
+
+  if(partlist != 0)
+  {
+    parttable = blkid_partlist_get_table(partlist);
+
+    if(parttable != 0)
+    {
+      label = blkid_parttable_get_type(parttable);
+
+      if(strcmp(label,"dos") == 0 || strcmp(label,"gpt") == 0)
+      {
+      }
+      else
+        label = "unknown";
+    }
+  }
+
   device = malloc0(sizeof(struct device));
 
   device->path = strdup(path);
@@ -260,6 +281,9 @@ extern struct device *read_device_data(const char *path)
   device->sector_size = sector_size;
 
   device->type = type;
+
+  if(label)
+    device->label = strdup(label);
 
 bail:
 
