@@ -220,9 +220,12 @@ extern struct device *read_device_data(const char *path)
   int j = 0;
   blkid_partition partition = 0;
   struct partition *partitions = 0;
+  int partnum = 0;
   const char *partname = 0;
   blkid_loff_t partstart = 0;
   blkid_loff_t partsize = 0;
+  int parttype_n = 0;
+  const char *parttype_s = 0;
 
   memzero(&st,sizeof(struct stat));
 
@@ -285,11 +288,19 @@ extern struct device *read_device_data(const char *path)
           {
             partitions = list_append(partitions,sizeof(struct partition));
 
+            partnum = blkid_partition_get_partno(partition);
+
             partname = blkid_partition_get_name(partition);
 
             partstart = blkid_partition_get_start(partition);
 
             partsize = blkid_partition_get_size(partition);
+
+            parttype_n = blkid_partition_get_type(partition);
+
+            parttype_s = blkid_partition_get_type_string(partition);
+
+            partitions->num = partnum;
 
             partitions->name = (partname != 0) ? strdup(partname) : 0;
 
@@ -299,7 +310,10 @@ extern struct device *read_device_data(const char *path)
 
             partitions->sectors = partsize;
 
-            partitions->type = 0;
+            if(strcmp(label,"dos") == 0)
+              partitions->type_n = parttype_n;
+            else if(strcmp(label,"gpt") == 0)
+              partitions->type_s = strdup(parttype_s);
 
             ++i;
           }

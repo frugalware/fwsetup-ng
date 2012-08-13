@@ -84,10 +84,15 @@ struct partition
   struct partition *prev;
   struct partition *next;
   char *name;
+  uint64_t num;
   uint64_t start;
   uint64_t end;
   uint64_t sectors;
-  uint16_t type;
+  union
+  {
+    uint8_t type_n;
+    char *type_s;
+  };
 };
 
 struct device
