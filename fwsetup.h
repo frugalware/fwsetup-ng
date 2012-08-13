@@ -15,6 +15,7 @@
 #include <sys/wait.h>
 #include <linux/major.h>
 #include <limits.h>
+#include <errno.h>
 #include <blkid.h>
 
 #define _(S) S
@@ -23,6 +24,9 @@
 #define VIRTBLK_MAJOR 253
 #define DM_MAJOR 254
 #define LOGFILE "fwsetup.log"
+#define EXECUTE_START_TEXT _("About to execute command '%s'.\n")
+#define EXECUTE_STOP_TEXT _("Successfully executed command '%s'.\n")
+#define PROCESS_EXIT_ERROR_TEXT _("A process (%d) has exitted with a non-zero exit code (%d).\n")
 #define WINDOWTITLE_TEXT _("Frugalware Linux Installer")
 #define NEXTBUTTON_TEXT _("Next")
 #define PREVIOUSBUTTON_TEXT _("Previous")

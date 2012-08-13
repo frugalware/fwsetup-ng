@@ -1,5 +1,7 @@
 #include "fwsetup.h"
 
+#define INVALID_TABLE_TEXT _("This unsupported partition table (%s) cannot be written to %s.\n")
+
 struct list
 {
   struct list *prev;
@@ -398,6 +400,9 @@ extern bool write_device_data(const struct device *device)
   const struct partition *part = 0;
   size_t len = 0;
   int n = 0;
+  pid_t pid = -1;
+  int status = 0;
+  int code = -1;
 
   if(strcmp(device->label,"dos") == 0)
   {
@@ -467,8 +472,29 @@ extern bool write_device_data(const struct device *device)
     if(n > 0)
       len += n;
   }
+  else
+  {
+    eprintf(INVALID_TABLE_TEXT,device->label,device->path);
+    return false;
+  }
 
-  eprintf("%s\n",cmd);
+  eprintf(EXECUTE_START_TEXT,cmd);
+
+  pid = execute(cmd);
+
+  if(pid == -1 || waitpid(pid,&status,0) == -1)
+  {
+    eprintf("%s: %s",__func__,strerror(errno));
+    return false;
+  }
+
+  if(!WIFEXITED(status) || (code = WEXITSTATUS(status)) != 0)
+  {
+    eprintf(PROCESS_EXIT_ERROR_TEXT,pid,code);
+    return false;
+  }
+
+  eprintf(EXECUTE_STOP_TEXT,cmd);
 
   return true;
 }
