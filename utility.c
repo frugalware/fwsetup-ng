@@ -304,7 +304,8 @@ extern struct device *read_device_data(const char *path)
             ++i;
           }
 
-          partitions = list_find_start(partitions);
+          if(partitions)
+            partitions = list_find_start(partitions);
         }
       }
       else
