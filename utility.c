@@ -293,9 +293,19 @@ bail:
   if(probe != 0)
     blkid_free_probe(probe);
 
-  // TODO: write destruction function for devices
-
   return device;
+}
+
+extern void free_device(struct device *device)
+{
+  if(device == 0)
+    return;
+
+  free(device->label);
+
+  free(device->path);
+
+  free(device);
 }
 
 #ifdef NEWT
