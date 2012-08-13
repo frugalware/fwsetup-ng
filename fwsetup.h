@@ -98,6 +98,7 @@ struct device
   uint64_t sector_size;
   enum devicetype type;
   char *label;
+  struct partition *partitions;
 };
 
 extern void *malloc0(size_t n);

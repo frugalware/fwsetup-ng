@@ -216,6 +216,13 @@ extern struct device *read_device_data(const char *path)
   blkid_partlist partlist = 0;
   blkid_parttable parttable = 0;
   const char *label = 0;
+  int i = 0;
+  int j = 0;
+  blkid_partition partition = 0;
+  struct partition *partitions = 0;
+  const char *partname = 0;
+  blkid_loff_t partstart = 0;
+  blkid_loff_t partsize = 0;
 
   memzero(&st,sizeof(struct stat));
 
@@ -268,6 +275,37 @@ extern struct device *read_device_data(const char *path)
 
       if(strcmp(label,"dos") == 0 || strcmp(label,"gpt") == 0)
       {
+        i = 0;
+
+        j = blkid_partlist_numof_partitions(partlist);
+
+        if(j != -1)
+        {
+          while(i < j && (partition = blkid_partlist_get_partition(partlist,i)) != 0)
+          {
+            partitions = list_append(partitions,sizeof(struct partition));
+
+            partname = blkid_partition_get_name(partition);
+
+            partstart = blkid_partition_get_start(partition);
+
+            partsize = blkid_partition_get_size(partition);
+
+            partitions->name = (partname != 0) ? strdup(partname) : 0;
+
+            partitions->start = partstart;
+
+            partitions->end = partstart + partsize - 1;
+
+            partitions->sectors = partsize;
+
+            partitions->type = 0;
+
+            ++i;
+          }
+
+          partitions = list_find_start(partitions);
+        }
       }
       else
         label = "unknown";
@@ -282,8 +320,9 @@ extern struct device *read_device_data(const char *path)
 
   device->type = type;
 
-  if(label)
-    device->label = strdup(label);
+  device->label = (label != 0) ? strdup(label) : 0;
+
+  device->partitions = partitions;
 
 bail:
 
