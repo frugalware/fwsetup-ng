@@ -227,19 +227,19 @@ extern void *list_remove(void *list)
 {
   ASSERT_ARGS(list == 0,0);
 
-  struct list *a = list->prev;
-  struct list *b = list->next;
-  struct list *c = list;
+  struct list *a = list;
+  struct list *b = a->prev;
+  struct list *c = a->next;
 
-  if(a != 0)
-    a->next = b;
+  a->prev = 0;
+
+  a->next = 0;
 
   if(b != 0)
-    b->prev = a;
+    b->next = c;
 
-  c->prev = 0;
-
-  c->next = 0;
+  if(c != 0)
+    c->prev = b;
 
   return c;
 }
@@ -591,6 +591,29 @@ extern void device_create_partition_table(struct device *device,const char *labe
   device->uuid = 0;
 
   device->partitions = 0;
+}
+
+extern bool device_remove_partition(struct device *device,unsigned long long n)
+{
+  ASSERT_ARGS(device == 0 || device->partitions == 0 || n == 0,false);
+
+  struct partition *part = device->partitions;
+
+  while(part != 0)
+  {
+    if(part->num == n)
+    {
+      list_remove(part);
+
+      partition_free(part);
+
+      break;
+    }
+
+    part = part->next;
+  }
+
+  return (part != 0);
 }
 
 extern void device_free(struct device *device)
