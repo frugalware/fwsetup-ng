@@ -521,7 +521,7 @@ extern bool write_device_data(const struct device *device)
 
       snprintf_append(cmd,sizeof(cmd)," --typecode=%llu:'%s'",part->num,part->type_s);
 
-      snprintf_append(cmd,sizeof(cmd)," --attributes=%llu:set:0x%llx",part->num,part->flags);
+      snprintf_append(cmd,sizeof(cmd)," --attributes=%llu:=:0x%llx",part->num,part->flags);
 
       part = part->next;
     }
