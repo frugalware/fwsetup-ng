@@ -414,79 +414,47 @@ extern bool write_device_data(const struct device *device)
 
   char cmd[_POSIX_ARG_MAX] = {0};
   const struct partition *part = 0;
-  size_t len = 0;
-  int n = 0;
   pid_t pid = -1;
   int status = 0;
   int code = -1;
 
   if(strcmp(device->label,"dos") == 0)
   {
-    n = snprintf(cmd+len,sizeof(cmd)-len,"echo -n -e '");
-
-    if(n > 0)
-      len += n;
+    snprintf(cmd,sizeof(cmd),"echo -n -e '");
 
     part = device->partitions;
 
     while(part != 0)
     {
-      n = snprintf(cmd+len,sizeof(cmd)-len,"%llu %llu 0x%hhx %c\\n",part->start,part->sectors,part->type_n,(part->flags == 0x80) ? '*' : '-');
-
-      if(n > 0)
-        len += n;
+      snprintf_append(cmd,sizeof(cmd),"%llu %llu 0x%hhx %c\\n",part->start,part->sectors,part->type_n,(part->flags == 0x80) ? '*' : '-');
 
       part = part->next;
     }
 
-    n = snprintf(cmd+len,sizeof(cmd)-len,"' | sfdisk -u S -L %s",device->path);
-
-    if(n > 0)
-      len += n;
+    snprintf_append(cmd,sizeof(cmd),"' | sfdisk -u S -L %s",device->path);
   }
   else if(strcmp(device->label,"gpt") == 0)
   {
-    n = snprintf(cmd+len,sizeof(cmd)-len,"sgdisk --clear");
-
-    if(n > 0)
-      len += n;
+    snprintf(cmd,sizeof(cmd),"sgdisk --clear");
 
     part = device->partitions;
 
     while(part != 0)
     {
-      n = snprintf(cmd+len,sizeof(cmd)-len," --new=%llu:%llu:%llu",part->num,part->start,part->end);
+      snprintf_append(cmd,sizeof(cmd)," --new=%llu:%llu:%llu",part->num,part->start,part->end);
 
-      if(n > 0)
-       len += n;
+      snprintf_append(cmd,sizeof(cmd)," --change-name=%llu:'%s'",part->num,part->name);
 
-      n = snprintf(cmd+len,sizeof(cmd)-len," --change-name=%llu:'%s'",part->num,part->name);
+      snprintf_append(cmd,sizeof(cmd)," --partition-guid=%llu:'%s'",part->num,part->uuid);
 
-      if(n > 0)
-       len += n;
+      snprintf_append(cmd,sizeof(cmd)," --typecode=%llu:'%s'",part->num,part->type_s);
 
-      n = snprintf(cmd+len,sizeof(cmd)-len," --partition-guid=%llu:'%s'",part->num,part->uuid);
-
-      if(n > 0)
-       len += n;
-
-      n = snprintf(cmd+len,sizeof(cmd)-len," --typecode=%llu:'%s'",part->num,part->type_s);
-
-      if(n > 0)
-       len += n;
-
-      n = snprintf(cmd+len,sizeof(cmd)-len," --attributes=%llu:set:0x%llx",part->num,part->flags);
-
-      if(n > 0)
-       len += n;
+      snprintf_append(cmd,sizeof(cmd)," --attributes=%llu:set:0x%llx",part->num,part->flags);
 
       part = part->next;
     }
 
-    n = snprintf(cmd+len,sizeof(cmd)-len," %s",device->path);
-
-    if(n > 0)
-      len += n;
+    snprintf_append(cmd,sizeof(cmd)," %s",device->path);
   }
   else
   {
