@@ -1,6 +1,6 @@
 #include "fwsetup.h"
 
-#define MODULE_COUNT (2 + 2)
+#define MODULE_COUNT (2 + 3)
 #define EMPTY_MODULE (&(struct module) { 0, 0 })
 
 static struct database db;
@@ -17,7 +17,9 @@ extern int main(void)
 
   modules[1] = begin_module;
 
-  modules[2] = end_module;
+  modules[2] = partition_setup_module;
+
+  modules[3] = end_module;
 
   db.locale = setlocale(LC_ALL,"");
 

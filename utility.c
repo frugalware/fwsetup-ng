@@ -261,13 +261,16 @@ extern void list_free(void *list,void (*cb) (void *))
   }
 }
 
-extern void string_free(void *string)
+extern void free_string(void *p)
 {
-  assert(string != 0);
+  if(p == 0)
+    return;
 
-  struct string *p = string;
+  struct string *string = p;
 
-  free(p->data);
+  free(string->data);
+
+  free(string);
 }
 
 extern void free_partition(void *p)
