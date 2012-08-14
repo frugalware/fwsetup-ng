@@ -11,5 +11,8 @@ OBJECTS := $(patsubst %.c,%.o,$(SOURCES))
 fwsetup: $(OBJECTS)
 	$(CC) $(LDFLAGS) $^ -o $@
 
+valgrind: fwsetup
+	valgrind --leak-check=full --show-reachable=yes --log-file=valgrind.log ./fwsetup
+
 clean:
 	$(RM) $(OBJECTS) fwsetup
