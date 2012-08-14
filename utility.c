@@ -223,6 +223,27 @@ extern void *list_append(void *list,size_t n)
   return b;
 }
 
+extern void *list_remove(void *list)
+{
+  ASSERT_ARGS(list == 0,0);
+
+  struct list *a = list->prev;
+  struct list *b = list->next;
+  struct list *c = list;
+
+  if(a != 0)
+    a->next = b;
+
+  if(b != 0)
+    b->prev = a;
+
+  c->prev = 0;
+
+  c->next = 0;
+
+  return c;
+}
+
 extern void *list_find_start(void *list)
 {
   ASSERT_ARGS(list == 0,0);
