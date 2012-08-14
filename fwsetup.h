@@ -25,7 +25,7 @@
 #define DM_MAJOR 254
 #define LOGFILE "fwsetup.log"
 #define LOG_ERRNO() eprintf("%s: %s\n",__func__,strerror(errno))
-#define ASSERT_ARGS(B,R) if(B) { errno = EINVAL; LOG_ERRNO(); return R; } 
+#define ASSERT_ARGS(B,R) if(B) { errno = EINVAL; LOG_ERRNO(); return R; }
 #define EXECUTE_START_TEXT _("About to execute command '%s'.\n")
 #define EXECUTE_STOP_TEXT _("Successfully executed command '%s'.\n")
 #define PROCESS_EXIT_ERROR_TEXT _("A process (%d) has exitted with a non-zero exit code (%d).\n")
@@ -124,11 +124,11 @@ extern void *list_append(void *list,size_t n);
 extern void *list_find_start(void *list);
 extern void *list_find_end(void *list);
 extern void list_free(void *list,void (*cb) (void *));
-extern void free_string(void *p);
-extern void free_partition(void *p);
-extern struct device *read_device_data(const char *path);
-extern bool write_device_data(const struct device *device);
-extern void free_device(struct device *device);
+extern void string_free(void *p);
+extern void partition_free(void *p);
+extern struct device *device_read_data(const char *path);
+extern bool device_write_data(const struct device *device);
+extern void device_free(struct device *device);
 extern int main(void);
 extern struct module begin_module;
 extern struct module partition_setup_module;

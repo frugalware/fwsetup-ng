@@ -124,7 +124,7 @@ extern void *malloc0(size_t n)
 extern pid_t execute(const char *cmd)
 {
   ASSERT_ARGS(cmd == 0,-1);
-  
+
   pid_t pid = -1;
   int fd = -1;
 
@@ -265,7 +265,7 @@ extern void list_free(void *list,void (*cb) (void *))
   }
 }
 
-extern void free_string(void *p)
+extern void string_free(void *p)
 {
   if(p == 0)
     return;
@@ -277,7 +277,7 @@ extern void free_string(void *p)
   free(string);
 }
 
-extern void free_partition(void *p)
+extern void partition_free(void *p)
 {
   if(p == 0)
     return;
@@ -293,7 +293,7 @@ extern void free_partition(void *p)
   free(partition);
 }
 
-extern struct device *read_device_data(const char *path)
+extern struct device *device_read_data(const char *path)
 {
   ASSERT_ARGS(path == 0,0);
 
@@ -360,8 +360,8 @@ extern struct device *read_device_data(const char *path)
     type = DEVICETYPE_VIRTIO;
   else if(is_mdadm_device(&st))
     type = DEVICETYPE_MDADM;
-  else
-    goto bail;
+//  else
+//    goto bail;
 
   partlist = blkid_probe_get_partitions(probe);
 
@@ -480,7 +480,7 @@ bail:
   return device;
 }
 
-extern bool write_device_data(const struct device *device)
+extern bool device_write_data(const struct device *device)
 {
   ASSERT_ARGS(device == 0 || device->label == 0 || device->partitions == 0,false);
 
@@ -555,12 +555,12 @@ extern bool write_device_data(const struct device *device)
   return true;
 }
 
-extern void free_device(struct device *device)
+extern void device_free(struct device *device)
 {
   if(device == 0)
     return;
 
-  list_free(device->partitions,free_partition);
+  list_free(device->partitions,partition_free);
 
   free(device->uuid);
 
