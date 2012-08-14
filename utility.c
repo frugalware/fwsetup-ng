@@ -406,10 +406,9 @@ extern struct device *read_device_data(const char *path)
 
             partitions->sectors = partsize;
 
-            if(strcmp(label,"dos") == 0)
-              partitions->type_n = parttype_n;
-            else if(strcmp(label,"gpt") == 0)
-              partitions->type_s = strdup(parttype_s);
+            partitions->type_n = parttype_n;
+
+            partitions->type_s = (parttype_s != 0) ? strdup(parttype_s) : 0;
 
             partitions->flags = partflags;
 
@@ -540,6 +539,8 @@ extern void free_device(struct device *device)
 {
   if(device == 0)
     return;
+
+  free(device->uuid);
 
   free(device->label);
 

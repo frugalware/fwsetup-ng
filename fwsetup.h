@@ -94,11 +94,8 @@ struct partition
   unsigned long long start;
   unsigned long long end;
   unsigned long long sectors;
-  union
-  {
-    unsigned char type_n;
-    char *type_s;
-  };
+  unsigned char type_n;
+  char *type_s;
   unsigned long long flags;
   bool primary;
   bool extended;
