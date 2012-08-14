@@ -8,7 +8,7 @@
 
 static enum order begin_run(struct database *db)
 {
-  assert(db != 0);
+  ASSERT_ARGS(db == 0,ORDER_ERROR);
 
 #ifdef NEWT
   int tb_width = 0;
