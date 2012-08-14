@@ -24,6 +24,8 @@
 #define VIRTBLK_MAJOR 253
 #define DM_MAJOR 254
 #define LOGFILE "fwsetup.log"
+#define LOG_ERRNO() eprintf("%s: %s\n",__func__,strerror(errno))
+#define ASSERT_ARGS(B,R) if(B) { errno = EINVAL; LOG_ERRNO(); return R; } 
 #define EXECUTE_START_TEXT _("About to execute command '%s'.\n")
 #define EXECUTE_STOP_TEXT _("Successfully executed command '%s'.\n")
 #define PROCESS_EXIT_ERROR_TEXT _("A process (%d) has exitted with a non-zero exit code (%d).\n")

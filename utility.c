@@ -68,6 +68,8 @@ static inline bool is_mdadm_device(const struct stat *st)
 
 static char *get_gpt_disk_uuid(const char *path)
 {
+  ASSERT_ARGS(path == 0,0);
+
   char cmd[_POSIX_ARG_MAX] = {0};
   FILE *inpipe = 0;
   char line[LINE_MAX] = {0};
@@ -106,7 +108,7 @@ static char *get_gpt_disk_uuid(const char *path)
 
 extern void *malloc0(size_t n)
 {
-  assert(n > 0);
+  ASSERT_ARGS(n == 0,0);
 
   void *p = malloc(n);
 
@@ -117,8 +119,8 @@ extern void *malloc0(size_t n)
 
 extern pid_t execute(const char *cmd)
 {
-  assert(cmd != 0);
-
+  ASSERT_ARGS(cmd == 0,-1);
+  
   pid_t pid = -1;
   int fd = -1;
 
@@ -147,7 +149,7 @@ extern pid_t execute(const char *cmd)
 
 extern void eprintf(const char *fmt,...)
 {
-  assert(fmt != 0);
+  ASSERT_ARGS(fmt == 0,);
 
   va_list args;
   int fd = -1;
@@ -180,9 +182,7 @@ extern void eprintf(const char *fmt,...)
 
 extern void snprintf_append(char *s,size_t size,const char *fmt,...)
 {
-  assert(s != 0);
-  assert(size > 0);
-  assert(fmt != 0);
+  ASSERT_ARGS(s == 0 || size == 0 || fmt == 0,);
 
   size_t len = strlen(s);
   va_list args;
@@ -196,7 +196,7 @@ extern void snprintf_append(char *s,size_t size,const char *fmt,...)
 
 extern void *list_append(void *list,size_t n)
 {
-  assert(n > sizeof(struct list));
+  ASSERT_ARGS(n <= sizeof(struct list),0);
 
   struct list *a = list;
   struct list *b = malloc(n);
@@ -221,7 +221,7 @@ extern void *list_append(void *list,size_t n)
 
 extern void *list_find_start(void *list)
 {
-  assert(list != 0);
+  ASSERT_ARGS(list == 0,0);
 
   struct list *p = list;
 
@@ -233,7 +233,7 @@ extern void *list_find_start(void *list)
 
 extern void *list_find_end(void *list)
 {
-  assert(list != 0);
+  ASSERT_ARGS(list == 0,0);
 
   struct list *p = list;
 
@@ -291,7 +291,7 @@ extern void free_partition(void *p)
 
 extern struct device *read_device_data(const char *path)
 {
-  assert(path != 0);
+  ASSERT_ARGS(path == 0,0);
 
   int fd = -1;
   blkid_probe probe = 0;
@@ -438,7 +438,7 @@ extern struct device *read_device_data(const char *path)
             ++i;
           }
 
-          if(partitions)
+          if(partitions != 0)
             partitions = list_find_start(partitions);
         }
       }
@@ -478,8 +478,7 @@ bail:
 
 extern bool write_device_data(const struct device *device)
 {
-  assert(device != 0);
-  assert(device->label != 0);
+  ASSERT_ARGS(device == 0 || device->label == 0 || device->partitions == 0,false);
 
   char cmd[_POSIX_ARG_MAX] = {0};
   const struct partition *part = 0;
@@ -571,9 +570,7 @@ extern void free_device(struct device *device)
 #ifdef NEWT
 extern bool get_text_size(const char *text,int *width,int *height)
 {
-  assert(text != 0);
-  assert(width != 0);
-  assert(height != 0);
+  ASSERT_ARGS(text == 0 || width == 0 || height == 0,false);
 
   wchar_t wc = 0;
   size_t n = 0;
@@ -638,9 +635,7 @@ extern bool get_text_size(const char *text,int *width,int *height)
 
 extern bool get_button_size(const char *text,int *width,int *height)
 {
-  assert(text != 0);
-  assert(width != 0);
-  assert(height != 0);
+  ASSERT_ARGS(text == 0 || width == 0 || height == 0,false);
 
   if(!get_text_size(text,width,height))
     return false;
