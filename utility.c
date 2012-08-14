@@ -555,6 +555,23 @@ extern bool device_write_data(const struct device *device)
   return true;
 }
 
+extern void device_create_partition_table(struct device *device,const char *label)
+{
+  ASSERT_ARGS(device == 0 || (strcmp(label,"dos") != 0 && strcmp(label,"gpt") != 0),);
+
+  free(device->label);
+
+  free(device->uuid);
+
+  list_free(device->partitions,partition_free);
+
+  device->label = strdup(label);
+
+  device->uuid = 0;
+
+  device->partitions = 0;
+}
+
 extern void device_free(struct device *device)
 {
   if(device == 0)
