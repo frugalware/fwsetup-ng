@@ -66,6 +66,44 @@ static inline bool is_mdadm_device(const struct stat *st)
   return (major(st->st_rdev) == MD_MAJOR);
 }
 
+static char *get_gpt_disk_uuid(const char *path)
+{
+  char cmd[_POSIX_ARG_MAX] = {0};
+  FILE *inpipe = 0;
+  char line[LINE_MAX] = {0};
+  char *p = 0;
+
+  snprintf(cmd,sizeof(cmd),"sgdisk -p %s 2> /dev/null | sed -rn 's|^Disk identifier \\(GUID\\): ([0-9a-zA-Z-]+)$|\\1|p' 2> /dev/null",path);
+
+  inpipe = popen(cmd,"r");
+
+  if(inpipe == 0)
+  {
+    eprintf("%s: %s",__func__,strerror(errno));
+    return 0;
+  }
+
+  if(fgets(line,sizeof(line),inpipe) == 0)
+  {
+    pclose(inpipe);
+    eprintf("%s: %s",__func__,strerror(errno));
+    return 0;
+  }
+
+  if(pclose(inpipe) == -1)
+  {
+    eprintf("%s: %s",__func__,strerror(errno));
+    return 0;
+  }
+
+  p = strchr(line,'\n');
+
+  if(p != 0)
+    *p = 0;
+
+  return strdup(line);
+}
+
 extern void *malloc0(size_t n)
 {
   assert(n > 0);
@@ -248,6 +286,7 @@ extern struct device *read_device_data(const char *path)
   blkid_partlist partlist = 0;
   blkid_parttable parttable = 0;
   const char *label = 0;
+  char *uuid = 0;
   int i = 0;
   int j = 0;
   blkid_partition partition = 0;
@@ -315,6 +354,14 @@ extern struct device *read_device_data(const char *path)
 
       if(strcmp(label,"dos") == 0 || strcmp(label,"gpt") == 0)
       {
+        if(strcmp(label,"gpt") == 0)
+        {
+          uuid = get_gpt_disk_uuid(path);
+
+          if(uuid == 0)
+            goto bail;
+        }
+
         i = 0;
 
         j = blkid_partlist_numof_partitions(partlist);
@@ -384,7 +431,11 @@ extern struct device *read_device_data(const char *path)
     }
   }
 
-  device = malloc0(sizeof(struct device));
+  device = malloc(sizeof(struct device));
+
+  device->prev = 0;
+
+  device->next = 0;
 
   device->path = strdup(path);
 
@@ -393,6 +444,8 @@ extern struct device *read_device_data(const char *path)
   device->type = type;
 
   device->label = (label != 0) ? strdup(label) : 0;
+
+  device->uuid = uuid;
 
   device->partitions = partitions;
 

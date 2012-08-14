@@ -113,6 +113,7 @@ struct device
   unsigned long long sector_size;
   enum devicetype type;
   char *label;
+  char *uuid;
   struct partition *partitions;
 };
 
