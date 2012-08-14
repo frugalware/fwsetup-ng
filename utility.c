@@ -107,9 +107,9 @@ extern pid_t execute(const char *cmd)
   return pid;
 }
 
-extern void eprintf(const char *s,...)
+extern void eprintf(const char *fmt,...)
 {
-  assert(s != 0);
+  assert(fmt != 0);
 
   va_list args;
   int fd = -1;
@@ -133,9 +133,25 @@ extern void eprintf(const char *s,...)
     setbuf(logfile,0);
   }
 
-  va_start(args,s);
+  va_start(args,fmt);
 
-  vfprintf(logfile,s,args);
+  vfprintf(logfile,fmt,args);
+
+  va_end(args);
+}
+
+extern void snprintf_append(char *s,size_t size,const char *fmt,...)
+{
+  assert(s != 0);
+  assert(size > 0);
+  assert(fmt != 0);
+
+  size_t len = strlen(s);
+  va_list args;
+
+  va_start(args,fmt);
+
+  vsnprintf(s+len,size-len,fmt,args);
 
   va_end(args);
 }
