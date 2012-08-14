@@ -12,6 +12,7 @@ static FILE *logfile = 0;
 
 static inline bool is_ide_disk(const struct stat *st)
 {
+  ASSERT_ARGS(st == 0,false);
   switch(major(st->st_rdev))
   {
     case IDE0_MAJOR:
@@ -32,6 +33,7 @@ static inline bool is_ide_disk(const struct stat *st)
 
 static inline bool is_scsi_disk(const struct stat *st)
 {
+  ASSERT_ARGS(st == 0,false);
   switch(major(st->st_rdev))
   {
     case SCSI_DISK0_MAJOR:
@@ -58,11 +60,13 @@ static inline bool is_scsi_disk(const struct stat *st)
 
 static inline bool is_virtio_disk(const struct stat *st)
 {
+  ASSERT_ARGS(st == 0,false);
   return (major(st->st_rdev) == VIRTBLK_MAJOR);
 }
 
 static inline bool is_mdadm_device(const struct stat *st)
 {
+  ASSERT_ARGS(st == 0,false);
   return (major(st->st_rdev) == MD_MAJOR);
 }
 

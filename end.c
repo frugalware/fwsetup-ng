@@ -8,7 +8,7 @@
 
 static enum order end_run(struct database *db)
 {
-  ASSERT_ARGS(db == 0,ORDER_ERRO);
+  ASSERT_ARGS(db == 0,ORDER_ERROR);
 
   enum order order = ORDER_NONE;
 
