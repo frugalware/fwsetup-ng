@@ -123,6 +123,7 @@ extern void *list_find_start(void *list);
 extern void *list_find_end(void *list);
 extern void list_free(void *list,void (*cb) (void *));
 extern void string_free(void *string);
+extern void free_partition(void *p);
 extern struct device *read_device_data(const char *path);
 extern bool write_device_data(const struct device *device);
 extern void free_device(struct device *device);

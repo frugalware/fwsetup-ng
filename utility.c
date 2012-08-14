@@ -245,8 +245,8 @@ extern void *list_find_end(void *list)
 
 extern void list_free(void *list,void (*cb) (void *))
 {
-  assert(list != 0);
-  assert(cb != 0);
+  if(list == 0 || cb == 0)
+    return;
 
   struct list *a = list_find_start(list);
   struct list *b = 0;
@@ -256,8 +256,6 @@ extern void list_free(void *list,void (*cb) (void *))
     b = a->next;
 
     cb(a);
-
-    free(a);
 
     a = b;
   }
@@ -270,6 +268,22 @@ extern void string_free(void *string)
   struct string *p = string;
 
   free(p->data);
+}
+
+extern void free_partition(void *p)
+{
+  if(p == 0)
+    return;
+
+  struct partition *partition = p;
+
+  free(partition->type_s);
+
+  free(partition->uuid);
+
+  free(partition->name);
+
+  free(partition);
 }
 
 extern struct device *read_device_data(const char *path)
@@ -539,6 +553,8 @@ extern void free_device(struct device *device)
 {
   if(device == 0)
     return;
+
+  list_free(device->partitions,free_partition);
 
   free(device->uuid);
 
