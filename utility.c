@@ -488,7 +488,7 @@ extern bool write_device_data(const struct device *device)
   }
   else if(strcmp(device->label,"gpt") == 0)
   {
-    snprintf(cmd,sizeof(cmd),"sgdisk --clear");
+    snprintf(cmd,sizeof(cmd),"sgdisk --clear --disk-guid='%s'",(device->uuid != 0) ? device->uuid : "R");
 
     part = device->partitions;
 
@@ -498,7 +498,7 @@ extern bool write_device_data(const struct device *device)
 
       snprintf_append(cmd,sizeof(cmd)," --change-name=%llu:'%s'",part->num,part->name);
 
-      snprintf_append(cmd,sizeof(cmd)," --partition-guid=%llu:'%s'",part->num,part->uuid);
+      snprintf_append(cmd,sizeof(cmd)," --partition-guid=%llu:'%s'",part->num,(part->uuid != 0) ? part->uuid : "R");
 
       snprintf_append(cmd,sizeof(cmd)," --typecode=%llu:'%s'",part->num,part->type_s);
 
