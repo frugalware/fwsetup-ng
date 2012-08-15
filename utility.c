@@ -1,6 +1,6 @@
 #include "fwsetup.h"
 
-#define INVALID_TABLE_TEXT _("This unsupported partition table (%s) cannot be written to %s.\n")
+#define INVALID_PARTITION_TEXT _("A partition with invalid data for a %s partition table was rejected.\n")
 
 struct list
 {
@@ -321,7 +321,9 @@ extern struct device *device_read_data(const char *path)
   int fd = -1;
   blkid_probe probe = 0;
   blkid_topology topology = 0;
-  unsigned long long sector_size = 0;
+  unsigned long long logical_sector_size = 0;
+  unsigned long long physical_sector_size = 0;
+  blkid_loff_t size = 0;
   struct stat st;
   enum devicetype type = 0;
   struct device *device = 0;
@@ -365,9 +367,19 @@ extern struct device *device_read_data(const char *path)
   if(topology == 0)
     goto bail;
 
-  sector_size = blkid_topology_get_physical_sector_size(topology);
+  logical_sector_size = blkid_topology_get_logical_sector_size(topology);
 
-  if(sector_size == 0)
+  if(logical_sector_size == 0)
+    goto bail;
+
+  physical_sector_size = blkid_topology_get_physical_sector_size(topology);
+
+  if(physical_sector_size == 0)
+    goto bail;
+
+  size = blkid_probe_get_size(probe);
+
+  if(size <= 0 || (size % logical_sector_size) != 0)
     goto bail;
 
   if(fstat(fd,&st) != 0)
@@ -480,7 +492,11 @@ extern struct device *device_read_data(const char *path)
 
   device->path = strdup(path);
 
-  device->sector_size = sector_size;
+  device->logical_sector_size = logical_sector_size;
+
+  device->physical_sector_size = physical_sector_size;
+
+  device->sectors = (size % logical_sector_size);
 
   device->type = type;
 
@@ -548,11 +564,6 @@ extern bool device_write_data(const struct device *device)
     }
 
     snprintf_append(cmd,sizeof(cmd)," %s",device->path);
-  }
-  else
-  {
-    eprintf(INVALID_TABLE_TEXT,device->label,device->path);
-    return false;
   }
 
   eprintf(EXECUTE_START_TEXT,cmd);

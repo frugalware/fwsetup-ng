@@ -109,7 +109,9 @@ struct device
   struct device *prev;
   struct device *next;
   char *path;
-  unsigned long long sector_size;
+  unsigned long long logical_sector_size;
+  unsigned long long physical_sector_size;
+  unsigned long long sectors;
   enum devicetype type;
   char *label;
   char *uuid;
