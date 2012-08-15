@@ -198,6 +198,54 @@ extern void snprintf_append(char *s,size_t size,const char *fmt,...)
   va_end(args);
 }
 
+extern unsigned long long string_to_size(const char *s)
+{
+  ASSERT_ARGS(s == 0,0);
+
+  char *suffix = 0;
+  unsigned long long n = 0;
+
+  errno = 0;
+  
+  n = strtoull(s,&suffix);
+  
+  if(errno != 0)
+  {
+    LOG_ERRNO();
+    return 0;
+  }
+  
+  if(n == 0)
+  {
+    errno = EINVAL;
+    LOG_ERRNO();
+    return 0;
+  }
+  
+  if(strlen(suffix) == 0 || strcmp(suffix,"B") == 0 || strcmp(suffix,"BiB") == 0)
+    n *= 1;
+  else if(strcmp(suffix,"K") == 0 || strcmp(suffix,"KiB") == 0)
+    n *= KIBIBYTE;
+  else if(strcmp(suffix,"M") == 0 || strcmp(suffix,"MiB") == 0)
+    n *= MEBIBYTE;
+  else if(strcmp(suffix,"G") == 0 || strcmp(suffix,"GiB") == 0)
+    n *= GIBIBYTE;
+  else if(strcmp(suffix,"T") == 0 || strcmp(suffix,"TiB") == 0)
+    n *= TEBIBYTE;
+  else if(strcmp(suffix,"P") == 0 || strcmp(suffix,"PiB") == 0)
+    n *= PEBIBYTE;
+  else if(strcmp(suffix,"E") == 0 || strcmp(suffix,"EiB") == 0)
+    n *= EXBIBYTE;
+  else
+  {
+    errno = EINVAL;
+    LOG_ERRNO();
+    return 0;
+  }
+  
+  return n;
+}
+
 extern void *list_append(void *list,size_t n)
 {
   ASSERT_ARGS(n <= sizeof(struct list),0);

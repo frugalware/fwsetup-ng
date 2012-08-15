@@ -30,6 +30,7 @@
 #define GIBIBYTE (2LLU << 29LLU)
 #define TEBIBYTE (2LLU << 39LLU)
 #define PEBIBYTE (2LLU << 49LLU)
+#define EXBIBYTE (2LLU << 59LLU)
 #define LOGFILE "fwsetup.log"
 #define EXECUTE_START_TEXT _("About to execute command '%s'.\n")
 #define EXECUTE_STOP_TEXT _("Successfully executed command '%s'.\n")
@@ -127,6 +128,7 @@ extern void *malloc0(size_t n);
 extern pid_t execute(const char *cmd);
 extern void eprintf(const char *fmt,...) __attribute__((format(printf,1,2)));
 extern void snprintf_append(char *s,size_t size,const char *fmt,...) __attribute__((format(printf,3,4)));
+extern unsigned long long string_to_size(const char *s);
 extern void *list_append(void *list,size_t n);
 extern void *list_find_start(void *list);
 extern void *list_find_end(void *list);
