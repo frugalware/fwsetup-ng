@@ -729,6 +729,13 @@ extern bool device_remove_partition(struct device *device,unsigned long long n)
   return (part != 0);
 }
 
+extern unsigned long long device_size_to_sectors(const struct device *device,unsigned long long size)
+{
+  ASSERT_ARGS(device == 0 || size == 0,0);
+
+  return (size / device->logical_sector_size);
+}
+
 extern void device_free(struct device *device)
 {
   if(device == 0)

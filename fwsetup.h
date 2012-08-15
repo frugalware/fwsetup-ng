@@ -141,6 +141,7 @@ extern struct device *device_read_data(const char *path);
 extern bool device_write_data(const struct device *device);
 extern void device_create_partition_table(struct device *device,const char *label);
 extern bool device_remove_partition(struct device *device,unsigned long long n);
+extern unsigned long long device_size_to_sectors(const struct device *device,unsigned long long size);
 extern void device_free(struct device *device);
 extern int main(void);
 extern struct module begin_module;
