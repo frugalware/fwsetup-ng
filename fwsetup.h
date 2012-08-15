@@ -117,6 +117,7 @@ struct device
   char *path;
   unsigned long long logical_sector_size;
   unsigned long long physical_sector_size;
+  unsigned long long alignment_factor;
   unsigned long long sectors;
   enum devicetype type;
   char *label;

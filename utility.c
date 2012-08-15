@@ -242,11 +242,11 @@ extern char *size_to_string(unsigned long long n)
     divisor = 1;
     suffix = "BiB";
   }
-  
+
   ld = (long double) n / divisor;
-  
+
   snprintf(buf,sizeof(buf),"%.2LF%s",ld,suffix);
-  
+
   return strdup(buf);
 }
 
@@ -258,22 +258,22 @@ extern unsigned long long string_to_size(const char *s)
   unsigned long long n = 0;
 
   errno = 0;
-  
+
   n = strtoull(s,&suffix,10);
-  
+
   if(errno != 0)
   {
     LOG_ERRNO();
     return 0;
   }
-  
+
   if(n == 0)
   {
     errno = EINVAL;
     LOG_ERRNO();
     return 0;
   }
-  
+
   if(strlen(suffix) == 0 || strcmp(suffix,"B") == 0 || strcmp(suffix,"BiB") == 0)
     n *= 1;
   else if(strcmp(suffix,"K") == 0 || strcmp(suffix,"KiB") == 0)
@@ -294,7 +294,7 @@ extern unsigned long long string_to_size(const char *s)
     LOG_ERRNO();
     return 0;
   }
-  
+
   return n;
 }
 
@@ -474,7 +474,7 @@ extern struct device *device_read_data(const char *path)
 
   physical_sector_size = blkid_topology_get_physical_sector_size(topology);
 
-  if(physical_sector_size == 0)
+  if(physical_sector_size == 0 || logical_sector_size > physical_sector_size || (physical_sector_size % logical_sector_size) != 0)
     goto bail;
 
   size = blkid_probe_get_size(probe);
@@ -596,7 +596,9 @@ extern struct device *device_read_data(const char *path)
 
   device->physical_sector_size = physical_sector_size;
 
-  device->sectors = (size % logical_sector_size);
+  device->alignment_factor = (physical_sector_size / logical_sector_size);
+
+  device->sectors = (size / logical_sector_size);
 
   device->type = type;
 
