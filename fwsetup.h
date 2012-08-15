@@ -128,6 +128,7 @@ extern void *malloc0(size_t n);
 extern pid_t execute(const char *cmd);
 extern void eprintf(const char *fmt,...) __attribute__((format(printf,1,2)));
 extern void snprintf_append(char *s,size_t size,const char *fmt,...) __attribute__((format(printf,3,4)));
+extern char *size_to_string(unsigned long long n);
 extern unsigned long long string_to_size(const char *s);
 extern void *list_append(void *list,size_t n);
 extern void *list_find_start(void *list);

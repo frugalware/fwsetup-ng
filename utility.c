@@ -198,6 +198,58 @@ extern void snprintf_append(char *s,size_t size,const char *fmt,...)
   va_end(args);
 }
 
+extern char *size_to_string(unsigned long long n)
+{
+  ASSERT_ARGS(n == 0,0);
+
+  unsigned long long divisor = 0;
+  const char *suffix = 0;
+  long double ld = 0;
+  char buf[LINE_MAX] = {0};
+
+  if(n >= EXBIBYTE)
+  {
+    divisor = EXBIBYTE;
+    suffix = "EiB";
+  }
+  else if(n >= PEBIBYTE)
+  {
+    divisor = PEBIBYTE;
+    suffix = "PiB";
+  }
+  else if(n >= TEBIBYTE)
+  {
+    divisor = TEBIBYTE;
+    suffix = "TiB";
+  }
+  else if(n >= GIBIBYTE)
+  {
+    divisor = GIBIBYTE;
+    suffix = "GiB";
+  }
+  else if(n >= MEBIBYTE)
+  {
+    divisor = MEBIBYTE;
+    suffix = "MiB";
+  }
+  else if(n >= KIBIBYTE)
+  {
+    divisor = KIBIBYTE;
+    suffix = "KiB";
+  }
+  else
+  {
+    divisor = 1;
+    suffix = "BiB";
+  }
+  
+  ld = (long double) n / divisor;
+  
+  snprintf(buf,sizeof(buf),"%.2LF%s",ld,suffix);
+  
+  return strdup(buf);
+}
+
 extern unsigned long long string_to_size(const char *s)
 {
   ASSERT_ARGS(s == 0,0);
@@ -207,7 +259,7 @@ extern unsigned long long string_to_size(const char *s)
 
   errno = 0;
   
-  n = strtoull(s,&suffix);
+  n = strtoull(s,&suffix,10);
   
   if(errno != 0)
   {
