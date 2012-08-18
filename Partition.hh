@@ -10,18 +10,13 @@ class Partition
 public:
   Partition();
   ~Partition();
+  virtual void setActive(bool active);
 
-private:
+protected:
   unsigned long long _number;
   unsigned long long _start;
   unsigned long long _end;
   unsigned long long _sectors;
-  unsigned char _dos_type;
-  bool _dos_active;
-  string _gpt_name;
-  string _gpt_uuid;
-  string _gpt_type;
-  unsigned long long _gpt_flags;
 
 };
 

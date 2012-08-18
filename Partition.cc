@@ -9,21 +9,13 @@ Partition::Partition()
   _end = 0;
 
   _sectors = 0;
-
-  _dos_type = 0;
-
-  _dos_active = false;
-
-  _gpt_name = "";
-
-  _gpt_uuid = "";
-
-  _gpt_type = "";
-
-  _gpt_flags = 0;
 }
 
 Partition::~Partition()
+{
+}
+
+void Partition::setActive(bool active)
 {
 }
 
