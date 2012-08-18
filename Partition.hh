@@ -10,6 +10,10 @@ class Partition
 public:
   Partition();
   ~Partition();
+  void setNumber(unsigned long long number);
+  void setStart(unsigned long long start);
+  void setEnd(unsigned long long end);
+  void setSectors(unsigned long long sectors);
   virtual void setActive(bool active);
 
 protected:
