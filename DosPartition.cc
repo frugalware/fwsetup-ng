@@ -11,6 +11,11 @@ DosPartition::~DosPartition()
 {
 }
 
+void DosPartition::setType(unsigned char type)
+{
+  _dos_type = type;
+}
+
 void DosPartition::setActive(bool active)
 {
   _dos_active = active;

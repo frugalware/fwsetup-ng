@@ -8,6 +8,7 @@ class DosPartition : Partition
 public:
   DosPartition();
   ~DosPartition();
+  void setType(unsigned char type);
   virtual void setActive(bool active);
 
 protected:
