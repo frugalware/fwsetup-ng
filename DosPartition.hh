@@ -6,6 +6,8 @@ class DosPartition : Partition
 {
 
 public:
+  DosPartition();
+  ~DosPartition();
   virtual void setActive(bool active);
 
 protected:
