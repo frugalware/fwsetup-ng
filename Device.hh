@@ -18,6 +18,7 @@ private:
   unsigned long long _psectorsize;
   unsigned long long _alignratio;
   unsigned long long _sectors;
+  bool _disk;
 
 };
 
