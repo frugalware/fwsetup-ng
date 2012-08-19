@@ -3,9 +3,12 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <sstream>
 #include "Utility.hh"
 
 #define LOGFILE "fwsetup.log"
+
+using std::stringstream;
 
 pid_t execute(const string &cmd)
 {
@@ -72,6 +75,43 @@ unsigned long long string_to_size(const string &text)
   }
 
   return n;
+}
+
+string size_to_string(unsigned long long n)
+{
+  unsigned long long divisor = 0;
+  const char *suffix = 0;
+  stringstream buf;
+
+  if(n >= TEBIBYTE)
+  {
+    divisor = TEBIBYTE;
+    suffix = "TiB";
+  }
+  else if(n >= GIBIBYTE)
+  {
+    divisor = GIBIBYTE;
+    suffix = "GiB";
+  }
+  else if(n >= MEBIBYTE)
+  {
+    divisor = MEBIBYTE;
+    suffix = "MiB";
+  }
+  else if(n >= KIBIBYTE)
+  {
+    divisor = KIBIBYTE;
+    suffix = "KiB";
+  }
+  else
+  {
+    divisor = 1;
+    suffix = "BiB";
+  }
+
+  buf << (long double) n / divisor << suffix;
+
+  return buf.str();
 }
 
 #ifdef NEWT
