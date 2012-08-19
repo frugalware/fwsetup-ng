@@ -70,8 +70,7 @@ bool get_text_size(const string &text,int &width,int &height)
         break;
       
       default:
-        i = wcwidth(wc);
-        if(i > 0)
+        if((i = wcwidth(wc)) > 0)
           cw += i;
         break;
     }
@@ -79,10 +78,8 @@ bool get_text_size(const string &text,int &width,int &height)
     off += n;
   }
   
-  if(w == 0 && cw > 0)
-    w = cw;
-  else if(w == 0)
-    w = 1;
+  if(w == 0)
+    w = (cw > 0) ? cw : 1;
   
   if(h == 0)
     h = 1;
