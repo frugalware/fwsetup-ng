@@ -4,6 +4,8 @@
 #include "DosPartition.hh"
 #include "DosPartitionTable.hh"
 
+#define MAX_PARTITIONS 60
+
 bool DosPartitionTable::read(const string &path)
 {
   int fd = -1;
@@ -52,7 +54,9 @@ bool DosPartitionTable::read(const string &path)
     
     part.setActive((blkid_partition_get_flags(partition) == 0x80) ? true : false);
     
-    table[i++] = part;
+    table.push_back(part);
+    
+    ++i;
   }
 
   _label = label;
