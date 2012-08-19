@@ -9,6 +9,9 @@
 #define LOGFILE "fwsetup.log"
 
 using std::stringstream;
+using std::ios;
+
+ofstream logfile(LOGFILE,ios::app);
 
 pid_t execute(const string &cmd)
 {
