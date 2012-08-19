@@ -2,7 +2,7 @@
 
 #include "Partition.hh"
 
-class DosPartition : Partition
+class DosPartition : public Partition
 {
 
 public:

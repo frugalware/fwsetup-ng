@@ -62,8 +62,6 @@ static inline bool isVirtioDisk(const struct stat &st)
 
 Device::Device()
 {
-  _path = "";
-
   _lsectorsize = 0;
 
   _psectorsize = 0;

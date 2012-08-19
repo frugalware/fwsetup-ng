@@ -15,7 +15,7 @@ public:
   virtual bool write(const string &path);
 
 protected:
-  string label;
-  vector <Partition> table;
+  string _label;
+  vector <Partition> _table;
 
 };
