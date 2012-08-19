@@ -90,4 +90,16 @@ bool get_text_size(const string &text,int &width,int &height)
   
   return true;
 }
+
+bool get_button_size(const string &text,int &width,int &height)
+{
+  if(!get_text_size(text,width,height))
+    return false;
+
+  width += 5;
+
+  height += 3;
+
+  return true;
+}
 #endif

@@ -9,4 +9,5 @@ pid_t execute(const string &cmd);
 
 #ifdef NEWT
 bool get_text_size(const string &text,int &width,int &height);
+bool get_button_size(const string &text,int &width,int &height);
 #endif
