@@ -9,10 +9,10 @@ class PartitionTable
 {
 
 public:
-  PartitionTable();
-  ~PartitionTable();
-  virtual bool read(const string &path);
-  virtual bool write(const string &path);
+  PartitionTable() { }
+  ~PartitionTable() { }
+  virtual bool read(const string &path) { return true; }
+  virtual bool write(const string &path) { return true; }
 
 protected:
   string _label;
