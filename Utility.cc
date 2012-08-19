@@ -1,6 +1,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
+#include <stdlib.h>
 #include "Utility.hh"
 
 #define LOGFILE "fwsetup.log"
@@ -30,6 +32,46 @@ pid_t execute(const string &cmd)
   }
 
   return pid;
+}
+
+unsigned long long string_to_size(const string &text)
+{
+  unsigned long long n = 0;
+  char *p = 0;
+  string suffix;
+
+  errno = 0;
+
+  n = strtoull(text.c_str(),&p,10);
+
+  if(errno != 0)
+    return 0;
+
+  if(n == 0)
+  {
+    errno = EINVAL;
+    return 0;
+  }
+
+  suffix = p;
+
+  if(suffix.empty() || suffix == "B" || suffix == "BiB")
+    n *= 1;
+  else if(suffix == "K" || suffix == "KiB")
+    n *= KIBIBYTE;
+  else if(suffix == "M" || suffix == "MiB")
+    n *= MEBIBYTE;
+  else if(suffix == "G" || suffix == "GiB")
+    n *= GIBIBYTE;
+  else if(suffix == "T" || suffix == "TiB")
+    n *= TEBIBYTE;
+  else
+  {
+    errno = EINVAL;
+    return 0;
+  }
+
+  return n;
 }
 
 #ifdef NEWT
