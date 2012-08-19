@@ -8,13 +8,17 @@ class Partition
 {
 
 public:
-  Partition();
-  ~Partition();
-  void setNumber(unsigned long long number);
-  void setStart(unsigned long long start);
-  void setEnd(unsigned long long end);
-  void setSectors(unsigned long long sectors);
-  virtual void setActive(bool active);
+  Partition() { _number = 0, _start = 0, _end = 0, _sectors = 0; }
+  ~Partition() { }
+  void setNumber(unsigned long long number) { _number = number; }
+  void setStart(unsigned long long start) { _start = start; }
+  void setEnd(unsigned long long end) { _end = end; }
+  void setSectors(unsigned long long sectors) { _sectors = sectors; }
+  unsigned long long getNumber() { return _number; }
+  unsigned long long getStart() { return _start; }
+  unsigned long long getEnd() { return _end; }
+  unsigned long long getSectors() { return _sectors; }
+  virtual void setActive(bool active) { }
 
 protected:
   unsigned long long _number;
