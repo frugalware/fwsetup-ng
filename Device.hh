@@ -11,6 +11,7 @@ public:
   Device();
   ~Device();
   bool read(const string &path);
+  unsigned long long sizeToSectors(unsigned long long size) { return size / _lsectorsize; }
 
 private:
   string _path;
