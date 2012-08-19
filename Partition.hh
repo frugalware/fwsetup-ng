@@ -14,11 +14,12 @@ public:
   void setStart(unsigned long long start) { _start = start; }
   void setEnd(unsigned long long end) { _end = end; }
   void setSectors(unsigned long long sectors) { _sectors = sectors; }
+  virtual void setActive(bool active) { }
   unsigned long long getNumber() { return _number; }
   unsigned long long getStart() { return _start; }
   unsigned long long getEnd() { return _end; }
   unsigned long long getSectors() { return _sectors; }
-  virtual void setActive(bool active) { }
+  virtual bool getActive(bool active) { return true; }
 
 protected:
   unsigned long long _number;
