@@ -19,7 +19,7 @@ public:
   unsigned long long getStart() { return _start; }
   unsigned long long getEnd() { return _end; }
   unsigned long long getSectors() { return _sectors; }
-  virtual bool getActive(bool active) { return true; }
+  virtual bool getActive() { return true; }
 
 protected:
   unsigned long long _number;
