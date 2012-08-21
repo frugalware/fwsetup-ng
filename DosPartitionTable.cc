@@ -13,13 +13,13 @@ bool DosPartitionTable::read(const string &path)
   blkid_partlist partlist = 0;
   blkid_parttable parttable = 0;
   string label;
-  vector <Partition> table;
+  vector <Partition *> table;
   int i = 0;
   int j = 0;
   blkid_partition partition = 0;
-  DosPartition part;
+  DosPartition *part = 0;
   bool rv = false;
-  
+
   if((fd = open(path.c_str(),O_RDONLY)) == -1)
     goto bail;
 
@@ -42,20 +42,22 @@ bool DosPartitionTable::read(const string &path)
 
   while(i < j && (partition = blkid_partlist_get_partition(partlist,i)) != 0)
   {
-    part.setNumber(blkid_partition_get_partno(partition));
-    
-    part.setStart(blkid_partition_get_start(partition));
-    
-    part.setEnd(blkid_partition_get_start(partition) + blkid_partition_get_size(partition) - 1);
-    
-    part.setSectors(blkid_partition_get_size(partition));
-    
-    part.setType(blkid_partition_get_type(partition));
-    
-    part.setActive((blkid_partition_get_flags(partition) == 0x80) ? true : false);
-    
+    part = new DosPartition();
+
+    part->setNumber(blkid_partition_get_partno(partition));
+
+    part->setStart(blkid_partition_get_start(partition));
+
+    part->setEnd(blkid_partition_get_start(partition) + blkid_partition_get_size(partition) - 1);
+
+    part->setSectors(blkid_partition_get_size(partition));
+
+    part->setType(blkid_partition_get_type(partition));
+
+    part->setActive((blkid_partition_get_flags(partition) == 0x80) ? true : false);
+
     table.push_back(part);
-    
+
     ++i;
   }
 
@@ -69,7 +71,7 @@ bail:
 
   if(fd != -1)
     close(fd);
-  
+
   if(probe != 0)
     blkid_free_probe(probe);
 
