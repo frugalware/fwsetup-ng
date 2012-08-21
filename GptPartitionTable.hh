@@ -6,6 +6,8 @@ class GptPartitionTable : public PartitionTable
 {
 
 public:
+  GptPartitionTable();
+  virtual ~GptPartitionTable();
   virtual bool read(const string &path);
   virtual bool write(const string &path);  
 

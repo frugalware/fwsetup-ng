@@ -38,6 +38,23 @@ static string get_gpt_label_uuid(const string &path)
   return line;
 }
 
+GptPartitionTable::GptPartitionTable()
+{
+}
+
+GptPartitionTable::~GptPartitionTable()
+{
+  size_t i = 0;
+  GptPartition *part = 0;
+  
+  while(i < _table.size())
+  {
+    part = (GptPartition *) _table.at(i);
+    delete part;
+    ++i;
+  }
+}
+
 bool GptPartitionTable::read(const string &path)
 {
   int fd = -1;
