@@ -9,7 +9,7 @@ class Partition
 
 public:
   Partition() { _number = 0, _start = 0, _end = 0, _sectors = 0; }
-  ~Partition() { }
+  virtual ~Partition() { }
   void setNumber(unsigned long long number) { _number = number; }
   void setStart(unsigned long long start) { _start = start; }
   void setEnd(unsigned long long end) { _end = end; }

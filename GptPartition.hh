@@ -7,7 +7,7 @@ class GptPartition : public Partition
 
 public:
   GptPartition() { _gpt_flags = 0; }
-  ~GptPartition() {}
+  virtual ~GptPartition() {}
   void setType(const string &type) { _gpt_type = type; }
   void setName(const string &name) { _gpt_name = name; }
   void setUUID(const string &uuid) { _gpt_uuid = uuid; }
