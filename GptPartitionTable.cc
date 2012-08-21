@@ -4,10 +4,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
+#include <sstream>
 #include "GptPartition.hh"
 #include "GptPartitionTable.hh"
 
 #define MAX_PARTITIONS 128
+
+using std::stringstream;
+using std::dec;
+using std::hex;
 
 static string get_gpt_label_uuid(const string &path)
 {
@@ -139,6 +144,36 @@ bail:
 
 bool GptPartitionTable::write(const string &path)
 {
+  stringstream cmd;
+  size_t i = 0;
+  GptPartition *part = 0;
+  
+  if(_table.empty())
+    return false;
+  
+  cmd << "sgdisk --clear --disk-guid='" << (_uuid.empty() ? "R" : _uuid.c_str()) << "'";
+
+  while(i < _table.size())
+  {
+    part = (GptPartition *) _table.at(i);
+
+    cmd << dec;
+
+    cmd << " --new=" << part->getNumber() << ":" << part->getStart() << ":" << part->getEnd();
+    
+    cmd << " --change-name=" << part->getNumber() << ":'" << part->getName() << "'";
+    
+    cmd << " --partition-guid=" << part->getNumber() << ":'" << (part->getUUID().empty() ? "R" : part->getUUID().c_str()) << "'";
+    
+    cmd << " --typecode=" << part->getNumber() << ":'" << part->getType() << "'";   
+
+    cmd << " --attributes=" << part->getNumber() << ":=:0x" << hex << part->getFlags();
+
+    ++i;
+  }
+
+  cmd << " " << path;
+
   return true;
 }
 
