@@ -16,6 +16,6 @@ public:
 
 protected:
   string _label;
-  vector <Partition> _table;
+  vector <Partition *> _table;
 
 };
