@@ -3,8 +3,11 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <errno.h>
 #include <limits.h>
 #include <sstream>
+#include "Utility.hh"
 #include "GptPartition.hh"
 #include "GptPartitionTable.hh"
 
@@ -13,6 +16,7 @@
 using std::stringstream;
 using std::dec;
 using std::hex;
+using std::endl;
 
 static string get_gpt_label_uuid(const string &path)
 {
@@ -147,7 +151,9 @@ bool GptPartitionTable::write(const string &path)
   stringstream cmd;
   size_t i = 0;
   GptPartition *part = 0;
-  
+  pid_t pid = -1;
+  int status = 0;
+
   if(_table.empty())
     return false;
   
@@ -173,6 +179,22 @@ bool GptPartitionTable::write(const string &path)
   }
 
   cmd << " " << path;
+
+  logfile << "Executing command: " << cmd.str() << endl;
+
+  if((pid == execute(cmd.str())) == -1 || waitpid(pid,&status,0) == -1)
+  {
+    logfile << __func__ << ": " << strerror(errno) << endl; 
+    return false;
+  }
+
+  if(!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+  {
+    logfile << "Command did not exit normally: " << cmd.str() << endl;
+    return false;
+  }
+
+  logfile << "Finished executing command: " << cmd.str() << endl;
 
   return true;
 }
