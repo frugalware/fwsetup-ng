@@ -1,7 +1,11 @@
 #include <blkid.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/wait.h>
+#include <string.h>
+#include <errno.h>
 #include <sstream>
+#include "Utility.hh"
 #include "DosPartition.hh"
 #include "DosPartitionTable.hh"
 
@@ -10,6 +14,7 @@
 using std::stringstream;
 using std::dec;
 using std::hex;
+using std::endl;
 
 DosPartitionTable::DosPartitionTable()
 {
@@ -105,6 +110,8 @@ bool DosPartitionTable::write(const string &path)
   stringstream cmd;
   size_t i = 0;
   DosPartition *part = 0;
+  pid_t pid = -1;
+  int status = 0;
 
   if(_table.empty())
     return false;
@@ -129,6 +136,24 @@ bool DosPartitionTable::write(const string &path)
   }
 
   cmd << "' | sfdisk --unit S --Linux " << path;
+
+  logfile << "Executing command: " << cmd.str() << endl;
+
+  pid = execute(cmd.str());
+
+  if(pid == -1 || waitpid(pid,&status,0) == -1)
+  {
+    logfile << __func__ << ": " << strerror(errno) << endl; 
+    return false;
+  }
+
+  if(!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+  {
+    logfile << "Command did not exit normally: " << cmd.str() << endl;
+    return false;
+  }
+
+  logfile << "Finished executing command: " << cmd.str() << endl;
 
   return true;
 }
