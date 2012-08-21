@@ -1,10 +1,15 @@
 #include <blkid.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sstream>
 #include "DosPartition.hh"
 #include "DosPartitionTable.hh"
 
 #define MAX_PARTITIONS 60
+
+using std::stringstream;
+using std::dec;
+using std::hex;
 
 DosPartitionTable::DosPartitionTable()
 {
@@ -97,5 +102,33 @@ bail:
 
 bool DosPartitionTable::write(const string &path)
 {
+  stringstream cmd;
+  size_t i = 0;
+  DosPartition *part = 0;
+
+  if(_table.empty())
+    return false;
+
+  cmd << "echo -n -e '";  
+
+  while(i < _table.size())
+  {
+    part = (DosPartition *) _table.at(i);
+    cmd << dec;
+    cmd << part->getStart();
+    cmd << " ";
+    cmd << part->getSectors();
+    cmd << " ";
+    cmd << hex;
+    cmd << "0x";
+    cmd << ((unsigned int) part->getType());
+    cmd << " ";
+    cmd << (part->getActive() ? "*" : "-");
+    cmd << "\\n";
+    ++i;
+  }
+
+  cmd << "' | sfdisk --unit S --Linux " << path;
+
   return true;
 }
