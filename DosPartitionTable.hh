@@ -6,6 +6,8 @@ class DosPartitionTable : public PartitionTable
 {
 
 public:
+  DosPartitionTable();
+  virtual ~DosPartitionTable();
   virtual bool read(const string &path);
   virtual bool write(const string &path);  
 

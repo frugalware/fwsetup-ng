@@ -6,6 +6,23 @@
 
 #define MAX_PARTITIONS 60
 
+DosPartitionTable::DosPartitionTable()
+{
+}
+
+DosPartitionTable::~DosPartitionTable()
+{
+  size_t i = 0;
+  DosPartition *part = 0;
+  
+  while(i < _table.size())
+  {
+    part = (DosPartition *) _table.at(i);
+    delete part;
+    ++i;
+  }
+}
+
 bool DosPartitionTable::read(const string &path)
 {
   int fd = -1;
