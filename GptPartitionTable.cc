@@ -46,11 +46,11 @@ bool GptPartitionTable::read(const string &path)
   blkid_parttable parttable = 0;
   string label;
   string uuid;
-  vector <Partition> table;
+  vector <Partition *> table;
   int i = 0;
   int j = 0;
   blkid_partition partition = 0;
-  GptPartition part;
+  GptPartition *part = 0;
   bool rv = false;
 
   if((fd = open(path.c_str(),O_RDONLY)) == -1)
@@ -78,21 +78,23 @@ bool GptPartitionTable::read(const string &path)
 
   while(i < j && (partition = blkid_partlist_get_partition(partlist,i)) != 0)
   {
-    part.setNumber(blkid_partition_get_partno(partition));
+    part = new GptPartition();
 
-    part.setStart(blkid_partition_get_start(partition));
+    part->setNumber(blkid_partition_get_partno(partition));
 
-    part.setEnd(blkid_partition_get_start(partition) + blkid_partition_get_size(partition) - 1);
+    part->setStart(blkid_partition_get_start(partition));
 
-    part.setSectors(blkid_partition_get_size(partition));
+    part->setEnd(blkid_partition_get_start(partition) + blkid_partition_get_size(partition) - 1);
 
-    part.setType(blkid_partition_get_type_string(partition));
+    part->setSectors(blkid_partition_get_size(partition));
 
-    part.setName(blkid_partition_get_name(partition));
+    part->setType(blkid_partition_get_type_string(partition));
 
-    part.setUUID(blkid_partition_get_uuid(partition));
+    part->setName(blkid_partition_get_name(partition));
 
-    part.setFlags(blkid_partition_get_flags(partition));
+    part->setUUID(blkid_partition_get_uuid(partition));
+
+    part->setFlags(blkid_partition_get_flags(partition));
 
     table.push_back(part);
 
