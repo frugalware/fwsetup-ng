@@ -139,9 +139,7 @@ bool DosPartitionTable::write(const string &path)
 
   logfile << "Executing command: " << cmd.str() << endl;
 
-  pid = execute(cmd.str());
-
-  if(pid == -1 || waitpid(pid,&status,0) == -1)
+  if((pid == execute(cmd.str())) == -1 || waitpid(pid,&status,0) == -1)
   {
     logfile << __func__ << ": " << strerror(errno) << endl; 
     return false;
