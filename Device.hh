@@ -1,8 +1,10 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 using std::string;
+using std::vector;
 
 class Device
 {
@@ -10,6 +12,7 @@ class Device
 public:
   Device();
   ~Device();
+  static vector <Device> probeAll();
   bool read(const string &path);
   unsigned long long sizeToSectors(unsigned long long size) { return size / _lsectorsize; }
 

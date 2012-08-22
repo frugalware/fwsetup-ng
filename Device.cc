@@ -77,6 +77,38 @@ Device::~Device()
 {
 }
 
+vector <Device> Device::probeAll()
+{
+  blkid_cache cache = 0;
+  blkid_dev_iterate iter = 0;
+  blkid_dev dev = 0;
+  Device device;
+  vector <Device> devices;
+
+  if(blkid_get_cache(&cache,"/dev/null") != 0)
+    goto bail;
+
+  if(blkid_probe_all(cache) != 0)
+    goto bail;
+
+  if((iter = blkid_dev_iterate_begin(cache)) == 0)
+    goto bail;
+
+  while(blkid_dev_next(iter,&dev) == 0)
+    if(device.read(blkid_dev_devname(dev)))
+      devices.push_back(device);
+
+bail:
+
+  if(iter != 0)
+    blkid_dev_iterate_end(iter);
+
+  if(cache != 0)
+    blkid_put_cache(cache);
+
+  return devices;
+}
+
 bool Device::read(const string &path)
 {
   int fd = -1;
