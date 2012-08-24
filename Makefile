@@ -1,15 +1,15 @@
-CFLAGS ?= -O2
-CFLAGS += -std=c99 -Wall -Wextra -ggdb3 -DNEWT -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_XOPEN_SOURCE $(shell pkg-config --cflags libnewt blkid)
+CXXFLAGS ?= -O2
+CXXFLAGS += -Wall -Wextra -Wno-unused-parameter -ggdb3 -DNEWT $(shell pkg-config --cflags libnewt blkid)
 LDFLAGS += $(shell pkg-config --libs libnewt blkid)
 
-SOURCES := $(wildcard *.c)
-OBJECTS := $(patsubst %.c,%.o,$(SOURCES))
+SOURCES := $(wildcard *.cc)
+OBJECTS := $(patsubst %.cc,%.o,$(SOURCES))
 
-%.o: %.c fwsetup.h
-	$(CC) $(CFLAGS) -c $< -o $@
+%.o: %.cc
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 fwsetup: $(OBJECTS)
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CXX) $(LDFLAGS) $^ -o $@
 
 valgrind: fwsetup
 	valgrind --leak-check=full --show-reachable=yes --log-file=valgrind.log ./fwsetup
