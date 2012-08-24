@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include "PartitionTable.hh"
 
 using std::string;
 using std::vector;
@@ -23,6 +24,7 @@ private:
   unsigned long long _alignratio;
   unsigned long long _sectors;
   bool _disk;
+  PartitionTable *_table;
 
 };
 

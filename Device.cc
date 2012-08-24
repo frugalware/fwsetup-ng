@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <linux/major.h>
+#include "DosPartitionTable.hh"
+#include "GptPartitionTable.hh"
 #include "Device.hh"
 
 #define VIRTBLK_MAJOR 253
@@ -121,6 +123,7 @@ bool Device::read(const string &path)
   unsigned long long sectors = 0;
   struct stat st;
   bool disk = false;
+  PartitionTable *table = 0;
   bool rv = false;
 
   memset(&st,0,sizeof(struct stat));
@@ -165,6 +168,22 @@ bool Device::read(const string &path)
   else
     goto bail;
 
+  table = new DosPartitionTable();
+
+  if(!table->read(path))
+  {
+    delete table;
+    
+    table = new GptPartitionTable();
+    
+    if(!table->read(path))
+    {
+      delete table;
+      
+      table = 0;
+    }
+  }
+
   // Now, assign the details we've assembled.
 
   _path = path;
@@ -178,6 +197,8 @@ bool Device::read(const string &path)
   _sectors = sectors;
 
   _disk = disk;
+
+  _table = table;
 
 bail:
 
