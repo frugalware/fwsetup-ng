@@ -73,10 +73,13 @@ Device::Device()
   _sectors = 0;
 
   _disk = false;
+
+  _table = 0;
 }
 
 Device::~Device()
 {
+  delete _table;
 }
 
 vector <Device> Device::probeAll()
