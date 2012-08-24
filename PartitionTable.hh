@@ -13,6 +13,7 @@ public:
   virtual ~PartitionTable() { }
   virtual bool read(const string &path) { return true; }
   virtual bool write(const string &path) { return true; }
+  virtual string getName() { return ""; }
 
 protected:
   string _label;
