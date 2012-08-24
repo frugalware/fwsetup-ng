@@ -16,6 +16,7 @@ public:
   static vector <Device> probeAll();
   bool read(const string &path);
   unsigned long long sizeToSectors(unsigned long long size) { return size / _lsectorsize; }
+  string getLabel() { (_table != 0) ? _table->getName() : "unknown"; }
 
 private:
   string _path;
