@@ -52,3 +52,5 @@ bool UserInterface::initialize(int argc,char **argv)
 
   return true;
 }
+
+UserInterface ui;

@@ -18,3 +18,5 @@ private:
   bool _initialized;
 
 };
+
+extern UserInterface ui;
