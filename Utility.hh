@@ -17,8 +17,3 @@ extern ofstream logfile;
 pid_t execute(const string &cmd);
 unsigned long long string_to_size(const string &text);
 string size_to_string(unsigned long long n);
-
-#ifdef NEWT
-bool get_text_size(const string &text,int &width,int &height);
-bool get_button_size(const string &text,int &width,int &height);
-#endif
