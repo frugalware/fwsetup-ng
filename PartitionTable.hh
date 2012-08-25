@@ -13,7 +13,12 @@ public:
   virtual ~PartitionTable() { }
   virtual bool read(const string &path) { return true; }
   virtual bool write(const string &path) { return true; }
-  virtual string getName() { return ""; }
+  string getLabelType() { return _label; }
+  virtual unsigned long long getNumber(unsigned long long n) { return 0; }
+  virtual unsigned long long getStart(unsigned long long n) { return 0; }
+  virtual unsigned long long getEnd(unsigned long long n) { return 0; }
+  virtual unsigned long long getSectors(unsigned long long n) { return 0; }
+  virtual bool getActive(unsigned long long n) { return false; }
 
 protected:
   string _label;
