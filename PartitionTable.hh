@@ -15,6 +15,7 @@ public:
   virtual bool write(const string &path) { return true; }
   string getLabelType() { return _label; }
   size_t getTableSize() { return _table.size(); }
+  Partition *getPartition(size_t n) { return _table.at(n); }
   virtual Partition *newPartition() { return 0; }
   virtual unsigned long long getNumber(unsigned long long n) { return 0; }
   virtual unsigned long long getStart(unsigned long long n) { return 0; }
