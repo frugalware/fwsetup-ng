@@ -75,6 +75,8 @@ Device::Device()
   _disk = false;
 
   _table = 0;
+
+  _initialized = false;
 }
 
 Device::~Device()
@@ -203,6 +205,8 @@ bool Device::read(const string &path)
 
   _table = table;
 
+  _initialized = true;
+
 bail:
 
   if(fd != -1)
@@ -212,6 +216,19 @@ bail:
     blkid_free_probe(probe);
 
   return rv;
+}
+
+void Device::newPartitionTable(const string &label)
+{
+  if(!_initialized || (label != "dos" && label != "gpt"))
+    return;
+  
+  delete _table;
+  
+  if(_table == "dos")
+    _table = new DosPartitionTable();
+  else if(_table == "gpt")
+    _table = new DosPartitionTable();
 }
 
 // -%- strip: yes; add-newline: yes; use-tabs: no; indent-width: 2; tab-width: 2; -%-

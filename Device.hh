@@ -16,7 +16,9 @@ public:
   static vector <Device> probeAll();
   bool read(const string &path);
   unsigned long long sizeToSectors(unsigned long long size) { return size / _lsectorsize; }
-  string getLabel() { (_table != 0) ? _table->getName() : "unknown"; }
+  unsigned long long sectorsToSize(unsigned long long sectors) { return sectors * _lsectorsize; }
+  string getLabelType() { return (_table != 0) ? _table->getLabelType() : "unknown"; }
+  void newPartitionTable(const string &label);
 
 private:
   string _path;
@@ -26,6 +28,7 @@ private:
   unsigned long long _sectors;
   bool _disk;
   PartitionTable *_table;
+  bool _initialized;
 
 };
 
