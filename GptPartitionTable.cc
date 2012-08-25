@@ -199,4 +199,74 @@ bool GptPartitionTable::write(const string &path)
   return true;
 }
 
+unsigned long long GptPartitionTable::getNumber(unsigned long long n)
+{
+  GptPartition *part = 0;
+
+  if(n < _table.size())
+  {
+    part = (GptPartition *) _table.at(n);
+    
+    return part->getNumber();
+  }
+  
+  return 0;
+}
+
+unsigned long long GptPartitionTable::getStart(unsigned long long n)
+{
+  GptPartition *part = 0;
+
+  if(n < _table.size())
+  {
+    part = (GptPartition *) _table.at(n);
+    
+    return part->getStart();
+  }
+  
+  return 0;
+}
+
+unsigned long long GptPartitionTable::getEnd(unsigned long long n)
+{
+  GptPartition *part = 0;
+
+  if(n < _table.size())
+  {
+    part = (GptPartition *) _table.at(n);
+    
+    return part->getEnd();
+  }
+  
+  return 0;
+}
+
+unsigned long long GptPartitionTable::getSectors(unsigned long long n)
+{
+  GptPartition *part = 0;
+
+  if(n < _table.size())
+  {
+    part = (GptPartition *) _table.at(n);
+    
+    return part->getSectors();
+  }
+  
+  return 0;
+}
+
+bool GptPartitionTable::getActive(unsigned long long n)
+{
+  GptPartition *part = 0;
+
+  if(n < _table.size())
+  {
+    part = (GptPartition *) _table.at(n);
+    
+    return part->getActive();
+  }
+  
+  return false;
+}
+
 // -%- strip: yes; add-newline: yes; use-tabs: no; indent-width: 2; tab-width: 2; -%-
