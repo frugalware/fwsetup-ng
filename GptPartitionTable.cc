@@ -255,6 +255,39 @@ unsigned long long GptPartitionTable::getSectors(unsigned long long n)
   return 0;
 }
 
+string GptPartitionTable::getType(unsigned long long n)
+{
+  GptPartition *part = 0;
+  string uuid;
+  string type;
+
+  if(n < _table.size())
+  {
+    part = (GptPartition *) _table.at(n);
+    
+    uuid = part->getType();
+
+    if(uuid == "21686148-6449-6E6F-744E-656564454649")
+      type = "boot";
+    else if(uuid == "0FC63DAF-8483-4772-8E79-3D69D8477DE4")
+      type = "data";
+    else if(uuid == "C12A7328-F81F-11D2-BA4B-00A0C93EC93B")
+      type = "efi";
+    else if(uuid == "0657FD6D-A4AB-43C4-84E5-0933C84B4F4F")
+      type = "swap";
+    else if(uuid == "E6D6D379-F507-44C2-A23C-238F2A3DF928")
+      type = "lvm";
+    else if(uuid == "A19D880F-05FC-4D3B-A006-743F0F84911E")
+      type = "raid";
+    else
+      type = "unknown";
+    
+    return type;
+  }
+
+  return "";
+}
+
 bool GptPartitionTable::getActive(unsigned long long n)
 {
   GptPartition *part = 0;
