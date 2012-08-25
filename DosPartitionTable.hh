@@ -10,6 +10,10 @@ public:
   virtual ~DosPartitionTable();
   virtual bool read(const string &path);
   virtual bool write(const string &path);  
-  virtual string getName() { return "dos"; }
+  virtual unsigned long long getNumber(unsigned long long n);
+  virtual unsigned long long getStart(unsigned long long n);
+  virtual unsigned long long getEnd(unsigned long long n);
+  virtual unsigned long long getSectors(unsigned long long n);
+  virtual bool getActive(unsigned long long n);
 
 };

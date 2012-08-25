@@ -155,3 +155,73 @@ bool DosPartitionTable::write(const string &path)
 
   return true;
 }
+
+unsigned long long DosPartitionTable::getNumber(unsigned long long n)
+{
+  DosPartition *part = 0;
+
+  if(n < _table.size())
+  {
+    part = (DosPartition *) _table.at(n);
+    
+    return part->getNumber();
+  }
+  
+  return 0;
+}
+
+unsigned long long DosPartitionTable::getStart(unsigned long long n)
+{
+  DosPartition *part = 0;
+
+  if(n < _table.size())
+  {
+    part = (DosPartition *) _table.at(n);
+    
+    return part->getStart();
+  }
+  
+  return 0;
+}
+
+unsigned long long DosPartitionTable::getEnd(unsigned long long n)
+{
+  DosPartition *part = 0;
+
+  if(n < _table.size())
+  {
+    part = (DosPartition *) _table.at(n);
+    
+    return part->getEnd();
+  }
+  
+  return 0;
+}
+
+unsigned long long DosPartitionTable::getSectors(unsigned long long n)
+{
+  DosPartition *part = 0;
+
+  if(n < _table.size())
+  {
+    part = (DosPartition *) _table.at(n);
+    
+    return part->getSectors();
+  }
+  
+  return 0;
+}
+
+bool DosPartitionTable::getActive(unsigned long long n)
+{
+  DosPartition *part = 0;
+
+  if(n < _table.size())
+  {
+    part = (DosPartition *) _table.at(n);
+    
+    return part->getActive();
+  }
+  
+  return false;
+}
