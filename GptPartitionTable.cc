@@ -199,6 +199,11 @@ bool GptPartitionTable::write(const string &path)
   return true;
 }
 
+Partition *GptPartitionTable::newPartition()
+{
+  return new GptPartition();
+}
+
 unsigned long long GptPartitionTable::getNumber(unsigned long long n)
 {
   GptPartition *part = 0;

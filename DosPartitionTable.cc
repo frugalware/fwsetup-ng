@@ -156,6 +156,11 @@ bool DosPartitionTable::write(const string &path)
   return true;
 }
 
+Partition *DosPartitionTable::newPartition()
+{
+  return new DosPartition();
+}
+
 unsigned long long DosPartitionTable::getNumber(unsigned long long n)
 {
   DosPartition *part = 0;
