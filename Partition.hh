@@ -15,11 +15,13 @@ public:
   void setEnd(unsigned long long end) { _end = end; }
   void setSectors(unsigned long long sectors) { _sectors = sectors; }
   virtual void setActive(bool active) { }
+  virtual void setPurpose(string purpose) { }
   unsigned long long getNumber() { return _number; }
   unsigned long long getStart() { return _start; }
   unsigned long long getEnd() { return _end; }
   unsigned long long getSectors() { return _sectors; }
   virtual bool getActive() { return true; }
+  virtual string getPurpose() { return ""; }
 
 protected:
   unsigned long long _number;
