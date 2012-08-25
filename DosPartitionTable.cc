@@ -212,6 +212,52 @@ unsigned long long DosPartitionTable::getSectors(unsigned long long n)
   return 0;
 }
 
+string DosPartitionTable::getType(unsigned long long n)
+{
+  DosPartition *part = 0;
+  string type;
+
+  if(n < _table.size())
+  {
+    part = (DosPartition *) _table.at(n);
+    
+    switch(part->getType())
+    {
+      case 0x05:
+        type = "extended";
+        break;
+    
+      case 0x83:
+        type = "data";
+        break;
+    
+      case 0xef:
+        type = "efi";
+        break;
+    
+      case 0x82:
+        type = "swap";
+        break;
+      
+      case 0x8e:
+        type = "lvm";
+        break;
+      
+      case 0xfd:
+        type = "raid";
+        break;
+      
+      default:
+        type = "unknown";
+        break;
+    }
+    
+    return type;
+  }
+  
+  return "";
+}
+
 bool DosPartitionTable::getActive(unsigned long long n)
 {
   DosPartition *part = 0;
