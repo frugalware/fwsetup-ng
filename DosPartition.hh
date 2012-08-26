@@ -24,6 +24,8 @@ public:
       _dos_type = 0xFD;
     else if(purpose == "lvm")
       _dos_type = 0x8E;
+    else if(purpose == "empty")
+      _dos_type = 0x00;
   }
   unsigned char getType() { return _dos_type; }
   virtual bool getActive() { return _dos_active; }
@@ -43,6 +45,8 @@ public:
         return "raid";
       case 0x8E:
         return "lvm";
+      case 0x00:
+        return "empty";
       default:
         return "unknown";
     }
