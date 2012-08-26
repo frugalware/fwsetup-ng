@@ -16,6 +16,7 @@ public:
   string getLabelType() { return _label; }
   size_t getTableSize() { return _table.size(); }
   Partition *getPartition(size_t n) { return _table.at(n); }
+  void putPartition(Partition *part) { _table.push_back(part); }
   virtual Partition *newPartition() { return 0; }
 
 protected:
