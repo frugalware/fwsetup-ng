@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <linux/major.h>
+#include "Utility.hh"
 #include "DosPartitionTable.hh"
 #include "GptPartitionTable.hh"
 #include "Device.hh"
@@ -64,11 +65,9 @@ static inline bool isVirtioDisk(const struct stat &st)
 
 Device::Device()
 {
-  _lsectorsize = 0;
+  _sectorsize = 0;
 
-  _psectorsize = 0;
-
-  _alignratio = 0;
+  _alignment = 0;
 
   _sectors = 0;
 
@@ -121,9 +120,8 @@ bool Device::read(const string &path)
   int fd = -1;
   blkid_probe probe = 0;
   blkid_topology topology = 0;
-  unsigned long long lsectorsize = 0;
-  unsigned long long psectorsize = 0;
-  unsigned long long alignratio = 0;
+  unsigned long long sectorsize = 0;
+  unsigned long long alignment = 0;
   blkid_loff_t size = 0;
   unsigned long long sectors = 0;
   struct stat st;
@@ -149,18 +147,16 @@ bool Device::read(const string &path)
   if((topology = blkid_probe_get_topology(probe)) == 0)
     goto bail;
 
-  lsectorsize = blkid_topology_get_logical_sector_size(topology);
+  sectorsize = blkid_topology_get_logical_sector_size(topology);
 
-  psectorsize = blkid_topology_get_physical_sector_size(topology);
-
-  alignratio = psectorsize / lsectorsize;
+  alignment = MEBIBYTE / sectorsize;
 
   size = blkid_probe_get_size(probe);
 
-  sectors = size / lsectorsize;
+  sectors = size / sectorsize;
 
   // Now, perform some sanity checks on the topology data.
-  if(lsectorsize == 0 || psectorsize == 0 || (psectorsize % lsectorsize) != 0 || size <= 0 || (size % lsectorsize) != 0)
+  if(sectorsize == 0 || (MEBIBYTE % sectorsize) != 0 || size <= 0 || (size % sectorsize) != 0)
     goto bail;
 
   // Read the device's stats.
@@ -193,11 +189,9 @@ bool Device::read(const string &path)
 
   _path = path;
 
-  _lsectorsize = lsectorsize;
+  _sectorsize = sectorsize;
 
-  _psectorsize = psectorsize;
-
-  _alignratio = alignratio;
+  _alignment = alignment;
 
   _sectors = sectors;
 
@@ -225,9 +219,9 @@ void Device::newPartitionTable(const string &label)
   
   delete _table;
   
-  if(_table == "dos")
+  if(label == "dos")
     _table = new DosPartitionTable();
-  else if(_table == "gpt")
+  else if(label == "gpt")
     _table = new DosPartitionTable();
 }
 

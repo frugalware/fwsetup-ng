@@ -15,16 +15,15 @@ public:
   ~Device();
   static vector <Device> probeAll();
   bool read(const string &path);
-  unsigned long long sizeToSectors(unsigned long long size) { return size / _lsectorsize; }
-  unsigned long long sectorsToSize(unsigned long long sectors) { return sectors * _lsectorsize; }
+  unsigned long long sizeToSectors(unsigned long long size) { return size / _sectorsize; }
+  unsigned long long sectorsToSize(unsigned long long sectors) { return sectors * _sectorsize; }
   string getLabelType() { return (_table != 0) ? _table->getLabelType() : "unknown"; }
   void newPartitionTable(const string &label);
 
 private:
   string _path;
-  unsigned long long _lsectorsize;
-  unsigned long long _psectorsize;
-  unsigned long long _alignratio;
+  unsigned long long _sectorsize;
+  unsigned long long _alignment;
   unsigned long long _sectors;
   bool _disk;
   PartitionTable *_table;
