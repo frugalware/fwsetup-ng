@@ -174,7 +174,7 @@ bool Device::read(const string &path)
   if(!table->read(path))
   {
     delete table;
-    
+
     table = new GptPartitionTable();
     
     if(!table->read(path))
@@ -246,13 +246,13 @@ Partition *Device::newPartition(unsigned long long size)
   // Check for a sane state.
   if(!_initialized || size == 0 || _table == 0)
     return 0;
-  
-  sectors = sectorsToSize(size);
+
+  sectors = sizeToSectors(size);
   
   label = _table->getLabelType();
   
   last = _table->getTableSize();
-  
+
   // Initial checks for resource limits.
   if(sectors > _sectors || (label == "dos" && (last+1) > 60) || (label == "gpt" && (last+1) > 128))
     return 0;
@@ -265,7 +265,7 @@ Partition *Device::newPartition(unsigned long long size)
   
     part->setStart(_alignment);    
     
-    part->setEnd(_alignment + size);
+    part->setEnd(_alignment + sectors);
   }
   else
   {
@@ -275,7 +275,7 @@ Partition *Device::newPartition(unsigned long long size)
     
     part->setStart(lastpart->getEnd() + 1);
     
-    part->setEnd(lastpart->getEnd() + 1 + size);
+    part->setEnd(lastpart->getEnd() + 1 + sectors);
   }
 
   part->setStart(alignUp(part->getStart()));
@@ -283,6 +283,10 @@ Partition *Device::newPartition(unsigned long long size)
   part->setEnd(alignUp(part->getEnd()) - 1);
 
   part->setSectors(part->getEnd() - part->getStart() + 1);
+
+  part->setActive(false);
+
+  part->setPurpose("data");
 
   if(part->getSectors() > (_sectors - part->getStart()))
   {
