@@ -114,7 +114,7 @@ bool GptPartitionTable::read(const string &path)
 
     part->setType(blkid_partition_get_type_string(partition));
 
-    part->setName(blkid_partition_get_name(partition));
+    part->setName((blkid_partition_get_name(partition) != 0) ? blkid_partition_get_name(partition) : "");
 
     part->setUUID(blkid_partition_get_uuid(partition));
 
