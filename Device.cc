@@ -255,9 +255,7 @@ Partition *Device::newPartition(unsigned long long size)
   
     part->setStart(_alignment);    
     
-    part->setEnd(_alignment + size - 1);
-    
-    part->setSectors(size);
+    part->setEnd(_alignment + size);
   }
   else
   {
@@ -268,8 +266,19 @@ Partition *Device::newPartition(unsigned long long size)
     part->setStart(lastpart->getEnd() + 1);
     
     part->setEnd(lastpart->getEnd() + 1 + size);
-    
-    part->setSectors(size);
+  }
+
+  part->setStart(alignUp(part->getStart()));
+
+  part->setEnd(alignUp(part->getEnd()) - 1);
+
+  part->setSectors(part->getEnd() - part->getStart() + 1);
+
+  if(part->getSectors() > (_sectors - part->getStart()))
+  {
+    delete part;
+
+    return 0;
   }
 
   return part;
