@@ -34,7 +34,7 @@ private:
     if((sector % _alignment) == 0)
       return sector;
     
-    return sector - (sector % _alignment));
+    return sector - (sector % _alignment);
   }
   string _path;
   unsigned long long _sectorsize;
