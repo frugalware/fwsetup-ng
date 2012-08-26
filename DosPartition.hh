@@ -6,7 +6,7 @@ class DosPartition : public Partition
 {
 
 public:
-  DosPartition() { _dos_type = 0, _dos_active = false; }
+  DosPartition() { _dos_type = 0x83, _dos_active = false; }
   virtual ~DosPartition() { }
   void setType(unsigned char type) { _dos_type = type; }
   virtual void setActive(bool active) { _dos_active = active; }
