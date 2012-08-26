@@ -201,6 +201,8 @@ bool Device::read(const string &path)
 
   _initialized = true;
 
+  rv = true;
+
 bail:
 
   if(fd != -1)
@@ -280,6 +282,8 @@ Partition *Device::newPartition(unsigned long long size)
 
     return 0;
   }
+
+  _table->putPartition(part);
 
   return part;
 }
