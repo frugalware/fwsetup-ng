@@ -225,4 +225,54 @@ void Device::newPartitionTable(const string &label)
     _table = new DosPartitionTable();
 }
 
+Partition *Device::newPartition(unsigned long long size)
+{
+  unsigned long long sectors = 0;
+  string label;
+  size_t last = 0;
+  Partition *part = 0;
+  Partition *lastpart = 0;
+  
+  // Check for a sane state.
+  if(!_initialized || size == 0 || _table == 0)
+    return 0;
+  
+  sectors = sectorsToSize(size);
+  
+  label = _table->getLabelType();
+  
+  last = _table->getTableSize();
+  
+  // Initial checks for resource limits.
+  if(sectors > _sectors || (label == "dos" && (last+1) > 60) || (label == "gpt" && (last+1) > 128))
+    return 0;
+
+  part = _table->newPartition();
+
+  if(last == 0)
+  {
+    part->setNumber(1);
+  
+    part->setStart(_alignment);    
+    
+    part->setEnd(_alignment + size - 1);
+    
+    part->setSectors(size);
+  }
+  else
+  {
+    lastpart = _table->getPartition(last - 1);
+    
+    part->setNumber(lastpart->getNumber() + 1);
+    
+    part->setStart(lastpart->getEnd() + 1);
+    
+    part->setEnd(lastpart->getEnd() + 1 + size);
+    
+    part->setSectors(size);
+  }
+
+  return part;
+}
+
 // -%- strip: yes; add-newline: yes; use-tabs: no; indent-width: 2; tab-width: 2; -%-

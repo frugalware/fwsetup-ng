@@ -19,6 +19,7 @@ public:
   unsigned long long sectorsToSize(unsigned long long sectors) { return sectors * _sectorsize; }
   string getLabelType() { return (_table != 0) ? _table->getLabelType() : "unknown"; }
   void newPartitionTable(const string &label);
+  Partition *newPartition(unsigned long long size);
 
 private:
   string _path;
