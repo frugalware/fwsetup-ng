@@ -4,10 +4,10 @@
 #include <string>
 #include <fstream>
 
-#define KIBIBYTE (2LLU <<  9LLU)
-#define MEBIBYTE (2LLU << 19LLU)
-#define GIBIBYTE (2LLU << 29LLU)
-#define TEBIBYTE (2LLU << 39LLU)
+#define KIBIBYTE (1LLU << 10LLU)
+#define MEBIBYTE (1LLU << 20LLU)
+#define GIBIBYTE (1LLU << 30LLU)
+#define TEBIBYTE (1LLU << 40LLU)
 
 using std::string;
 using std::ofstream;
