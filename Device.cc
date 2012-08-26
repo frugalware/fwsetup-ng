@@ -154,7 +154,7 @@ bool Device::read(const string &path)
   size = blkid_probe_get_size(probe);
 
   sectors = size / sectorsize;
-
+  
   // Now, perform some sanity checks on the topology data.
   if(sectorsize == 0 || (MEBIBYTE % sectorsize) != 0 || size <= 0 || (size % sectorsize) != 0)
     goto bail;
@@ -212,6 +212,14 @@ bail:
     blkid_free_probe(probe);
 
   return rv;
+}
+
+bool Device::write()
+{
+  if(!_initialized || !_disk || _table == 0 || _table->getTableSize() == 0)
+    return false;
+  
+  return _table->write(_path);
 }
 
 void Device::newPartitionTable(const string &label)
