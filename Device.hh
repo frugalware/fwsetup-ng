@@ -22,6 +22,20 @@ public:
   Partition *newPartition(unsigned long long size);
 
 private:
+  unsigned long long alignUp(unsigned long long sector)
+  {
+    if((sector % _alignment) == 0)
+      return sector;
+    
+    return sector + (_alignment - (sector % _alignment));
+  }
+  unsigned long long alignDown(unsigned long long sector)
+  {
+    if((sector % _alignment) == 0)
+      return sector;
+    
+    return sector - (sector % _alignment));
+  }
   string _path;
   unsigned long long _sectorsize;
   unsigned long long _alignment;
