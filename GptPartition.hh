@@ -27,8 +27,6 @@ public:
       _gpt_type = "A19D880F-05FC-4D3B-A006-743F0F84911E";
     else if(purpose == "lvm")
       _gpt_type = "E6D6D379-F507-44C2-A23C-238F2A3DF928";
-    else if(purpose == "empty")
-      _gpt_type = "00000000-0000-0000-0000-000000000000";
   }
   string getType() { return _gpt_type; }
   string getName() { return _gpt_name; }
@@ -49,8 +47,6 @@ public:
       return "raid";
     else if(_gpt_type == "E6D6D379-F507-44C2-A23C-238F2A3DF928")
       return "lvm";
-    else if(_gpt_type == "00000000-0000-0000-0000-000000000000")
-      return "empty";
     else
       return "unknown";
   }
