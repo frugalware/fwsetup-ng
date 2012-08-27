@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <glob.h>
 #include <linux/major.h>
 #include "Utility.hh"
 #include "DosPartitionTable.hh"
@@ -83,34 +84,33 @@ Device::~Device()
   delete _table;
 }
 
-vector <Device> Device::probeAll()
+vector <Device *> Device::probeAll()
 {
-  blkid_cache cache = 0;
-  blkid_dev_iterate iter = 0;
-  blkid_dev dev = 0;
-  Device device;
-  vector <Device> devices;
+  glob_t gl;
+  Device *device = 0;
+  vector <Device *> devices;
 
-  if(blkid_get_cache(&cache,"/dev/null") != 0)
-    goto bail;
+  memset(&gl,0,sizeof(glob_t));
 
-  if(blkid_probe_all(cache) != 0)
-    goto bail;
+  if(glob("/dev/[hsv]d[a-z]",0,0,&gl) != 0)
+  {
+    globfree(&gl);
+    return devices;
+  }
 
-  if((iter = blkid_dev_iterate_begin(cache)) == 0)
-    goto bail;
-
-  while(blkid_dev_next(iter,&dev) == 0)
-    if(device.read(blkid_dev_devname(dev)))
+  for( size_t i = 0 ; i < gl.gl_pathc ; ++i )
+  {
+    const char *path = gl.gl_pathv[i];
+    
+    device = new Device();
+    
+    if(device->read(path))
       devices.push_back(device);
+    else
+      delete device;
+  }
 
-bail:
-
-  if(iter != 0)
-    blkid_dev_iterate_end(iter);
-
-  if(cache != 0)
-    blkid_put_cache(cache);
+  globfree(&gl);
 
   return devices;
 }

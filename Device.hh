@@ -13,9 +13,10 @@ class Device
 public:
   Device();
   ~Device();
-  static vector <Device> probeAll();
+  static vector <Device *> probeAll();
   bool read(const string &path);
   bool write();
+  string getPath() { return _path; }
   string getLabelType() { return (_table != 0) ? _table->getLabelType() : "unknown"; }
   size_t getTableSize() { return (_table != 0) ? _table->getTableSize() : 0; }
   Partition *getPartition(size_t n) { return (_table != 0) ? _table->getPartition(n) : 0; }
