@@ -271,6 +271,11 @@ Partition *Device::newPartition(unsigned long long size)
   if(sectors > usable_sectors || (label == "dos" && (last+1) > 4) || (label == "gpt" && (last+1) > 128))
     return 0;
 
+  if(last > 0 && label == "dos")
+    for( size_t n = 0 ; n < last ; ++n )
+      if(_table->getPartition(n)->getPurpose() == "extended")
+        return 0;
+
   part = _table->newPartition();
 
   if(last == 0)
