@@ -111,6 +111,7 @@ bool DosPartitionTable::write(const string &path)
   DosPartition *part = 0;
   pid_t pid = -1;
   int status = 0;
+  size_t prev = 0;
 
   if(_table.empty())
     return false;
@@ -123,6 +124,15 @@ bool DosPartitionTable::write(const string &path)
   while(i < _table.size())
   {
     part = (DosPartition *) _table.at(i);
+    if((part->getNumber() - prev) > 1)
+    {
+      prev = part->getNumber() - prev;
+      while(prev > 1)
+      {
+        cmd << "0 0 0x0 -\\n";
+        --prev;
+      }
+    }
     cmd << dec;
     cmd << part->getStart();
     cmd << " ";
@@ -134,6 +144,7 @@ bool DosPartitionTable::write(const string &path)
     cmd << " ";
     cmd << (part->getActive() ? "*" : "-");
     cmd << "\\n";
+    prev = part->getNumber();
     ++i;
   }
 
