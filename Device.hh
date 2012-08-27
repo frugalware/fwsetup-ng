@@ -19,6 +19,7 @@ public:
   string getLabelType() { return (_table != 0) ? _table->getLabelType() : "unknown"; }
   void newPartitionTable(const string &label);
   Partition *newPartition(unsigned long long size);
+  void deleteLastPartition();
 
 private:
   unsigned long long sizeToSectors(unsigned long long size) { return size / _sectorsize; }

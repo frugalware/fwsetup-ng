@@ -303,4 +303,12 @@ Partition *Device::newPartition(unsigned long long size)
   return part;
 }
 
+void Device::deleteLastPartition()
+{
+  if(!_initialized || _table == 0)
+    return;
+
+  _table->deleteLastPartition();  
+}
+
 // -%- strip: yes; add-newline: yes; use-tabs: no; indent-width: 2; tab-width: 2; -%-
