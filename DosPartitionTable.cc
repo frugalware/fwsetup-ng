@@ -16,6 +16,7 @@ using std::endl;
 
 DosPartitionTable::DosPartitionTable()
 {
+  _label = "dos";
 }
 
 DosPartitionTable::~DosPartitionTable()

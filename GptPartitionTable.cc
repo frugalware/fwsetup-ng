@@ -47,6 +47,8 @@ static string get_gpt_label_uuid(const string &path)
 
 GptPartitionTable::GptPartitionTable()
 {
+  _label = "gpt";
+  _uuid = "R";
 }
 
 GptPartitionTable::~GptPartitionTable()
