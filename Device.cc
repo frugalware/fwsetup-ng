@@ -243,7 +243,7 @@ void Device::newPartitionTable(const string &label)
   if(label == "dos")
     _table = new DosPartitionTable();
   else if(label == "gpt")
-    _table = new DosPartitionTable();
+    _table = new GptPartitionTable();
 }
 
 Partition *Device::newPartition(unsigned long long size)
@@ -297,7 +297,7 @@ Partition *Device::newPartition(unsigned long long size)
   part->setEnd(alignUp(part->getEnd()) - 1);
 
   if(part->getEnd() > usable_sectors)
-    part->setEnd(usable_sectors - 1);
+    part->setEnd(usable_sectors);
 
   part->setSectors(part->getEnd() - part->getStart() + 1);
 
@@ -320,7 +320,7 @@ Partition *Device::newExtendedPartition()
   if(!_initialized || _table == 0 || _table->getLabelType() != "dos")
     return 0;
 
-  if((part = newPartition(sectorsToSize(getUsableSectors()-_alignment))) == 0)
+  if((part = newPartition(sectorsToSize(getUsableSectors()))) == 0)
     return 0;
   
   part->setPurpose("extended");
