@@ -17,6 +17,8 @@ public:
   bool read(const string &path);
   bool write();
   string getLabelType() { return (_table != 0) ? _table->getLabelType() : "unknown"; }
+  size_t getTableSize() { return (_table != 0) ? _table->getTableSize() : 0; }
+  Partition *getPartition(size_t n) { return (_table != 0) ? _table->getPartition(n) : 0; }
   void newPartitionTable(const string &label);
   Partition *newPartition(unsigned long long size);
   void deleteLastPartition();
