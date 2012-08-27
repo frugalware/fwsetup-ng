@@ -70,6 +70,7 @@ private:
   unsigned long long _alignment;
   unsigned long long _sectors;
   bool _disk;
+  string _oldlabel;
   PartitionTable *_table;
   bool _initialized;
 

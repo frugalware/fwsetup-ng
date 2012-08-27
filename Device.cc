@@ -207,6 +207,8 @@ bool Device::read(const string &path)
 
   _disk = disk;
 
+  _oldlabel = (table != 0) ? _table->getLabelType() : "";
+
   _table = table;
 
   _initialized = true;
