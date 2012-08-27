@@ -166,8 +166,8 @@ bool Device::read(const string &path)
   // Is it a physical disk?
   if(isIdeDisk(st) || isScsiDisk(st) || isVirtioDisk(st))
     disk = true;
-  else
-    goto bail;
+//  else
+//    goto bail;
 
   table = new DosPartitionTable();
 
@@ -238,6 +238,7 @@ void Device::newPartitionTable(const string &label)
 Partition *Device::newPartition(unsigned long long size)
 {
   unsigned long long sectors = 0;
+  unsigned long long usable_sectors = 0;
   string label;
   size_t last = 0;
   Partition *part = 0;
@@ -248,13 +249,15 @@ Partition *Device::newPartition(unsigned long long size)
     return 0;
 
   sectors = sizeToSectors(size);
-  
+
+  usable_sectors = getUsableSectors();
+
   label = _table->getLabelType();
   
   last = _table->getTableSize();
 
   // Initial checks for resource limits.
-  if(sectors > _sectors || (label == "dos" && (last+1) > 60) || (label == "gpt" && (last+1) > 128))
+  if(sectors > usable_sectors || (label == "dos" && (last+1) > 60) || (label == "gpt" && (last+1) > 128))
     return 0;
 
   part = _table->newPartition();
@@ -284,11 +287,7 @@ Partition *Device::newPartition(unsigned long long size)
 
   part->setSectors(part->getEnd() - part->getStart() + 1);
 
-  part->setActive(false);
-
-  part->setPurpose("data");
-
-  if(part->getSectors() > (_sectors - part->getStart()))
+  if(part->getSectors() > (usable_sectors - part->getStart()))
   {
     delete part;
 
