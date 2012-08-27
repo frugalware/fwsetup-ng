@@ -115,6 +115,9 @@ bool DosPartitionTable::write(const string &path)
   if(_table.empty())
     return false;
 
+  if(!zapLabel(path))
+    return false;
+
   cmd << "echo -n -e '";  
 
   while(i < _table.size())

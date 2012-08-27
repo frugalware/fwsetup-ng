@@ -157,6 +157,9 @@ bool GptPartitionTable::write(const string &path)
   if(_table.empty())
     return false;
   
+  if(!zapLabel(path))
+    return false;
+  
   cmd << "sgdisk --clear --disk-guid='" << _uuid << "'";
 
   while(i < _table.size())
