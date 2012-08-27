@@ -328,6 +328,76 @@ Partition *Device::newExtendedPartition()
   return part;
 }
 
+Partition *Device::newLogicalPartition(unsigned long long size)
+{
+  Partition *extpart = 0;
+  Partition *lastpart = 0;
+  unsigned long long sectors = 0;
+  unsigned long long usable_sectors = 0;
+  Partition *logpart = 0;
+
+  if(_table->getLabelType() != "dos")
+    return 0;
+
+  for( size_t n = 0 ; n < _table->getTableSize() ; ++n )
+  {
+    Partition *part = _table->getPartition(n);
+    
+    if(part->getPurpose() == "extended" && extpart == 0)
+      extpart = part;
+
+    lastpart = part;
+  }
+
+  if(extpart == 0 || extpart->getNumber() > 4)
+    return 0;
+
+  sectors = sizeToSectors(size);
+
+  usable_sectors = getUsableSectors();
+
+  if(sectors > usable_sectors || (lastpart->getNumber()+1) > 60)
+    return 0;
+
+  logpart = _table->newPartition();
+
+  if(lastpart->getNumber() < 5)
+  {
+    logpart->setNumber(5);
+    
+    logpart->setStart(extpart->getStart() + _alignment);
+    
+    logpart->setEnd(extpart->getStart() + _alignment + sectors);
+  }
+  else
+  {
+    logpart->setNumber(lastpart->getNumber() + 1);
+    
+    logpart->setStart(lastpart->getEnd() + 1 + _alignment);
+    
+    logpart->setEnd(lastpart->getEnd() + 1 + _alignment + sectors);
+  }
+
+  logpart->setStart(alignUp(logpart->getStart()));
+
+  logpart->setEnd(alignUp(logpart->getEnd()) - 1);
+
+  if(logpart->getEnd() > usable_sectors)
+    logpart->setEnd(usable_sectors - 1);
+
+  logpart->setSectors(logpart->getEnd() - logpart->getStart() + 1);
+
+  if(logpart->getStart() > usable_sectors)
+  {
+    delete logpart;
+    return 0;
+  }
+
+  _table->putPartition(logpart);
+
+  return logpart;
+}
+
 void Device::deleteLastPartition()
 {
   if(!_initialized || _table == 0)

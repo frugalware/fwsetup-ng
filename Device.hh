@@ -26,6 +26,7 @@ public:
   void newPartitionTable(const string &label);
   Partition *newPartition(unsigned long long size);
   Partition *newExtendedPartition();
+  Partition *newLogicalPartition(unsigned long long size);
   void deleteLastPartition();
 
 private:
