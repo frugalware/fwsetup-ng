@@ -319,8 +319,8 @@ Partition *Device::newExtendedPartition()
 
   if(!_initialized || _table == 0 || _table->getLabelType() != "dos")
     return 0;
-  
-  if((part = newPartition(sectorsToSize(getUsableSectors()))) == 0)
+
+  if((part = newPartition(sectorsToSize(getUsableSectors()-_alignment))) == 0)
     return 0;
   
   part->setPurpose("extended");
