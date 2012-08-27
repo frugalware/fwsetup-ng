@@ -54,7 +54,7 @@ private:
     if(_table->getLabelType() == "dos")
       reserved = 512;
     else if(_table->getLabelType() == "gpt")
-      reserved = 512 + 16384;
+      reserved = 512 + 512 + 128 * 128;
     
     // Now, round it up to the closest sector.
     if((reserved % _sectorsize) != 0)
@@ -62,7 +62,7 @@ private:
     
     // Now, convert it to a sector count.
     reserved = sizeToSectors(reserved);
-    
+
     return _sectors - reserved;
   }
   string _path;
