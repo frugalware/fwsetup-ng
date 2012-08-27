@@ -237,7 +237,7 @@ void Device::newPartitionTable(const string &label)
 {
   if(!_initialized || (label != "dos" && label != "gpt"))
     return;
-  
+
   delete _table;
   
   if(label == "dos")
@@ -317,10 +317,10 @@ Partition *Device::newExtendedPartition()
 {
   Partition *part = 0;
 
-  if(_table->getLabelType() != "dos")
+  if(!_initialized || _table == 0 || _table->getLabelType() != "dos")
     return 0;
   
-  if((part = newPartition(-1)) == 0)
+  if((part = newPartition(sectorsToSize(getUsableSectors()))) == 0)
     return 0;
   
   part->setPurpose("extended");
