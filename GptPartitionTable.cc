@@ -157,7 +157,7 @@ bool GptPartitionTable::write(const string &path)
   if(_table.empty())
     return false;
   
-  cmd << "sgdisk --clear --disk-guid='" << (_uuid.empty() ? "R" : _uuid.c_str()) << "'";
+  cmd << "sgdisk --clear --disk-guid='" << _uuid << "'";
 
   while(i < _table.size())
   {
@@ -169,7 +169,7 @@ bool GptPartitionTable::write(const string &path)
     
     cmd << " --change-name=" << part->getNumber() << ":'" << part->getName() << "'";
     
-    cmd << " --partition-guid=" << part->getNumber() << ":'" << (part->getUUID().empty() ? "R" : part->getUUID().c_str()) << "'";
+    cmd << " --partition-guid=" << part->getNumber() << ":'" << part->getUUID() << "'";
     
     cmd << " --typecode=" << part->getNumber() << ":'" << part->getType() << "'";   
 
