@@ -18,6 +18,8 @@ public:
   bool read(const string &path);
   bool write();
   string getPath() { return _path; }
+  unsigned long long getSize() { return sectorsToSize(_sectors); }
+  bool isDisk() { return _disk; }
   string getLabelType() { return (_table != 0) ? _table->getLabelType() : "unknown"; }
   size_t getTableSize() { return (_table != 0) ? _table->getTableSize() : 0; }
   Partition *getPartition(size_t n) { return (_table != 0) ? _table->getPartition(n) : 0; }
