@@ -216,7 +216,8 @@ bail:
 
 bool Device::write()
 {
-  if(!_initialized || !_disk || _table == 0 || _table->getTableSize() == 0)
+  // TODO: block writes on non-physical devices
+  if(!_initialized || _table == 0 || _table->getTableSize() == 0)
     return false;
   
   return _table->write(_path);
@@ -285,9 +286,12 @@ Partition *Device::newPartition(unsigned long long size)
 
   part->setEnd(alignUp(part->getEnd()) - 1);
 
+  if(part->getEnd() > usable_sectors)
+    part->setEnd(usable_sectors - 1);
+
   part->setSectors(part->getEnd() - part->getStart() + 1);
 
-  if(part->getSectors() > (usable_sectors - part->getStart()))
+  if(part->getStart() > usable_sectors)
   {
     delete part;
 
