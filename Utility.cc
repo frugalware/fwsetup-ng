@@ -3,6 +3,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 #include <sstream>
 #include "Utility.hh"
 
@@ -10,6 +11,7 @@
 
 using std::stringstream;
 using std::ios;
+using std::endl;
 
 ofstream logfile(LOGFILE,ios::app);
 
@@ -38,6 +40,33 @@ pid_t execute(const string &cmd)
   }
 
   return pid;
+}
+
+bool zapLabel(const string &path)
+{
+  string cmd;
+  pid_t pid = -1;
+  int status = 0;
+
+  cmd = "sgdisk --zap-all " + path;
+
+  logfile << "Executing command: " << cmd << endl;
+
+  if((pid == execute(cmd)) == -1 || waitpid(pid,&status,0) == -1)
+  {
+    logfile << __func__ << ": " << strerror(errno) << endl; 
+    return false;
+  }
+
+  if(!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+  {
+    logfile << "Command did not exit normally: " << cmd << endl;
+    return false;
+  }
+
+  logfile << "Finished executing command: " << cmd << endl;
+
+  return true;  
 }
 
 unsigned long long string_to_size(const string &text)

@@ -15,5 +15,6 @@ using std::ofstream;
 extern ofstream logfile;
 
 pid_t execute(const string &cmd);
+bool zapLabel(const string &path);
 unsigned long long string_to_size(const string &text);
 string size_to_string(unsigned long long n);
