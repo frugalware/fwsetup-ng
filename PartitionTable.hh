@@ -18,6 +18,14 @@ public:
   Partition *getPartition(size_t n) { return _table.at(n); }
   void putPartition(Partition *part) { _table.push_back(part); }
   virtual Partition *newPartition() { return 0; }
+  void deleteLastPartition()
+  {
+    if(!_table.empty())
+    {
+      delete _table.back();
+      _table.pop_back();
+    }
+  }
 
 protected:
   string _label;
