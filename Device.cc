@@ -115,6 +115,16 @@ vector <Device *> Device::probeAll()
   return devices;
 }
 
+void Device::deleteAll(vector <Device *> &devices)
+{
+  while(!devices.empty())
+  {
+    delete devices.back();
+
+    devices.pop_back();
+  }
+}
+
 bool Device::read(const string &path)
 {
   int fd = -1;

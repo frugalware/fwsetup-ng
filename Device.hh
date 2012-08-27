@@ -14,6 +14,7 @@ public:
   Device();
   ~Device();
   static vector <Device *> probeAll();
+  static void deleteAll(vector <Device *> &devices);
   bool read(const string &path);
   bool write();
   string getPath() { return _path; }
