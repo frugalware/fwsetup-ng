@@ -268,7 +268,7 @@ Partition *Device::newPartition(unsigned long long size)
   last = _table->getTableSize();
 
   // Initial checks for resource limits.
-  if(sectors > usable_sectors || (label == "dos" && (last+1) > 60) || (label == "gpt" && (last+1) > 128))
+  if(sectors > usable_sectors || (label == "dos" && (last+1) > 4) || (label == "gpt" && (last+1) > 128))
     return 0;
 
   part = _table->newPartition();
@@ -310,6 +310,21 @@ Partition *Device::newPartition(unsigned long long size)
 
   _table->putPartition(part);
 
+  return part;
+}
+
+Partition *Device::newExtendedPartition()
+{
+  Partition *part = 0;
+
+  if(_table->getLabelType() != "dos")
+    return 0;
+  
+  if((part = newPartition(-1)) == 0)
+    return 0;
+  
+  part->setPurpose("extended");
+  
   return part;
 }
 

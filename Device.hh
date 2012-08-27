@@ -25,6 +25,7 @@ public:
   Partition *getPartition(size_t n) { return (_table != 0) ? _table->getPartition(n) : 0; }
   void newPartitionTable(const string &label);
   Partition *newPartition(unsigned long long size);
+  Partition *newExtendedPartition();
   void deleteLastPartition();
 
 private:
