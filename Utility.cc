@@ -12,6 +12,7 @@
 using std::stringstream;
 using std::ios;
 using std::endl;
+using std::fixed;
 
 ofstream logfile(LOGFILE,ios::app);
 
@@ -141,7 +142,9 @@ string sizeToString(unsigned long long n)
     suffix = "BiB";
   }
 
-  buf << (long double) n / divisor << suffix;
+  buf.precision(1);
+
+  buf << fixed << (long double) n / divisor << suffix;
 
   return buf.str();
 }
