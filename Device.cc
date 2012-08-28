@@ -101,9 +101,9 @@ vector <Device *> Device::probeAll()
   for( size_t i = 0 ; i < gl.gl_pathc ; ++i )
   {
     const char *path = gl.gl_pathv[i];
-    
+
     device = new Device();
-    
+
     if(device->read(path))
       devices.push_back(device);
     else
@@ -164,7 +164,7 @@ bool Device::read(const string &path)
   size = blkid_probe_get_size(probe);
 
   sectors = size / sectorsize;
-  
+
   // Now, perform some sanity checks on the topology data.
   if(sectorsize == 0 || (MEBIBYTE % sectorsize) != 0 || size <= 0 || (size % sectorsize) != 0)
     goto bail;
@@ -186,11 +186,11 @@ bool Device::read(const string &path)
     delete table;
 
     table = new GptPartitionTable();
-    
+
     if(!table->read(path))
     {
       delete table;
-      
+
       table = 0;
     }
   }
@@ -229,7 +229,7 @@ bool Device::write()
   // TODO: block writes on non-physical devices
   if(!_initialized || _table == 0 || _table->getTableSize() == 0)
     return false;
-  
+
   return _table->write(_path);
 }
 
@@ -239,7 +239,7 @@ void Device::newPartitionTable(const string &label)
     return;
 
   delete _table;
-  
+
   if(label == "dos")
     _table = new DosPartitionTable();
   else if(label == "gpt")
@@ -254,7 +254,7 @@ Partition *Device::newPartition(unsigned long long size)
   size_t last = 0;
   Partition *part = 0;
   Partition *lastpart = 0;
-  
+
   // Check for a sane state.
   if(!_initialized || size == 0 || _table == 0)
     return 0;
@@ -264,7 +264,7 @@ Partition *Device::newPartition(unsigned long long size)
   usable_sectors = getUsableSectors();
 
   label = _table->getLabelType();
-  
+
   last = _table->getTableSize();
 
   // Initial checks for resource limits.
@@ -281,19 +281,19 @@ Partition *Device::newPartition(unsigned long long size)
   if(last == 0)
   {
     part->setNumber(1);
-  
-    part->setStart(_alignment);    
-    
+
+    part->setStart(_alignment);
+
     part->setEnd(_alignment + sectors);
   }
   else
   {
     lastpart = _table->getPartition(last - 1);
-    
+
     part->setNumber(lastpart->getNumber() + 1);
-    
+
     part->setStart(lastpart->getEnd() + 1);
-    
+
     part->setEnd(lastpart->getEnd() + 1 + sectors);
   }
 
@@ -327,9 +327,9 @@ Partition *Device::newExtendedPartition()
 
   if((part = newPartition(sectorsToSize(getUsableSectors()))) == 0)
     return 0;
-  
+
   part->setPurpose("extended");
-  
+
   return part;
 }
 
@@ -341,13 +341,13 @@ Partition *Device::newLogicalPartition(unsigned long long size)
   unsigned long long usable_sectors = 0;
   Partition *logpart = 0;
 
-  if(_table->getLabelType() != "dos")
+  if(!_initialized || _table == 0 || _table->getLabelType() != "dos")
     return 0;
 
   for( size_t n = 0 ; n < _table->getTableSize() ; ++n )
   {
     Partition *part = _table->getPartition(n);
-    
+
     if(part->getPurpose() == "extended" && extpart == 0)
       extpart = part;
 
@@ -369,17 +369,17 @@ Partition *Device::newLogicalPartition(unsigned long long size)
   if(lastpart->getNumber() < 5)
   {
     logpart->setNumber(5);
-    
+
     logpart->setStart(extpart->getStart() + _alignment);
-    
+
     logpart->setEnd(extpart->getStart() + _alignment + sectors);
   }
   else
   {
     logpart->setNumber(lastpart->getNumber() + 1);
-    
+
     logpart->setStart(lastpart->getEnd() + 1 + _alignment);
-    
+
     logpart->setEnd(lastpart->getEnd() + 1 + _alignment + sectors);
   }
 
@@ -388,7 +388,7 @@ Partition *Device::newLogicalPartition(unsigned long long size)
   logpart->setEnd(alignUp(logpart->getEnd()) - 1);
 
   if(logpart->getEnd() > usable_sectors)
-    logpart->setEnd(usable_sectors - 1);
+    logpart->setEnd(usable_sectors);
 
   logpart->setSectors(logpart->getEnd() - logpart->getStart() + 1);
 
@@ -408,7 +408,7 @@ void Device::deleteLastPartition()
   if(!_initialized || _table == 0)
     return;
 
-  _table->deleteLastPartition();  
+  _table->deleteLastPartition();
 }
 
 // -%- strip: yes; add-newline: yes; use-tabs: no; indent-width: 2; tab-width: 2; -%-
