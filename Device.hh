@@ -28,7 +28,7 @@ public:
     Partition *lastpart = 0;
   
     if(_table == 0)
-      return "0BiB";
+      return "0.0BiB";
     
     usable_sectors = getUsableSectors();
     
