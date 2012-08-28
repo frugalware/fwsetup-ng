@@ -24,6 +24,20 @@ public:
 
 };
 
+static string formatDeviceText(Device *device)
+{
+  stringstream buf;
+  
+  buf << device->getPath();
+  buf << ": ";
+  buf << device->getLabelType();
+  buf << " label (";
+  buf << device->getSizeString();
+  buf << ")";
+  
+  return buf.str();
+}
+
 // FIXME: this function makes assumptions about text alignment padding.
 static string formatPartitionText(Device *device,Partition *part)
 {
@@ -46,6 +60,17 @@ static string formatPartitionText(Device *device,Partition *part)
   return buf.str();
 }
 
+static string formatSpaceText(Device *device)
+{
+  stringstream buf;
+  
+  buf << "  Free space (";
+  buf << device->getUnusedSizeString();
+  buf << ")";
+  
+  return buf.str();
+}
+
 bool Item::getItems(vector <Device *> &devices,vector <Item *> &items,newtComponent &listbox)
 {
   devices = Device::probeAll();
@@ -61,8 +86,8 @@ bool Item::getItems(vector <Device *> &devices,vector <Item *> &items,newtCompon
     {
       Item *item = new Item();
       
-      item->text = device->getPath() + ": " + device->getLabelType() + " label (" + device->getSizeString() + ")";
-      
+      item->text = formatDeviceText(device);
+
       item->device = device;
       
       items.push_back(item);
@@ -86,7 +111,7 @@ bool Item::getItems(vector <Device *> &devices,vector <Item *> &items,newtCompon
         {        
           item = new Item();
         
-          item->text = "  Free Space (" + device->getUnusedSizeString() + ")";
+          item->text = formatSpaceText(device);
 
           item->space = true;
         
