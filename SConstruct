@@ -42,5 +42,6 @@ env.Program('fwsetup',[
   'DosPartitionTable.cc',
   'Device.cc',
   'UserInterface.cc',
-  'Utility.cc'
+  'Utility.cc',
+  'PartitionModule.cc'
 ])
