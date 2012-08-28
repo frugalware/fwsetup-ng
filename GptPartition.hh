@@ -15,7 +15,7 @@ public:
   virtual void setActive(bool active) { if(active) _gpt_flags |= 4; else if(_gpt_flags & 4) _gpt_flags ^= 4; }
   virtual void setPurpose(string purpose)
   {
-    if(purpose == "boot")
+    if(purpose == "bios")
       _gpt_type = "21686148-6449-6E6F-744E-656564454649";
     else if(purpose == "efi")
       _gpt_type = "C12A7328-F81F-11D2-BA4B-00A0C93EC93B";
@@ -36,7 +36,7 @@ public:
   virtual string getPurpose()
   {
     if(_gpt_type == "21686148-6449-6E6F-744E-656564454649")
-      return "boot";
+      return "bios";
     else if(_gpt_type == "C12A7328-F81F-11D2-BA4B-00A0C93EC93B")
       return "efi";
     else if(_gpt_type == "0FC63DAF-8483-4772-8E79-3D69D8477DE4")
