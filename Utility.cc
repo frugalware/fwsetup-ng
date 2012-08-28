@@ -69,7 +69,7 @@ bool zapLabel(const string &path)
   return true;
 }
 
-unsigned long long string_to_size(const string &text)
+unsigned long long stringToSize(const string &text)
 {
   unsigned long long n = 0;
   char *p = 0;
@@ -109,7 +109,7 @@ unsigned long long string_to_size(const string &text)
   return n;
 }
 
-string size_to_string(unsigned long long n)
+string sizeToString(unsigned long long n)
 {
   unsigned long long divisor = 0;
   const char *suffix = 0;
