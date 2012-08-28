@@ -33,9 +33,9 @@ pid_t execute(const string &cmd)
     dup2(fd,STDERR_FILENO);
 
     close(fd);
-    
+
     execl("/bin/sh","/bin/sh","-c",cmd.c_str(),(void *) 0);
-    
+
     _exit(250);
   }
 
@@ -54,7 +54,7 @@ bool zapLabel(const string &path)
 
   if((pid == execute(cmd)) == -1 || waitpid(pid,&status,0) == -1)
   {
-    logfile << __func__ << ": " << strerror(errno) << endl; 
+    logfile << __func__ << ": " << strerror(errno) << endl;
     return false;
   }
 
@@ -66,7 +66,7 @@ bool zapLabel(const string &path)
 
   logfile << "Finished executing command: " << cmd << endl;
 
-  return true;  
+  return true;
 }
 
 unsigned long long string_to_size(const string &text)

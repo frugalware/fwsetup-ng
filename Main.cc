@@ -12,7 +12,7 @@ int main(int argc,char **argv)
   if(setlocale(LC_ALL,"") == 0)
     return EXIT_FAILURE;
 
-  if(!ui.initialize(argc,argv))  
+  if(!ui.initialize(argc,argv))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;

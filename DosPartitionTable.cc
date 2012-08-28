@@ -23,7 +23,7 @@ DosPartitionTable::~DosPartitionTable()
 {
   size_t i = 0;
   DosPartition *part = 0;
-  
+
   while(i < _table.size())
   {
     part = (DosPartition *) _table.at(i);
@@ -119,7 +119,7 @@ bool DosPartitionTable::write(const string &path)
   if(!zapLabel(path))
     return false;
 
-  cmd << "echo -n -e '";  
+  cmd << "echo -n -e '";
 
   while(i < _table.size())
   {
@@ -154,7 +154,7 @@ bool DosPartitionTable::write(const string &path)
 
   if((pid == execute(cmd.str())) == -1 || waitpid(pid,&status,0) == -1)
   {
-    logfile << __func__ << ": " << strerror(errno) << endl; 
+    logfile << __func__ << ": " << strerror(errno) << endl;
     return false;
   }
 

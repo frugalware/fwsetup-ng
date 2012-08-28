@@ -31,7 +31,7 @@ public:
   string getType() { return _gpt_type; }
   string getName() { return _gpt_name; }
   string getUUID() { return _gpt_uuid; }
-  unsigned long long getFlags() { return _gpt_flags; } 
+  unsigned long long getFlags() { return _gpt_flags; }
   virtual bool getActive() { return (_gpt_flags & 4) ? true : false; }
   virtual string getPurpose()
   {

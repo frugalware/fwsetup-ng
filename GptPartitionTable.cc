@@ -55,7 +55,7 @@ GptPartitionTable::~GptPartitionTable()
 {
   size_t i = 0;
   GptPartition *part = 0;
-  
+
   while(i < _table.size())
   {
     part = (GptPartition *) _table.at(i);
@@ -156,10 +156,10 @@ bool GptPartitionTable::write(const string &path)
 
   if(_table.empty())
     return false;
-  
+
   if(!zapLabel(path))
     return false;
-  
+
   cmd << "sgdisk --clear --disk-guid='" << _uuid << "'";
 
   while(i < _table.size())
@@ -169,12 +169,12 @@ bool GptPartitionTable::write(const string &path)
     cmd << dec;
 
     cmd << " --new=" << part->getNumber() << ":" << part->getStart() << ":" << part->getEnd();
-    
+
     cmd << " --change-name=" << part->getNumber() << ":'" << part->getName() << "'";
-    
+
     cmd << " --partition-guid=" << part->getNumber() << ":'" << part->getUUID() << "'";
-    
-    cmd << " --typecode=" << part->getNumber() << ":'" << part->getType() << "'";   
+
+    cmd << " --typecode=" << part->getNumber() << ":'" << part->getType() << "'";
 
     cmd << " --attributes=" << part->getNumber() << ":=:0x" << hex << part->getFlags();
 
@@ -187,7 +187,7 @@ bool GptPartitionTable::write(const string &path)
 
   if((pid == execute(cmd.str())) == -1 || waitpid(pid,&status,0) == -1)
   {
-    logfile << __func__ << ": " << strerror(errno) << endl; 
+    logfile << __func__ << ": " << strerror(errno) << endl;
     return false;
   }
 
