@@ -17,6 +17,7 @@ public:
   int getWindowHeight() { return _w_height; }
   int getWindowXOffset() { return _x; }
   int getWindowYOffset() { return _y; }
+  void textDialog(const string &title,const string &text);
 #ifdef NEWT
   bool getTextSize(const string &text,int &width,int &height);
   bool getButtonSize(const string &text,int &width,int &height);

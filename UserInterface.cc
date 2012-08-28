@@ -2,7 +2,7 @@
 
 #ifdef NEWT
 #include <string.h>
-#include <newt.h>
+#include "Newt.h"
 #endif
 
 UserInterface::UserInterface()
@@ -52,6 +52,57 @@ bool UserInterface::initialize(int argc,char **argv)
   _initialized = true;
 
   return true;
+}
+
+void UserInterface::textDialog(const string &title,const string &text)
+{
+  const string button_text = "OK";
+
+#ifdef NEWT
+  int textbox_width = 0;
+  int textbox_height = 0;
+  int button_width = 0;
+  int button_height = 0;
+  newtComponent textbox = 0;
+  newtComponent button = 0;
+  newtComponent form = 0;
+  struct newtExitStruct es;
+
+  memset(&es,0,sizeof(struct newtExitStruct));
+
+  if(!getTextSize(text,textbox_width,textbox_height))
+    return;
+
+  if(!getButtonSize(button_text,button_width,button_height))
+    return;
+
+  if(newtOpenWindow(_x,_y,_w_width,_w_height,title.c_str()) != 0)
+    return;
+
+  textbox = newtTextbox(0,0,textbox_width,textbox_height,0);
+  
+  newtTextboxSetText(textbox,text.c_str());
+  
+  button = newtButton(_w_width-button_width,_w_height-button_height,button_text.c_str());
+  
+  form = newtForm(0,0,NEWT_FLAG_NOF12);
+  
+  newtFormAddComponents(form,textbox,button,(void *) 0);
+
+  while(true)
+  {
+    newtFormRun(form,&es);
+    
+    if(es.reason == NEWT_EXIT_COMPONENT && es.u.co == button)
+      break;
+
+    memset(&es,0,sizeof(struct newtExitStruct));
+  }
+  
+  newtFormDestroy(form);
+
+  newtPopWindow();
+#endif
 }
 
 #ifdef NEWT
