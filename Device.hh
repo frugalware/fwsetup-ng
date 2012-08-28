@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include "Utility.hh"
 #include "PartitionTable.hh"
 
 using std::string;
@@ -18,11 +19,39 @@ public:
   bool read(const string &path);
   bool write();
   string getPath() { return _path; }
-  unsigned long long getSize() { return sectorsToSize(_sectors); }
+  string getSizeString() { return sizeToString(sectorsToSize(_sectors)); } 
+  string getUnusedSizeString()
+  {
+    unsigned long long usable_sectors = 0;
+    size_t last = 0;
+    unsigned long long size = 0;
+    Partition *lastpart = 0;
+  
+    if(_table == 0)
+      return "0BiB";
+    
+    usable_sectors = getUsableSectors();
+    
+    last = _table->getTableSize();
+    
+    if(last == 0)
+    {
+      size = sectorsToSize(usable_sectors);
+    }
+    else
+    {
+      lastpart = getPartition(last - 1);
+      
+      size = sectorsToSize(usable_sectors - lastpart->getSectors());
+    }
+    
+    return sizeToString(size);
+  }
   bool isDisk() { return _disk; }
   string getLabelType() { return (_table != 0) ? _table->getLabelType() : "unknown"; }
   size_t getTableSize() { return (_table != 0) ? _table->getTableSize() : 0; }
   Partition *getPartition(size_t n) { return (_table != 0) ? _table->getPartition(n) : 0; }
+  string sectorsToSizeString(unsigned long long sectors) { return sizeToString(sectorsToSize(sectors)); }
   void newPartitionTable(const string &label);
   Partition *newPartition(unsigned long long size);
   Partition *newExtendedPartition();
