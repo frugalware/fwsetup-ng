@@ -42,7 +42,7 @@ public:
     {
       lastpart = getPartition(last - 1);
       
-      size = sectorsToSize(usable_sectors - lastpart->getSectors());
+      size = sectorsToSize(usable_sectors - lastpart->getEnd());
     }
     
     return sizeToString(size);
