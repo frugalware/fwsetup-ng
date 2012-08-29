@@ -1,15 +1,26 @@
 #include <pacman.h>
 #include "local.h"
 
-static bool install_setup(pacman_cb_db_register cb)
-{
-  if(cb == 0)
-  {
-    errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
-    return false;
-  }
+static PM_DB **databases = 0;
 
+static void install_database_callback(const char *name,PM_DB *db)
+{
+  static size_t n = 1;
+
+  if(name == 0 || db == 0)
+    return;
+
+  databases = realloc(databases,sizeof(PM_DB *) * (n + 1));
+
+  databases[n - 1] = db;
+
+  databases[n] = 0;
+
+  ++n;
+}
+
+static bool install_setup(void)
+{
   if(!mkdir_recurse(INSTALL_ROOT "/var/cache/pacman-g2/pkg"))
     return false;
   
@@ -28,7 +39,7 @@ static bool install_setup(pacman_cb_db_register cb)
     return false;
   }
 
-  if(pacman_parse_config("/etc/pacman-g2.conf",cb,"") == -1)
+  if(pacman_parse_config("/etc/pacman-g2.conf",install_database_callback,"") == -1)
   {
     fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
     return false;
