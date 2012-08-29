@@ -10,6 +10,8 @@
 #include <limits.h>
 
 #define _(S) S
+#define LOGFILE "fwsetup.log"
+#define INSTALL_ROOT "/home/ryuo/fwsetup-ng/root"
 #define NEWT_WIDTH  70
 #define NEWT_HEIGHT 21
 

@@ -3,7 +3,7 @@
 extern bool mkdir_recurse(const char *path)
 {
   char buf[PATH_MAX] = {0};
-  char *s = buf;
+  char *s = buf + 1;
 
   if(path == 0)
   {
@@ -17,7 +17,7 @@ extern bool mkdir_recurse(const char *path)
   while((s = strchr(s,'/')) != 0)
   {
     *s = 0;
-    
+
     if(mkdir(buf,0755) == -1 && errno != EEXIST)
     {
       fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
