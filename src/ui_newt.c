@@ -8,7 +8,7 @@ extern int ui_main(int argc,char **argv)
 
   if(newtInit() != 0)
   {
-    printf(_("Could not initialize the NEWT user interface.\n"));
+    fprintf(logfile,_("Could not initialize the NEWT user interface.\n"));
     return 1;
   }
 
@@ -16,7 +16,7 @@ extern int ui_main(int argc,char **argv)
 
   if(w < 80 || h < 24)
   {
-    printf(_("We require a terminal of 80x24 or greater to use the NEWT user interface.\n"));
+    fprintf(logfile,_("We require a terminal of 80x24 or greater to use the NEWT user interface.\n"));
     newtFinished();
     return 1;
   }  
