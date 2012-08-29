@@ -11,4 +11,5 @@
 #define NEWT_HEIGHT 21
 
 extern int ui_main(int argc,char **argv);
+extern FILE *logfile;
 extern int main(int argc,char **argv);
