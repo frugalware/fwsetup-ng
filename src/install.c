@@ -36,17 +36,10 @@ static int install_download_callback(PM_NETBUF *ctl,int xfered,void *arg)
 
 static bool install_setup(void)
 {
-  if(!mkdir_recurse(INSTALL_ROOT "/var/cache/pacman-g2/pkg"))
-    return false;
-  
-  if(!mkdir_recurse(INSTALL_ROOT "/var/cache/pacman-g2/src"))
-    return false;
-
-  if(!mkdir_recurse(INSTALL_ROOT "/var/lib/pacman-g2/local"))
-    return false;
-
-  if(!mkdir_recurse(INSTALL_ROOT "/var/log"))
-    return false;
+  char path[PATH_MAX] = {0};
+  const char *dbdir = 0;
+  const char *cachedir = 0;
+  const char *hooksdir = 0;
 
   if(pacman_initialize(INSTALL_ROOT) == -1)
   {
@@ -131,6 +124,39 @@ static bool install_setup(void)
     fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
     return false;
   }
+
+  if(pacman_get_option(PM_OPT_DBPATH,(long *) &dbdir) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    return false;
+  }
+
+  if(pacman_get_option(PM_OPT_CACHEDIR,(long *) &cachedir) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    return false;
+  }
+
+  if(pacman_get_option(PM_OPT_HOOKSDIR,(long *) &hooksdir) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    return false;
+  }
+
+  snprintf(path,PATH_MAX,"%s/%s",INSTALL_ROOT,dbdir);
+
+  if(!mkdir_recurse(path))
+    return false;
+
+  snprintf(path,PATH_MAX,"%s/%s",INSTALL_ROOT,cachedir);
+
+  if(!mkdir_recurse(path))
+    return false;
+
+  snprintf(path,PATH_MAX,"%s/%s",INSTALL_ROOT,hooksdir);
+
+  if(!mkdir_recurse(path))
+    return false;
 
   return true;
 }
