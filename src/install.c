@@ -1,6 +1,17 @@
 #include <pacman.h>
 #include "local.h"
 
+struct dltext
+{
+  char eta[9];
+  char rate[47];
+  char size[16];
+  char size_perc[5];
+  char pkg[12];
+  char pkg_perc[5];
+  char *file;
+};
+
 static PM_DB **databases = 0;
 static size_t databases_size = 1;
 static char dl_filename[PM_DLFNM_LEN+1] = {0};
@@ -13,7 +24,7 @@ static unsigned int dl_eta_h = 0;
 static unsigned int dl_eta_m = 0;
 static unsigned int dl_eta_s = 0;
 static int dl_remain = 0;
-static int dl_total = 0;
+static int dl_howmany = 0;
 
 static void install_database_callback(const char *name,PM_DB *db)
 {
@@ -33,7 +44,9 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
   int dl_percent = 0;
   float dl_timediff = 0;
   struct timeval dl_time2 = {0};
-  
+  struct dltext text = {{0}, {0}, {0}, {0}, {0}, {0}, 0};
+  char *s = 0;
+
   dl_amount = dl_xfered0 + dl_offset;
 
   dl_total = * (int *) arg;
@@ -63,6 +76,30 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
     dl_eta_m = (int) ((dl_total - dl_amount) / (dl_rate * KIBIBYTE)) % 3600 / 60;
     dl_eta_s = (int) ((dl_total - dl_amount) / (dl_rate * KIBIBYTE)) % 3600 % 60;
   }
+
+  snprintf(text.eta,9,"%u:%u:%u",dl_eta_h,dl_eta_m,dl_eta_s);
+
+  if(dl_rate > KIBIBYTE)
+    snprintf(text.rate,47,"%.0fKiB/s",dl_rate);
+  else
+    snprintf(text.rate,47,"%.1fKiB/s",dl_rate);
+
+  size_to_string(text.size,16,dl_amount);
+
+  snprintf(text.size+strlen(text.size),16-strlen(text.size),"/");
+
+  size_to_string(text.size+strlen(text.size),16-strlen(text.size),dl_total);
+
+  snprintf(text.size_perc,5,"%d%%",dl_percent);
+
+  snprintf(text.pkg,12,"%d/%d",dl_remain,dl_howmany);
+
+  snprintf(text.pkg_perc,5,"%d%%",(int) (float) dl_remain / dl_howmany * 100);
+
+  if((s = strchr(dl_filename,' ')) != 0)
+    *s = 0;
+
+  text.file = dl_filename;
 
   return 1;
 }
@@ -152,7 +189,7 @@ static bool install_setup(void)
     return false;
   }
 
-  if(pacman_set_option(PM_OPT_DLHOWMANY,(long) &dl_total) == -1)
+  if(pacman_set_option(PM_OPT_DLHOWMANY,(long) &dl_howmany) == -1)
   {
     fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
     return false;
