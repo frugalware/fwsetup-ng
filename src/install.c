@@ -1,16 +1,6 @@
 #include <pacman.h>
 #include "local.h"
 
-struct dldata
-{
-  int amount;
-  int total;
-  int percent;
-  char percent_text[5];
-  float timediff;
-  char rate_text[47];
-};
-
 static PM_DB **databases = 0;
 static size_t databases_size = 1;
 static char dl_filename[PM_DLFNM_LEN+1] = {0};
@@ -19,17 +9,14 @@ static struct timeval dl_time0 = {0};
 static struct timeval dl_time1 = {0};
 static float dl_rate = 0;
 static int dl_xfered1 = 0;
-static unsigned char dl_eta_h = 0;
-static unsigned char dl_eta_m = 0;
-static unsigned char dl_eta_s = 0;
+static unsigned int dl_eta_h = 0;
+static unsigned int dl_eta_m = 0;
+static unsigned int dl_eta_s = 0;
 static int dl_remain = 0;
 static int dl_total = 0;
 
 static void install_database_callback(const char *name,PM_DB *db)
 {
-  if(name == 0 || db == 0)
-    return;
-
   databases = realloc(databases,sizeof(PM_DB *) * (databases_size + 1));
 
   databases[databases_size - 1] = db;
@@ -46,7 +33,7 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
   int dl_percent = 0;
   float dl_timediff = 0;
   struct timeval dl_time2 = {0};
-
+  
   dl_amount = dl_xfered0 + dl_offset;
 
   dl_total = * (int *) arg;
