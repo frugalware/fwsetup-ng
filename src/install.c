@@ -41,38 +41,41 @@ static void install_database_callback(const char *name,PM_DB *db)
 
 static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
 {
-  struct dldata dl = {0};
+  int dl_amount = 0;
+  int dl_total = 0;
+  int dl_percent = 0;
+  float dl_timediff = 0;
+  struct timeval dl_time2 = {0};
 
-  dl.amount = dl_xfered0 + dl_offset;
+  dl_amount = dl_xfered0 + dl_offset;
 
-  dl.total = * (int *) arg;
+  dl_total = * (int *) arg;
 
-  dl.percent = (float) dl.amount / dl.total * 100;
+  dl_percent = (float) dl_amount / dl_total * 100;
 
-  snprintf(dl.percent_text,5,"%d%%",dl.percent);
+  gettimeofday(&dl_time2,0);
 
-  gettimeofday(&dl_time1,0);
+  if(dl_amount == dl_total)
+    dl_time1 = dl_time0;
 
-  dl.timediff = (dl_time1.tv_sec - dl_time0.tv_sec) + (float) (dl_time1.tv_usec - dl_time0.tv_usec) / 1000000;
+  dl_timediff = (dl_time2.tv_sec - dl_time1.tv_sec) + (float) (dl_time2.tv_usec - dl_time1.tv_usec) / 1000000;
 
-  if(dl.amount == dl.total)
+  if(dl_amount == dl_total)
   {
-    dl_rate = dl_xfered0 / (dl.timediff * KIBIBYTE);
-    dl_eta_h = (int) dl.timediff / 3600;
-    dl_eta_m = (int) dl.timediff % 3600 / 60;
-    dl_eta_s = (int) dl.timediff % 3600 % 60;
+    dl_rate = dl_xfered0 / (dl_timediff * KIBIBYTE);
+    dl_eta_h = (int) dl_timediff / 3600;
+    dl_eta_m = (int) dl_timediff % 3600 / 60;
+    dl_eta_s = (int) dl_timediff % 3600 % 60;
   }
-  else if(dl.timediff > 1.0)
+  else if(dl_timediff > 1.0)
   {
-    dl_rate = (dl_xfered0 - dl_xfered1) / (dl.timediff * KIBIBYTE);
+    dl_rate = (dl_xfered0 - dl_xfered1) / (dl_timediff * KIBIBYTE);
     dl_xfered1 = dl_xfered0;
-    gettimeofday(&dl_time0,0);
-    dl_eta_h = (int) ((dl.total - dl.amount) / (dl_rate * KIBIBYTE)) / 3600;
-    dl_eta_m = (int) ((dl.total - dl.amount) / (dl_rate * KIBIBYTE)) % 3600 / 60;
-    dl_eta_s = (int) ((dl.total - dl.amount) / (dl_rate * KIBIBYTE)) % 3600 % 60;
+    gettimeofday(&dl_time1,0);
+    dl_eta_h = (int) ((dl_total - dl_amount) / (dl_rate * KIBIBYTE)) / 3600;
+    dl_eta_m = (int) ((dl_total - dl_amount) / (dl_rate * KIBIBYTE)) % 3600 / 60;
+    dl_eta_s = (int) ((dl_total - dl_amount) / (dl_rate * KIBIBYTE)) % 3600 % 60;
   }
-
-  snprintf(dl.rate_text,47,"%.1fKiB/s",dl_rate);
 
   return 1;
 }
