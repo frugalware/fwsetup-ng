@@ -15,12 +15,13 @@
 #define INSTALL_ROOT "/home/ryuo/fwsetup-ng/root"
 #define NEWT_WIDTH  70
 #define NEWT_HEIGHT 21
-#define KIBIBYTE (1LLU << 10LLU)
-#define MEBIBYTE (1LLU << 20LLU)
-#define GIBIBYTE (1LLU << 30LLU)
-#define TEBIBYTE (1LLU << 40LLU)
+#define KIBIBYTE (1LL << 10LL)
+#define MEBIBYTE (1LL << 20LL)
+#define GIBIBYTE (1LL << 30LL)
+#define TEBIBYTE (1LL << 40LL)
 
 extern bool mkdir_recurse(const char *path);
+extern bool size_to_string(char *s,size_t n,long long size);
 extern int ui_main(int argc,char **argv);
 extern FILE *logfile;
 extern int main(int argc,char **argv);

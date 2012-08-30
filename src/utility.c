@@ -37,3 +37,46 @@ extern bool mkdir_recurse(const char *path)
 
   return true;  
 }
+
+extern bool size_to_string(char *s,size_t n,long long size)
+{
+  long long divisor = 0;
+  const char *suffix = 0;
+
+  if(s == 0 || n == 0 || size < 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  if(size >= TEBIBYTE)
+  {
+    divisor = TEBIBYTE;
+    suffix = "TiB";
+  }
+  else if(size >= GIBIBYTE)
+  {
+    divisor = GIBIBYTE;
+    suffix = "GiB";
+  }
+  else if(size >= MEBIBYTE)
+  {
+    divisor = MEBIBYTE;
+    suffix = "MiB";
+  }
+  else if(size >= KIBIBYTE)
+  {
+    divisor = KIBIBYTE;
+    suffix = "KiB";
+  }
+  else
+  {
+    divisor = 1;
+    suffix = "BiB";
+  }
+
+  snprintf(s,n,"%.1f%s",(double) size / divisor,suffix);
+  
+  return true;
+}
