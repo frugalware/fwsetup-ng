@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <wchar.h>
 #include <errno.h>
 #include <limits.h>
 
@@ -22,6 +23,7 @@
 
 extern bool mkdir_recurse(const char *path);
 extern bool size_to_string(char *s,size_t n,long long size);
+extern int get_text_screen_width(const char *s);
 extern int ui_main(int argc,char **argv);
 extern FILE *logfile;
 extern int main(int argc,char **argv);
