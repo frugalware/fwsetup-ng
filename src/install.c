@@ -236,3 +236,21 @@ static bool install_setup(void)
 
   return true;
 }
+
+static bool install_databases_update(void)
+{
+  size_t i = 0;
+  
+  while(i < databases_size)
+  {
+    if(pacman_db_update(1,databases[i]) == -1)
+    {
+      fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+      return false;  
+    }
+    
+    ++i;
+  }
+  
+  return true;
+}
