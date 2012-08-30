@@ -5,7 +5,7 @@ struct dltext
 {
   char eta[9];
   char rate[47];
-  char size[16];
+  char size[20];
   char size_perc[5];
   char pkg[12];
   char pkg_perc[5];
@@ -84,11 +84,11 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
   else
     snprintf(text.rate,47,"%.1fKiB/s",dl_rate);
 
-  size_to_string(text.size,16,dl_amount);
+  size_to_string(text.size,20,dl_amount);
 
-  snprintf(text.size+strlen(text.size),16-strlen(text.size),"/");
+  snprintf(text.size+strlen(text.size),20-strlen(text.size),"/");
 
-  size_to_string(text.size+strlen(text.size),16-strlen(text.size),dl_total);
+  size_to_string(text.size+strlen(text.size),20-strlen(text.size),dl_total);
 
   snprintf(text.size_perc,5,"%d%%",dl_percent);
 
