@@ -12,6 +12,8 @@ struct dltext
   char *file;
 };
 
+typedef int (*install_download_callback_wrapper) (const struct dltext *text);
+
 static PM_DB **databases = 0;
 static size_t databases_size = 1;
 static char dl_filename[PM_DLFNM_LEN+1] = {0};
@@ -25,6 +27,7 @@ static unsigned int dl_eta_m = 0;
 static unsigned int dl_eta_s = 0;
 static int dl_remain = 0;
 static int dl_howmany = 0;
+static install_download_callback_wrapper dl_callback;
 
 static void install_database_callback(const char *name,PM_DB *db)
 {
@@ -46,6 +49,9 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
   struct timeval dl_time2 = {0};
   struct dltext text = {{0}, {0}, {0}, {0}, {0}, {0}, 0};
   char *s = 0;
+
+  if(dl_callback == 0)
+    return 1;
 
   dl_amount = dl_xfered0 + dl_offset;
 
@@ -101,7 +107,7 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
 
   text.file = dl_filename;
 
-  return 1;
+  return dl_callback(&text);
 }
 
 static bool install_setup(void)
