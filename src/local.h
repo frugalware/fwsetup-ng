@@ -24,6 +24,7 @@
 extern bool mkdir_recurse(const char *path);
 extern bool size_to_string(char *s,size_t n,long long size);
 extern int get_text_screen_width(const char *s);
+extern bool get_text_screen_size(const char *text,int *width,int *height);
 extern int ui_main(int argc,char **argv);
 extern FILE *logfile;
 extern int main(int argc,char **argv);

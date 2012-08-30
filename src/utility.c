@@ -131,3 +131,42 @@ extern int get_text_screen_width(const char *s)
   
   return w;
 }
+
+extern bool get_text_screen_size(const char *text,int *width,int *height)
+{
+  char *s = text;
+  int cw = 0;
+  int w = 0;
+  int h = 0;
+
+  if(text == 0 || width == 0 || height == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  while(true)
+  {
+    cw = get_text_screen_length(s);
+    
+    if(cw == -1)
+      return false;
+    
+    if(w < cw)
+      w = cw;
+    
+    if((s = strchr(s,'\n')) == 0)
+      break;
+    
+    ++h;
+    
+    ++s;
+  }
+  
+  *width = w;
+  
+  *height = h;
+  
+  return true;
+}
