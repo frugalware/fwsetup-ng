@@ -10,14 +10,10 @@
 #include <wchar.h>
 #include <errno.h>
 #include <limits.h>
+#include "text.h"
 
-#define _(S) S
 #define LOGFILE "fwsetup.log"
 #define INSTALL_ROOT "/home/ryuo/fwsetup-ng/root"
-#define OK_BUTTON_TEXT _("Ok")
-#define CANCEL_BUTTON_TEXT _("Cancel")
-#define YES_BUTTON_TEXT _("Yes")
-#define NO_BUTTON_TEXT _("No")
 #define NEWT_WIDTH  70
 #define NEWT_HEIGHT 21
 #define KIBIBYTE (1LL << 10LL)

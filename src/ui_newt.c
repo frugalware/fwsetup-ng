@@ -8,7 +8,7 @@ extern int ui_main(int argc,char **argv)
 
   if(newtInit() != 0)
   {
-    fprintf(logfile,_("Could not initialize the NEWT user interface.\n"));
+    fprintf(logfile,NEWT_INIT_FAILURE_TEXT);
     return 1;
   }
 
@@ -16,7 +16,7 @@ extern int ui_main(int argc,char **argv)
 
   if(w < 80 || h < 24)
   {
-    fprintf(logfile,_("We require a terminal of 80x24 or greater to use the NEWT user interface.\n"));
+    fprintf(logfile,NEWT_TOO_SMALL_TEXT);
     newtFinished();
     return 1;
   }  
@@ -54,7 +54,7 @@ extern void ui_dialog_text(const char *title,const char *text)
 
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
   {
-    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
     return;
   }
   
@@ -116,7 +116,7 @@ extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno)
 
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
   {
-    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
     return false;
   }
 
@@ -171,13 +171,13 @@ extern bool ui_dialog_progress(const char *title,ui_dialog_progress_callback cb,
 
   if(!cb(text,NEWT_WIDTH + 1,&percent,data))
   {
-    fprintf(logfile,_("Progress dialog callback canceled the operation.\n"));
+    fprintf(logfile,PROGRESS_DIALOG_CANCEL_TEXT);
     return false;
   }
 
   if(newtCenteredWindow(NEWT_WIDTH,3,title) != 0)
   {
-    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
     return false;
   }
   
@@ -201,7 +201,7 @@ extern bool ui_dialog_progress(const char *title,ui_dialog_progress_callback cb,
     {
       if(!cb(text,NEWT_WIDTH + 1,&percent,data))
       {
-        fprintf(logfile,_("Progress dialog callback canceled the operation.\n"));
+        fprintf(logfile,PROGRESS_DIALOG_CANCEL_TEXT);
         result = false;
         break;
       }
@@ -209,13 +209,13 @@ extern bool ui_dialog_progress(const char *title,ui_dialog_progress_callback cb,
       newtLabelSetText(label,text);
       
       newtScaleSet(scale,percent);
-    }
     
-    if(percent > 100)
-    {
-      result = true;
-      break;
-    }
+      if(percent > 100)
+      {
+        result = true;
+        break;
+      }
+    }    
   }
   
   newtFormDestroy(form);

@@ -34,6 +34,6 @@ env.ParseConfig('pkg-config --cflags --libs pacman libnewt')
 env.Program('fwsetup',[
   'main.c',
   'utility.c',
-  'install_newt.c',
+  'install.c',
   'ui_newt.c'
 ])
