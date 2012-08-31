@@ -12,6 +12,36 @@ struct dltext
   char *file;
 };
 
+static struct pkggroup groups[] =
+{
+  {              "apps", true  },
+  {        "apps-extra", false },
+  {              "base", true  },
+  {        "base-extra", false },
+  {             "devel", true  },
+  {       "devel-extra", false },
+  {             "gnome", true  },
+  {       "gnome-extra", false },
+  {               "kde", true  },
+  {         "kde-extra", false },
+  {               "lib", true  },
+  {         "lib-extra", false },
+  {        "multimedia", true  },
+  {  "multimedia-extra", false },
+  {           "network", true  },
+  {     "network-extra", false },
+  {               "x11", true  },
+  {         "x11-extra", false },
+  {             "xapps", true  },
+  {       "xapps-extra", false },
+  {             "xfce4", true  },
+  {       "xfce4-extra", false },
+  {              "xlib", true  },
+  {        "xlib-extra", false },
+  {       "xmultimedia", true  },
+  { "xmultimedia-extra", false },
+  {                   0, false }
+};
 static char **databases_names = 0;
 static PM_DB **databases = 0;
 static size_t databases_size = 1;

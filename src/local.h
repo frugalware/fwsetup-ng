@@ -27,6 +27,18 @@
 
 typedef bool (*ui_dialog_progress_callback) (char *text,size_t n,int *percent,void *data);
 
+struct pkggroup
+{
+  const char *name;
+  bool selected;
+};
+
+struct install
+{
+  bool update_database;
+  struct pkggroup *pkgs;
+};
+
 extern bool mkdir_recurse(const char *path);
 extern bool size_to_string(char *s,size_t n,long long size);
 extern int get_text_screen_width(const char *s);
