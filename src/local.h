@@ -32,5 +32,6 @@ extern bool get_text_screen_size(const char *text,int *width,int *height);
 extern bool get_button_screen_size(const char *text,int *width,int *height);
 extern int ui_main(int argc,char **argv);
 extern void ui_dialog_text(const char *title,const char *text);
+extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno);
 extern FILE *logfile;
 extern int main(int argc,char **argv);

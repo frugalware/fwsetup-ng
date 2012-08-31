@@ -82,3 +82,72 @@ extern void ui_dialog_text(const char *title,const char *text)
   
   newtPopWindow();
 }
+
+extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno)
+{
+  int textbox_width = 0;
+  int textbox_height = 0;
+  int yes_width = 0;
+  int yes_height = 0;
+  int no_width = 0;
+  int no_height = 0;
+  newtComponent textbox = 0;
+  newtComponent yes = 0;
+  newtComponent no = 0;
+  newtComponent form = 0;
+  struct newtExitStruct es = {0};
+  bool result = false;
+
+  if(title == 0 || text == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  if(!get_text_screen_size(text,&textbox_width,&textbox_height))
+    return false;
+
+  if(!get_button_screen_size(YES_BUTTON_TEXT,&yes_width,&yes_height))
+    return false;
+  
+  if(!get_button_screen_size(NO_BUTTON_TEXT,&no_width,&no_height))
+    return false;
+
+  if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
+  {
+    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    return false;
+  }
+
+  textbox = newtTextbox(0,0,textbox_width,textbox_height,0);
+  
+  newtTextboxSetText(textbox,text);
+
+  yes = newtButton(NEWT_WIDTH-yes_width-no_width,NEWT_HEIGHT-yes_height,YES_BUTTON_TEXT);
+  
+  no = newtButton(NEWT_WIDTH-no_width,NEWT_HEIGHT-no_height,NO_BUTTON_TEXT);
+  
+  form = newtForm(0,0,NEWT_FLAG_NOF12);
+  
+  newtFormAddComponents(form,textbox,yes,no,(void *) 0);
+  
+  newtFormSetCurrent(form,(defaultno) ? no : yes);
+  
+  while(true)
+  {
+    newtFormRun(form,&es);
+    
+    if(es.reason == NEWT_EXIT_COMPONENT && (es.u.co == yes || es.u.co == no))
+    {
+      result = (es.u.co == yes);
+      break;
+    }
+  }
+  
+  newtFormDestroy(form);
+  
+  newtPopWindow();
+  
+  return result;
+}
