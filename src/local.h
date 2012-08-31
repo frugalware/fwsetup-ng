@@ -21,16 +21,10 @@
 
 typedef bool (*ui_dialog_progress_callback) (char *text,size_t n,int *percent,void *data);
 
-struct pkggroup
+struct install
 {
   const char *name;
   bool checked;
-};
-
-struct install
-{
-  bool update_databases;
-  struct pkggroup *pkgs;
 };
 
 struct dldata

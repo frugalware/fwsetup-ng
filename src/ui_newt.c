@@ -243,7 +243,7 @@ extern int ui_window_install(const char *title,struct install *data)
   newtComponent next = 0;
   newtComponent checkboxtree = 0;
   int i = 0;
-  struct pkggroup *pkg = 0;
+  struct install *pkg = 0;
   newtComponent form = 0;
   struct newtExitStruct es = {0};
   int result = 0;
@@ -279,13 +279,7 @@ extern int ui_window_install(const char *title,struct install *data)
 
   newtCheckboxTreeSetWidth(checkboxtree,checkboxtree_width);
 
-  newtCheckboxTreeAddItem(checkboxtree,INSTALL_UPDATE_TEXT,&data->update_databases,0,0,NEWT_ARG_LAST);
-
-  newtCheckboxTreeSetEntryValue(checkboxtree,&data->update_databases,(data->update_databases) ? '*' : ' ');
-
-  i = 1;
-
-  pkg = data->pkgs;
+  pkg = data;
 
   while(pkg->name != 0)
   {
@@ -312,9 +306,7 @@ extern int ui_window_install(const char *title,struct install *data)
     }
   }
 
-  data->update_databases = (newtCheckboxTreeGetEntryValue(checkboxtree,&data->update_databases) == '*');
-
-  pkg = data->pkgs;
+  pkg = data;
 
   while(pkg->name != 0)
   {
