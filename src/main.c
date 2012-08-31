@@ -13,5 +13,7 @@ extern int main(int argc,char **argv)
     return 1;
   }
 
+  setbuf(logfile,0);
+
   return ui_main(argc,argv);
 }
