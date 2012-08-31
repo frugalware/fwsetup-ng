@@ -1,6 +1,9 @@
 #include <newt.h>
 #include "local.h"
 
+#define NEWT_WIDTH 70
+#define NEWT_HEIGHT 21
+
 extern int ui_main(int argc,char **argv)
 {
   int w = 0;
@@ -222,5 +225,106 @@ extern bool ui_dialog_progress(const char *title,ui_dialog_progress_callback cb,
   
   newtPopWindow();
   
+  return result;
+}
+
+extern int ui_window_install(const char *title,struct install *data)
+{
+  int textbox_width = 0;
+  int textbox_height = 0;
+  int previous_width = 0;
+  int previous_height = 0;
+  int next_width = 0;
+  int next_height = 0;
+  int checkboxtree_width = 0;
+  int checkboxtree_height = 0;
+  newtComponent textbox = 0;
+  newtComponent previous = 0;
+  newtComponent next = 0;
+  newtComponent checkboxtree = 0;
+  int i = 0;
+  struct pkggroup *pkg = 0;
+  newtComponent form = 0;
+  struct newtExitStruct es = {0};
+  int result = 0;
+
+  if(!get_text_screen_size(INSTALL_WINDOW_TEXT,&textbox_width,&textbox_height))
+    return 0;
+
+  if(!get_button_screen_size(PREVIOUS_BUTTON_TEXT,&previous_width,&previous_height))
+    return 0;
+  
+  if(!get_button_screen_size(NEXT_BUTTON_TEXT,&next_width,&next_height))
+    return 0;
+
+  checkboxtree_width = NEWT_WIDTH;
+  
+  checkboxtree_height = NEWT_HEIGHT - textbox_height - max(previous_height,next_height) - 2;
+
+  if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
+  {
+    fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
+    return 0;
+  }
+  
+  textbox = newtTextbox(0,0,textbox_width,textbox_height,0);
+
+  newtTextboxSetText(textbox,INSTALL_WINDOW_TEXT);
+
+  previous = newtButton(NEWT_WIDTH-previous_width-next_width,NEWT_HEIGHT-previous_height,PREVIOUS_BUTTON_TEXT);
+
+  next = newtButton(NEWT_WIDTH-next_width,NEWT_HEIGHT-next_height,NEXT_BUTTON_TEXT);
+
+  checkboxtree = newtCheckboxTree(0,textbox_height+1,checkboxtree_height,NEWT_FLAG_SCROLL);
+
+  newtCheckboxTreeSetWidth(checkboxtree,checkboxtree_width);
+
+  newtCheckboxTreeAddItem(checkboxtree,INSTALL_UPDATE_TEXT,&data->update_databases,0,0,NEWT_ARG_LAST);
+
+  newtCheckboxTreeSetEntryValue(checkboxtree,&data->update_databases,(data->update_databases) ? '*' : ' ');
+
+  i = 1;
+
+  pkg = data->pkgs;
+
+  while(pkg->name != 0)
+  {
+    newtCheckboxTreeAddItem(checkboxtree,pkg->name,&pkg->checked,0,i,NEWT_ARG_LAST);
+    newtCheckboxTreeSetEntryValue(checkboxtree,&pkg->checked,(pkg->checked) ? '*' : ' ');
+    ++i;
+    ++pkg;
+  }
+
+  form = newtForm(0,0,NEWT_FLAG_NOF12);
+
+  newtFormAddComponents(form,textbox,previous,next,checkboxtree,(void *) 0);
+
+  newtFormSetCurrent(form,checkboxtree);
+
+  while(true)
+  {
+    newtFormRun(form,&es);
+    
+    if(es.reason == NEWT_EXIT_COMPONENT && (es.u.co == previous || es.u.co == next))
+    {
+      result = (es.u.co == previous) ? -1 : 1;
+      break;
+    }
+  }
+
+  data->update_databases = (newtCheckboxTreeGetEntryValue(checkboxtree,&data->update_databases) == '*');
+
+  pkg = data->pkgs;
+
+  while(pkg->name != 0)
+  {
+    pkg->checked = (newtCheckboxTreeGetEntryValue(checkboxtree,&pkg->checked) == '*');
+    ++pkg;
+  }
+
+  newtFormDestroy(form);
+
+  newtPopWindow();
+
   return result;
 }

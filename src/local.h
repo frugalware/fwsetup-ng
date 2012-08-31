@@ -24,12 +24,12 @@ typedef bool (*ui_dialog_progress_callback) (char *text,size_t n,int *percent,vo
 struct pkggroup
 {
   const char *name;
-  bool selected;
+  bool checked;
 };
 
 struct install
 {
-  bool update_database;
+  bool update_databases;
   struct pkggroup *pkgs;
 };
 
@@ -44,5 +44,6 @@ extern int ui_main(int argc,char **argv);
 extern void ui_dialog_text(const char *title,const char *text);
 extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno);
 extern bool ui_dialog_progress(const char *title,ui_dialog_progress_callback cb,void *data);
+extern int ui_window_install(const char *title,struct install *data);
 extern FILE *logfile;
 extern int main(int argc,char **argv);
