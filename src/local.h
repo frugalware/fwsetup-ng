@@ -33,6 +33,19 @@ struct install
   struct pkggroup *pkgs;
 };
 
+struct dldata
+{
+  char eta[9];
+  char rate[47];
+  char size[20];
+  char size_perc[5];
+  int size_perc_int;
+  char pkg[12];
+  char pkg_perc[5];
+  int pkg_perc_int;
+  char *file;
+};
+
 extern bool mkdir_recurse(const char *path);
 extern bool size_to_string(char *s,size_t n,long long size);
 extern int get_text_screen_width(const char *s);
@@ -45,5 +58,6 @@ extern void ui_dialog_text(const char *title,const char *text);
 extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno);
 extern bool ui_dialog_progress(const char *title,ui_dialog_progress_callback cb,void *data);
 extern int ui_window_install(const char *title,struct install *data);
+extern bool ui_dialog_progress_install(const char *title,const struct dldata *data);
 extern FILE *logfile;
 extern int main(int argc,char **argv);

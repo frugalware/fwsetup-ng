@@ -328,3 +328,56 @@ extern int ui_window_install(const char *title,struct install *data)
 
   return result;
 }
+
+extern bool ui_dialog_progress_install(const char *title,const struct dldata *data)
+{
+  static newtComponent label = 0;
+  static newtComponent scale = 0;
+  static newtComponent form = 0;
+  char text[NEWT_WIDTH+1] = {0};
+
+  if(title == 0 && data == 0)
+  {
+    newtFormDestroy(form);
+    label = 0;
+    scale = 0;
+    form = 0;
+    return true;
+  }
+
+  if(title == 0 || data == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  if(label == 0 && scale == 0 && form == 0)
+  {
+    if(newtCenteredWindow(NEWT_WIDTH,3,title) != 0)
+    {
+      fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
+      return false;
+    }
+    
+    label = newtLabel(0,0,"");
+    
+    scale = newtScale(0,2,NEWT_WIDTH,100);
+    
+    form = newtForm(0,0,NEWT_FLAG_NOF12);
+    
+    newtFormAddComponents(form,label,scale,(void *) 0);
+  }
+  
+  snprintf(text,NEWT_WIDTH+1,"%s - %s - %s - (%s)",data->file,data->rate,data->size,data->pkg);
+  
+  newtLabelSetText(label,text);
+  
+  newtScaleSet(scale,data->size_perc_int);
+
+  newtDrawForm(form);
+  
+  newtRefresh();
+  
+  return true;
+}
