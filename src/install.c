@@ -280,3 +280,19 @@ static bool install_databases_update(void)
   
   return true;
 }
+
+static int install_run(void)
+{
+  return 0;
+}
+
+static void install_reset(void)
+{
+}
+
+struct module install_module =
+{
+  install_run,
+  install_reset,
+  __FILE__
+};

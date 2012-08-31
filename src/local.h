@@ -46,6 +46,13 @@ struct dldata
   char *file;
 };
 
+struct module
+{
+  int (*run) (void);
+  void (*reset) (void);
+  const char *name;
+};
+
 extern bool mkdir_recurse(const char *path);
 extern bool size_to_string(char *s,size_t n,long long size);
 extern int get_text_screen_width(const char *s);
@@ -61,3 +68,5 @@ extern int ui_window_install(const char *title,struct install *data);
 extern bool ui_dialog_progress_install(const char *title,const struct dldata *data);
 extern FILE *logfile;
 extern int main(int argc,char **argv);
+
+extern struct module module_install;
