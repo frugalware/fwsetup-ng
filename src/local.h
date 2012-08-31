@@ -14,8 +14,6 @@
 
 #define LOGFILE "fwsetup.log"
 #define INSTALL_ROOT "/home/ryuo/fwsetup-ng/root"
-#define NEWT_WIDTH  70
-#define NEWT_HEIGHT 21
 #define KIBIBYTE (1LL << 10LL)
 #define MEBIBYTE (1LL << 20LL)
 #define GIBIBYTE (1LL << 30LL)
@@ -40,6 +38,8 @@ extern bool size_to_string(char *s,size_t n,long long size);
 extern int get_text_screen_width(const char *s);
 extern bool get_text_screen_size(const char *text,int *width,int *height);
 extern bool get_button_screen_size(const char *text,int *width,int *height);
+static inline long min(long a,long b) { return (a < b) ? a : b; }
+static inline long max(long a,long b) { return (a > b) ? a : b; }
 extern int ui_main(int argc,char **argv);
 extern void ui_dialog_text(const char *title,const char *text);
 extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno);
