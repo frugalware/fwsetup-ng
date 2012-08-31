@@ -151,3 +151,76 @@ extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno)
   
   return result;
 }
+
+extern bool ui_dialog_progress(const char *title,ui_dialog_progress_callback cb,void *data)
+{
+  char text[NEWT_WIDTH + 1] = {0};
+  int percent = 0;
+  newtComponent label = 0;
+  newtComponent scale = 0;
+  newtComponent form = 0;
+  struct newtExitStruct es = {0};
+  bool result = false;
+
+  if(title == 0 || cb == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  if(!cb(text,NEWT_WIDTH + 1,&percent,data))
+  {
+    fprintf(logfile,_("Progress dialog callback canceled the operation.\n"));
+    return false;
+  }
+
+  if(newtCenteredWindow(NEWT_WIDTH,3,title) != 0)
+  {
+    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    return false;
+  }
+  
+  label = newtLabel(0,0,text);
+  
+  scale = newtScale(0,2,NEWT_WIDTH,100);
+  
+  newtScaleSet(scale,percent);
+  
+  form = newtForm(0,0,NEWT_FLAG_NOF12);
+  
+  newtFormAddComponents(form,label,scale,(void *) 0);
+  
+  newtFormSetTimer(form,100);
+  
+  while(true)
+  {
+    newtFormRun(form,&es);
+
+    if(es.reason == NEWT_EXIT_TIMER)
+    {
+      if(!cb(text,NEWT_WIDTH + 1,&percent,data))
+      {
+        fprintf(logfile,_("Progress dialog callback canceled the operation.\n"));
+        result = false;
+        break;
+      }
+
+      newtLabelSetText(label,text);
+      
+      newtScaleSet(scale,percent);
+    }
+    
+    if(percent > 100)
+    {
+      result = true;
+      break;
+    }
+  }
+  
+  newtFormDestroy(form);
+  
+  newtPopWindow();
+  
+  return result;
+}
