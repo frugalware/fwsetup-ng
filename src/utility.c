@@ -170,3 +170,29 @@ extern bool get_text_screen_size(const char *text,int *width,int *height)
   
   return true;
 }
+
+extern bool get_button_screen_size(const char *text,int *width,int *height)
+{
+  int w = 0;
+  int h = 0;
+  
+  if(text == 0 || width == 0 || height == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  if((w = get_text_screen_length(text)) == -1)
+    return false;
+
+  w += 5;
+  
+  h = 4;
+  
+  *width = w;
+  
+  *height = h;
+  
+  return true;
+}
