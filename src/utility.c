@@ -134,7 +134,7 @@ extern int get_text_screen_width(const char *s)
 
 extern bool get_text_screen_size(const char *text,int *width,int *height)
 {
-  char *s = text;
+  const char *s = text;
   int cw = 0;
   int w = 0;
   int h = 0;
@@ -148,7 +148,7 @@ extern bool get_text_screen_size(const char *text,int *width,int *height)
   
   while(true)
   {
-    cw = get_text_screen_length(s);
+    cw = get_text_screen_width(s);
     
     if(cw == -1)
       return false;
@@ -183,7 +183,7 @@ extern bool get_button_screen_size(const char *text,int *width,int *height)
     return false;
   }
   
-  if((w = get_text_screen_length(text)) == -1)
+  if((w = get_text_screen_width(text)) == -1)
     return false;
 
   w += 5;
