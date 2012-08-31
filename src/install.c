@@ -1,17 +1,6 @@
 #include <pacman.h>
 #include "local.h"
 
-struct dltext
-{
-  char eta[9];
-  char rate[47];
-  char size[20];
-  char size_perc[5];
-  char pkg[12];
-  char pkg_perc[5];
-  char *file;
-};
-
 static struct pkggroup groups[] =
 {
   {              "apps", true  },
@@ -81,7 +70,7 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
   int dl_percent = 0;
   float dl_timediff = 0;
   struct timeval dl_time2 = {0};
-  struct dltext text = {{0}, {0}, {0}, {0}, {0}, {0}, 0};
+  struct dldata data = {{0}, {0}, {0}, {0}, 0, {0}, {0}, 0, 0};
   char *s = 0;
 
   dl_amount = dl_xfered0 + dl_offset;
@@ -114,29 +103,35 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
     dl_eta_s = (int) ((dl_total - dl_amount) / (dl_rate * KIBIBYTE)) % 3600 % 60;
   }
 
-  snprintf(text.eta,9,"%u:%u:%u",dl_eta_h,dl_eta_m,dl_eta_s);
+  snprintf(data.eta,9,"%u:%u:%u",dl_eta_h,dl_eta_m,dl_eta_s);
 
   if(dl_rate > KIBIBYTE)
-    snprintf(text.rate,47,"%.0fKiB/s",dl_rate);
+    snprintf(data.rate,47,"%.0fKiB/s",dl_rate);
   else
-    snprintf(text.rate,47,"%.1fKiB/s",dl_rate);
+    snprintf(data.rate,47,"%.1fKiB/s",dl_rate);
 
-  size_to_string(text.size,20,dl_amount);
+  size_to_string(data.size,20,dl_amount);
 
-  snprintf(text.size+strlen(text.size),20-strlen(text.size),"/");
+  snprintf(data.size+strlen(data.size),20-strlen(data.size),"/");
 
-  size_to_string(text.size+strlen(text.size),20-strlen(text.size),dl_total);
+  size_to_string(data.size+strlen(data.size),20-strlen(data.size),dl_total);
 
-  snprintf(text.size_perc,5,"%d%%",dl_percent);
+  snprintf(data.size_perc,5,"%d%%",dl_percent);
 
-  snprintf(text.pkg,12,"%d/%d",dl_remain,dl_howmany);
+  data.size_perc_int = dl_percent;
 
-  snprintf(text.pkg_perc,5,"%d%%",(int) (float) dl_remain / dl_howmany * 100);
+  snprintf(data.pkg,12,"%d/%d",dl_remain,dl_howmany);
+
+  snprintf(data.pkg_perc,5,"%d%%",(int) (float) dl_remain / dl_howmany * 100);
+
+  data.pkg_perc_int = (int) (float) dl_remain / dl_howmany * 100;
 
   if((s = strchr(dl_filename,' ')) != 0)
     *s = 0;
 
-  text.file = dl_filename;
+  data.file = dl_filename;
+
+  ui_dialog_progress_install("Downloading...",&data);
 
   return 1;
 }
