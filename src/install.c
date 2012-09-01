@@ -284,11 +284,53 @@ static int install_run(void)
     {                   0, false }
   };
 
+  if(!install_setup())
+    return 0;
+
   return 0;
 }
 
 static void install_reset(void)
 {
+  pacman_release();
+  
+  if(databases_names != 0)
+  {
+    for( char **s = databases_names ; *s ; ++s )
+      free(*s);
+  
+    free(databases_names);
+    
+    databases_names = 0;
+  }
+  
+  free(databases);
+  
+  databases = 0;
+  
+  databases_size = 1;
+  
+  memset(dl_filename,0,sizeof(dl_filename));
+
+  dl_offset = 0;
+  
+  memset(&dl_time0,0,sizeof(dl_time0));
+  
+  memset(&dl_time1,0,sizeof(dl_time1));
+
+  dl_rate = 0;
+  
+  dl_xfered1 = 0;
+
+  dl_eta_h = 0;
+  
+  dl_eta_m = 0;
+  
+  dl_eta_s = 0;
+  
+  dl_remain = 0;
+  
+  dl_howmany = 0;
 }
 
 struct module install_module =
