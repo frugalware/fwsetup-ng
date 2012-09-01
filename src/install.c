@@ -1,36 +1,6 @@
 #include <pacman.h>
 #include "local.h"
 
-static struct pkggroup groups[] =
-{
-  {              "apps", true  },
-  {        "apps-extra", false },
-  {              "base", true  },
-  {        "base-extra", false },
-  {             "devel", true  },
-  {       "devel-extra", false },
-  {             "gnome", true  },
-  {       "gnome-extra", false },
-  {               "kde", true  },
-  {         "kde-extra", false },
-  {               "lib", true  },
-  {         "lib-extra", false },
-  {        "multimedia", true  },
-  {  "multimedia-extra", false },
-  {           "network", true  },
-  {     "network-extra", false },
-  {               "x11", true  },
-  {         "x11-extra", false },
-  {             "xapps", true  },
-  {       "xapps-extra", false },
-  {             "xfce4", true  },
-  {       "xfce4-extra", false },
-  {              "xlib", true  },
-  {        "xlib-extra", false },
-  {       "xmultimedia", true  },
-  { "xmultimedia-extra", false },
-  {                   0, false }
-};
 static char **databases_names = 0;
 static PM_DB **databases = 0;
 static size_t databases_size = 1;
@@ -283,6 +253,37 @@ static bool install_databases_update(void)
 
 static int install_run(void)
 {
+  struct install groups[] =
+  {
+    {              "apps", false  },
+    {        "apps-extra", false },
+    {              "base", false  },
+    {        "base-extra", false },
+    {             "devel", false  },
+    {       "devel-extra", false },
+    {             "gnome", false  },
+    {       "gnome-extra", false },
+    {               "kde", false  },
+    {         "kde-extra", false },
+    {               "lib", false  },
+    {         "lib-extra", false },
+    {        "multimedia", false  },
+    {  "multimedia-extra", false },
+    {           "network", false  },
+    {     "network-extra", false },
+    {               "x11", false  },
+    {         "x11-extra", false },
+    {             "xapps", false  },
+    {       "xapps-extra", false },
+    {             "xfce4", false  },
+    {       "xfce4-extra", false },
+    {              "xlib", false  },
+    {        "xlib-extra", false },
+    {       "xmultimedia", false  },
+    { "xmultimedia-extra", false },
+    {                   0, false }
+  };
+
   return 0;
 }
 
