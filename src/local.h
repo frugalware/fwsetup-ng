@@ -21,6 +21,11 @@
 
 typedef bool (*ui_dialog_progress_callback) (char *text,size_t n,int *percent,void *data);
 
+struct global
+{
+  bool netinstall;
+};
+
 struct install
 {
   const char *name;
@@ -63,4 +68,5 @@ extern bool ui_dialog_progress_install(const char *title,const struct dldata *da
 extern FILE *logfile;
 extern int main(int argc,char **argv);
 
+extern struct global g;
 extern struct module module_install;
