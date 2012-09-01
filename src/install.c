@@ -237,7 +237,7 @@ static bool install_databases_update(void)
 {
   size_t i = 0;
   
-  while(i < databases_size)
+  while(databases[i] != 0)
   {
     if(pacman_db_update(1,databases[i]) == -1)
     {
@@ -283,11 +283,18 @@ static int install_run(void)
     { "xmultimedia-extra", false },
     {                   0, false }
   };
+  int order = 0;
 
   if(!install_setup())
     return 0;
 
-  return 0;
+  if((order = ui_window_install(INSTALL_TITLE_TEXT,groups)) == 0)
+    return 0;
+
+  if(g.netinstall && !install_databases_update())
+    return 0;
+
+  return order;
 }
 
 static void install_reset(void)
