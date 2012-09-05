@@ -95,9 +95,9 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
   snprintf(dl_eta_text,9,"%.2u:%.2u:%.2u",dl_eta_h,dl_eta_m,dl_eta_s);
 
   if(dl_rate > KIBIBYTE)
-    snprintf(dl_rate_text,47,"%.0fKiB/s",dl_rate);
+    snprintf(dl_rate_text,47,"%6.0fKiB/s",dl_rate);
   else
-    snprintf(dl_rate_text,47,"%.1fKiB/s",dl_rate);
+    snprintf(dl_rate_text,47,"%6.1fKiB/s",dl_rate);
 
   size_to_string(dl_size_text,20,dl_amount);
 
@@ -114,7 +114,7 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
   else if(dl_howmany < 10000)
     dl_pkg_padding = 4;
 
-  snprintf(dl_pkg_text,10,"%.*d/%d",dl_pkg_padding,dl_remain,dl_howmany);
+  snprintf(dl_pkg_text,10,"%*d/%d",dl_pkg_padding,dl_remain,dl_howmany);
 
   if((s = strchr(dl_filename,' ')) != 0)
     *s = 0;
@@ -178,6 +178,12 @@ static void install_event_callback(unsigned char event,void *data1,void *data2)
     
     case PM_TRANS_EVT_FILECONFLICTS_DONE:
       break;
+
+    case PM_TRANS_EVT_CLEANUP_START:
+      break;
+    
+    case PM_TRANS_EVT_CLEANUP_DONE:
+      break;
     
     case PM_TRANS_EVT_ADD_START:
       break;
@@ -206,7 +212,7 @@ static void install_conversation_callback(unsigned char event,void *data1,void *
   *response = 0;
 }
 
-static void install_progress_callback(unsigned char event,char *pkg,int percent,int remain,int howmany)
+static void install_progress_callback(unsigned char event,char *pkg,int percent,int howmany,int remain)
 {
   char text[256] = {0};
   int padding = 0;
@@ -221,10 +227,10 @@ static void install_progress_callback(unsigned char event,char *pkg,int percent,
   else if(howmany < 10000)
     padding = 4;
 
-  snprintf(text,256,"(%.*d/%d)",padding,remain,howmany);
+  snprintf(text,256,"(%*d/%d)",padding,remain,howmany);
 
   if(strlen(pkg) > 0)
-    snprintf(text+strlen(pkg),256-strlen(pkg)," - %s",pkg);
+    snprintf(text+strlen(text),256-strlen(text)," - %s",pkg);
 
   switch(event)
   {
@@ -245,7 +251,7 @@ static void install_progress_callback(unsigned char event,char *pkg,int percent,
       break;
   }
   
-  if(title != 0)
+  if(title != 0 && percent >= 0 && percent <= 100)
     ui_dialog_progress(title,text,percent);
 }
 

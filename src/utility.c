@@ -76,7 +76,7 @@ extern bool size_to_string(char *s,size_t n,long long size)
     suffix = "BiB";
   }
 
-  snprintf(s,n,"%.1f%s",(double) size / divisor,suffix);
+  snprintf(s,n,"%6.1f%s",(double) size / divisor,suffix);
   
   return true;
 }
