@@ -113,7 +113,17 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
 
   dl_file_text = dl_filename;
 
-  return true;
+#ifdef UI_NEWT
+  int j = 70 - snprintf(0,0,"(%s) - %s - %s - %s - %s",dl_pkg_text,"",dl_size_text,dl_rate_text,dl_eta_text);
+  int k = strlen(dl_filename);
+
+  if(j > 0 && j < k)
+    dl_filename[j] = 0;
+#endif
+
+  snprintf(dl_text,256,"(%s) - %s - %s - %s - %s",dl_pkg_text,dl_filename,dl_size_text,dl_rate_text,dl_eta_text);
+
+  return ui_dialog_progress(_("Downloading"),dl_text,dl_percent);
 }
 
 static bool install_setup(void)

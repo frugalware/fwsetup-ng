@@ -27,7 +27,7 @@ except KeyError:
 
 env.Append(CFLAGS = cflags)
 
-env.Append(CFLAGS = '-std=gnu99 -Wall -Wextra -ggdb3 -D_GNU_SOURCE')
+env.Append(CFLAGS = '-std=gnu99 -Wall -Wextra -ggdb3 -D_GNU_SOURCE -DUI_NEWT')
 
 env.ParseConfig('pkg-config --cflags --libs pacman libnewt')
 
