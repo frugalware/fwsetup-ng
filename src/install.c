@@ -179,6 +179,18 @@ static void install_event_callback(unsigned char event,void *data1,void *data2)
     case PM_TRANS_EVT_FILECONFLICTS_DONE:
       break;
     
+    case PM_TRANS_EVT_ADD_START:
+      break;
+
+    case PM_TRANS_EVT_EXTRACT_DONE:
+      break;
+    
+    case PM_TRANS_EVT_SCRIPTLET_INFO:
+      break;
+    
+    case PM_TRANS_EVT_ADD_DONE:
+      break;
+    
     default:
       fprintf(logfile,_("Unhandled pacman transaction event: %hhu\n"),event);
       return;
@@ -222,6 +234,10 @@ static void install_progress_callback(unsigned char event,char *pkg,int percent,
     
     case PM_TRANS_PROGRESS_CONFLICTS_START:
       title = _("Checking for File Conflicts");
+      break;
+
+    case PM_TRANS_PROGRESS_ADD_START:
+      title = _("Installing");
       break;
     
     default:
