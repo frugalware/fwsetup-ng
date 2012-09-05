@@ -136,14 +136,75 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
 
 static void install_event_callback(unsigned char event,void *data1,void *data2)
 {
+  const char *title = 0;
+  int percent = -1;
+
+  switch(event)
+  {
+    case PM_TRANS_EVT_RESOLVEDEPS_START:
+      percent = 0;
+      title = _("Resolving Dependencies");
+      break;
+      
+    case PM_TRANS_EVT_RESOLVEDEPS_DONE:
+      percent = 100;
+      title = _("Resolving Dependencies");
+      break;
+
+    case PM_TRANS_EVT_INTERCONFLICTS_START:
+      break;
+
+    case PM_TRANS_EVT_INTERCONFLICTS_DONE:
+      break;
+    
+    default:
+      fprintf(logfile,_("Unhandled pacman transaction event: %hhu\n"),event);
+      return;
+  }
+  
+  if(title != 0 && percent != -1)
+    ui_dialog_progress(title,"",percent);
 }
 
 static void install_conversation_callback(unsigned char event,void *data1,void *data2,void *data3,int *response)
 {
+  fprintf(logfile,"Unhandled pacman conversation event: %hhu\n",event);
+  *response = 0;
 }
 
 static void install_progress_callback(unsigned char event,char *pkg,int percent,int remain,int howmany)
 {
+  char text[256] = {0};
+  int padding = 0;
+  const char *title = 0;
+
+  if(howmany < 10)
+    padding = 1;
+  else if(howmany < 100)
+    padding = 2;
+  else if(howmany < 1000)
+    padding = 3;
+  else if(howmany < 10000)
+    padding = 4;
+
+  snprintf(text,256,"(%.*d/%d)",padding,remain,howmany);
+
+  if(strlen(pkg) > 0)
+    snprintf(text+strlen(pkg),256-strlen(pkg)," - %s",pkg);
+
+  switch(event)
+  {
+    case PM_TRANS_PROGRESS_INTERCONFLICTS_START:
+      title = _("Checking for Inter-Conflicts");
+      break;
+    
+    default:
+      fprintf(logfile,"Unhandled pacman progress event: %hhu\n",event);
+      break;
+  }
+  
+  if(title != 0)
+    ui_dialog_progress(title,text,percent);
 }
 
 static bool install_setup(void)
