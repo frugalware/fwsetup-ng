@@ -159,6 +159,12 @@ static bool install_setup(void)
     return false;
   }
 
+  if(pacman_db_register("local") == 0)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    return false;
+  }
+
   if(pacman_parse_config("/etc/pacman-g2.conf",install_database_callback,"") == -1)
   {
     fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
@@ -430,6 +436,8 @@ static bool install_groups_get(struct install **groups)
 
 static bool install_groups_install(const struct install *groups)
 {
+  PM_LIST *data = 0;
+
   if(groups == 0)
   {
     errno = EINVAL;
@@ -442,7 +450,52 @@ static bool install_groups_install(const struct install *groups)
     fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
     return false;
   }
+
+  for( const struct install *i = groups ; i->name != 0 ; ++i )
+  {
+    if(!i->checked)
+      continue;
   
+    PM_GRP *grp = pacman_db_readgrp(database,(char *) i->name);
+    
+    if(grp == 0)
+    {
+      fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+      return false;
+    }
+    
+    PM_LIST *pkgs = (PM_LIST *) pacman_grp_getinfo(grp,PM_GRP_PKGNAMES);
+    
+    if(pkgs == 0)
+    {
+      fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+      return false;
+    }
+    
+    for( ; pkgs ; pkgs = pacman_list_next(pkgs) )
+    {
+      const char *pkg = (const char *) pacman_list_getdata(pkgs);
+      
+      if(pkg == 0)
+      {
+        fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+        return false;
+      }
+
+      if(pacman_trans_addtarget(pkg) == -1)
+      {
+        fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+        return false;
+      }
+    }
+  }
+
+  if(pacman_trans_prepare(&data) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    return false;
+  }
+
   return true;
 }
 
