@@ -151,10 +151,32 @@ static void install_event_callback(unsigned char event,void *data1,void *data2)
       title = _("Resolving Dependencies");
       break;
 
+    case PM_TRANS_EVT_RETRIEVE_START:
+      break;
+
+    case PM_TRANS_EVT_RETRIEVE_LOCAL:
+      break;
+
+    case PM_TRANS_EVT_INTEGRITY_START:
+      percent = 0;
+      title = _("Checking Package Integrity");
+      break;
+    
+    case PM_TRANS_EVT_INTEGRITY_DONE:
+      percent = 100;
+      title = _("Checking Package Integrity");
+      break;
+
     case PM_TRANS_EVT_INTERCONFLICTS_START:
       break;
 
     case PM_TRANS_EVT_INTERCONFLICTS_DONE:
+      break;
+
+    case PM_TRANS_EVT_FILECONFLICTS_START:
+      break;
+    
+    case PM_TRANS_EVT_FILECONFLICTS_DONE:
       break;
     
     default:
@@ -196,6 +218,10 @@ static void install_progress_callback(unsigned char event,char *pkg,int percent,
   {
     case PM_TRANS_PROGRESS_INTERCONFLICTS_START:
       title = _("Checking for Inter-Conflicts");
+      break;
+    
+    case PM_TRANS_PROGRESS_CONFLICTS_START:
+      title = _("Checking for File Conflicts");
       break;
     
     default:
@@ -552,6 +578,12 @@ static bool install_groups_install(const struct install *groups)
   }
 
   if(pacman_trans_prepare(&data) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    return false;
+  }
+
+  if(pacman_trans_commit(&data) == -1)
   {
     fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
     return false;
