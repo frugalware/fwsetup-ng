@@ -251,47 +251,153 @@ static bool install_databases_update(void)
   return true;
 }
 
+static bool install_groups_get(struct install **groups)
+{
+  size_t matches = 0; 
+  struct install *grps = 0;
+  size_t j = 0;
+
+  for( size_t i = 0 ; databases[i] != 0 ; ++i )
+  {
+    const char *s = (const char *) pacman_db_getinfo(databases[i],PM_DB_TREENAME);
+      
+    if(s == 0 || (strcmp(s,"frugalware") != 0 && strcmp(s,"frugalware-current") != 0))
+      continue;
+
+    PM_LIST *list = pacman_db_getgrpcache(databases[i]);
+    
+    if(list == 0)
+      continue;
+    
+    for( ; list ; list = pacman_list_next(list) )
+    {
+      const char *s = (const char *) pacman_list_getdata(list);
+      
+      if(s == 0)
+        continue;
+      
+      if(strcmp(s,"apps") == 0)
+        ++matches;
+      else if(strcmp(s,"base") == 0)
+        ++matches;
+      else if(strcmp(s,"devel") == 0)
+        ++matches;
+      else if(strcmp(s,"gnome") == 0)
+        ++matches;
+      else if(strcmp(s,"kde") == 0)
+        ++matches;
+      else if(strcmp(s,"lib") == 0)
+        ++matches;
+      else if(strcmp(s,"multimedia") == 0)
+        ++matches;
+      else if(strcmp(s,"network") == 0)
+        ++matches;
+      else if(strcmp(s,"x11") == 0)
+        ++matches;
+      else if(strcmp(s,"xapps") == 0)
+        ++matches;
+      else if(strcmp(s,"xfce4") == 0)
+        ++matches;
+      else if(strcmp(s,"xlib") == 0)
+        ++matches;
+      else if(strcmp(s,"xmultimedia") == 0)
+        ++matches;
+      else if(strstr(s,"-extra") != 0)
+        ++matches;
+    }
+
+    break;
+  }
+  
+  if(matches == 0)
+    return false;
+  
+  grps = malloc(sizeof(struct install) * (matches + 1));
+
+  for( size_t i = 0 ; databases[i] != 0 ; ++i )
+  {
+    const char *s = (const char *) pacman_db_getinfo(databases[i],PM_DB_TREENAME);
+      
+    if(s == 0 || (strcmp(s,"frugalware") != 0 && strcmp(s,"frugalware-current") != 0))
+      continue;
+
+    PM_LIST *list = pacman_db_getgrpcache(databases[i]);
+    
+    if(list == 0)
+      continue;
+    
+    for( ; list ; list = pacman_list_next(list) )
+    {
+      const char *s = (const char *) pacman_list_getdata(list);
+      bool cache = false;
+      
+      if(s == 0)
+        continue;
+      
+      if(strcmp(s,"apps") == 0)
+        cache = true;
+      else if(strcmp(s,"base") == 0)
+        cache = true;
+      else if(strcmp(s,"devel") == 0)
+        cache = true;
+      else if(strcmp(s,"gnome") == 0)
+        cache = true;
+      else if(strcmp(s,"kde") == 0)
+        cache = true;
+      else if(strcmp(s,"lib") == 0)
+        cache = true;
+      else if(strcmp(s,"multimedia") == 0)
+        cache = true;
+      else if(strcmp(s,"network") == 0)
+        cache = true;
+      else if(strcmp(s,"x11") == 0)
+        cache = true;
+      else if(strcmp(s,"xapps") == 0)
+        cache = true;
+      else if(strcmp(s,"xfce4") == 0)
+        cache = true;
+      else if(strcmp(s,"xlib") == 0)
+        cache = true;
+      else if(strcmp(s,"xmultimedia") == 0)
+        cache = true;
+      else if(strstr(s,"-extra") != 0)
+        cache = true;
+      
+      if(cache)
+      {
+        grps[j].name = strdup(s);
+        grps[j].checked = false;
+        ++j;
+      }
+    }
+
+    break;
+  }
+
+  grps[j].name = 0;
+  
+  grps[j].checked = false;
+  
+  *groups = grps;
+  
+  return true;
+}
+
 static int install_run(void)
 {
-  struct install groups[] =
-  {
-    {              "apps", false },
-    {        "apps-extra", false },
-    {              "base", false },
-    {        "base-extra", false },
-    {             "devel", false },
-    {       "devel-extra", false },
-    {             "gnome", false },
-    {       "gnome-extra", false },
-    {               "kde", false },
-    {         "kde-extra", false },
-    {               "lib", false },
-    {         "lib-extra", false },
-    {        "multimedia", false },
-    {  "multimedia-extra", false },
-    {           "network", false },
-    {     "network-extra", false },
-    {               "x11", false },
-    {         "x11-extra", false },
-    {             "xapps", false },
-    {       "xapps-extra", false },
-    {             "xfce4", false },
-    {       "xfce4-extra", false },
-    {              "xlib", false },
-    {        "xlib-extra", false },
-    {       "xmultimedia", false },
-    { "xmultimedia-extra", false },
-    {                   0, false }
-  };
+  struct install *groups = 0;
   int order = 0;
 
   if(!install_setup())
     return 0;
 
-  if((order = ui_window_install(INSTALL_TITLE_TEXT,groups)) == 0)
+  if(g.netinstall && !install_databases_update())
     return 0;
 
-  if(g.netinstall && !install_databases_update())
+  if(!install_groups_get(&groups))
+    return 0;
+
+  if((order = ui_window_install(INSTALL_TITLE_TEXT,groups)) == 0)
     return 0;
 
   return order;
