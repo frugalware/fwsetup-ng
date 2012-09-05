@@ -1,9 +1,13 @@
 #include <pacman.h>
 #include "local.h"
 
-static char **databases_names = 0;
-static PM_DB **databases = 0;
-static size_t databases_size = 1;
+#ifndef NDEBUG
+#define LOGMASK (PM_LOG_DEBUG | PM_LOG_ERROR | PM_LOG_WARNING | PM_LOG_FLOW1 | PM_LOG_FLOW2 | PM_LOG_FUNCTION)
+#else
+#define LOGMASK (PM_LOG_ERROR | PM_LOG_WARNING)
+#endif
+
+static PM_DB *database = 0;
 static char dl_filename[PM_DLFNM_LEN+1] = {0};
 static int dl_offset = 0;
 static struct timeval dl_time0 = {0};
@@ -18,19 +22,20 @@ static int dl_howmany = 0;
 
 static void install_database_callback(const char *name,PM_DB *db)
 {
-  databases_names = realloc(databases_names,sizeof(char *) * (databases_size + 1));
+  if(strcmp(name,"frugalware") == 0 || strcmp(name,"frugalware-current") == 0)
+  {
+    if(database != 0)
+    {
+      fprintf(logfile,_("More than one valid database found in the config file, so skipping it.\n"));
+      return;
+    }
+    
+    database = db;
+  }
+}
 
-  databases_names[databases_size - 1] = strdup(name);
-
-  databases_names[databases_size] = 0;
-
-  databases = realloc(databases,sizeof(PM_DB *) * (databases_size + 1));
-
-  databases[databases_size - 1] = db;
-
-  databases[databases_size] = 0;
-
-  ++databases_size;
+static void install_log_callback(unsigned short level,char *msg)
+{
 }
 
 static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
@@ -124,6 +129,18 @@ static bool install_setup(void)
     fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
     return false;
   }
+
+  if(pacman_set_option(PM_OPT_LOGMASK,(long) LOGMASK) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    return false;
+  }
+
+  if(pacman_set_option(PM_OPT_LOGCB,(long) install_log_callback) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    return false;
+  }  
 
   if(pacman_set_option(PM_OPT_DLCB,(long) install_download_callback) == -1)
   {
@@ -233,19 +250,19 @@ static bool install_setup(void)
   return true;
 }
 
-static bool install_databases_update(void)
+static bool install_database_update(void)
 {
-  size_t i = 0;
-  
-  while(databases[i] != 0)
+  if(database == 0)
   {
-    if(pacman_db_update(1,databases[i]) == -1)
-    {
-      fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
-      return false;  
-    }
-    
-    ++i;
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  if(pacman_db_update(1,database) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    return false;  
   }
   
   return true;
@@ -253,125 +270,111 @@ static bool install_databases_update(void)
 
 static bool install_groups_get(struct install **groups)
 {
-  size_t matches = 0; 
+  size_t matches = 0;
+  PM_LIST *list = 0;
   struct install *grps = 0;
   size_t j = 0;
 
-  for( size_t i = 0 ; databases[i] != 0 ; ++i )
+  if((list = pacman_db_getgrpcache(database)) == 0)
   {
-    const char *s = (const char *) pacman_db_getinfo(databases[i],PM_DB_TREENAME);
-      
-    if(s == 0 || (strcmp(s,"frugalware") != 0 && strcmp(s,"frugalware-current") != 0))
-      continue;
-
-    PM_LIST *list = pacman_db_getgrpcache(databases[i]);
+    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    return false;
+  }
     
-    if(list == 0)
+  for( ; list ; list = pacman_list_next(list) )
+  {
+    const char *s = (const char *) pacman_list_getdata(list);
+      
+    if(s == 0)
       continue;
-    
-    for( ; list ; list = pacman_list_next(list) )
-    {
-      const char *s = (const char *) pacman_list_getdata(list);
       
-      if(s == 0)
-        continue;
-      
-      if(strcmp(s,"apps") == 0)
-        ++matches;
-      else if(strcmp(s,"base") == 0)
-        ++matches;
-      else if(strcmp(s,"devel") == 0)
-        ++matches;
-      else if(strcmp(s,"gnome") == 0)
-        ++matches;
-      else if(strcmp(s,"kde") == 0)
-        ++matches;
-      else if(strcmp(s,"lib") == 0)
-        ++matches;
-      else if(strcmp(s,"multimedia") == 0)
-        ++matches;
-      else if(strcmp(s,"network") == 0)
-        ++matches;
-      else if(strcmp(s,"x11") == 0)
-        ++matches;
-      else if(strcmp(s,"xapps") == 0)
-        ++matches;
-      else if(strcmp(s,"xfce4") == 0)
-        ++matches;
-      else if(strcmp(s,"xlib") == 0)
-        ++matches;
-      else if(strcmp(s,"xmultimedia") == 0)
-        ++matches;
-      else if(strstr(s,"-extra") != 0)
-        ++matches;
-    }
-
-    break;
+    if(strcmp(s,"apps") == 0)
+      ++matches;
+    else if(strcmp(s,"base") == 0)
+      ++matches;
+    else if(strcmp(s,"devel") == 0)
+      ++matches;
+    else if(strcmp(s,"gnome") == 0)
+      ++matches;
+    else if(strcmp(s,"kde") == 0)
+      ++matches;
+    else if(strcmp(s,"lib") == 0)
+      ++matches;
+    else if(strcmp(s,"multimedia") == 0)
+      ++matches;
+    else if(strcmp(s,"network") == 0)
+      ++matches;
+    else if(strcmp(s,"x11") == 0)
+      ++matches;
+    else if(strcmp(s,"xapps") == 0)
+      ++matches;
+    else if(strcmp(s,"xfce4") == 0)
+      ++matches;
+    else if(strcmp(s,"xlib") == 0)
+      ++matches;
+    else if(strcmp(s,"xmultimedia") == 0)
+      ++matches;
+    else if(strstr(s,"-extra") != 0)
+      ++matches;
   }
   
   if(matches == 0)
+  {
+    fprintf(logfile,_("Could not find any matching groups in the database.\n"));
     return false;
+  }
+
+  if((list = pacman_db_getgrpcache(database)) == 0)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    return false;
+  }
   
   grps = malloc(sizeof(struct install) * (matches + 1));
 
-  for( size_t i = 0 ; databases[i] != 0 ; ++i )
+  for( ; list ; list = pacman_list_next(list) )
   {
-    const char *s = (const char *) pacman_db_getinfo(databases[i],PM_DB_TREENAME);
+    const char *s = (const char *) pacman_list_getdata(list);
+    bool cache = false;
       
-    if(s == 0 || (strcmp(s,"frugalware") != 0 && strcmp(s,"frugalware-current") != 0))
+    if(s == 0)
       continue;
+      
+    if(strcmp(s,"apps") == 0)
+      cache = true;
+    else if(strcmp(s,"base") == 0)
+      cache = true;
+    else if(strcmp(s,"devel") == 0)
+      cache = true;
+    else if(strcmp(s,"gnome") == 0)
+      cache = true;
+    else if(strcmp(s,"kde") == 0)
+      cache = true;
+    else if(strcmp(s,"lib") == 0)
+      cache = true;
+    else if(strcmp(s,"multimedia") == 0)
+      cache = true;
+    else if(strcmp(s,"network") == 0)
+      cache = true;
+    else if(strcmp(s,"x11") == 0)
+      cache = true;
+    else if(strcmp(s,"xapps") == 0)
+      cache = true;
+    else if(strcmp(s,"xfce4") == 0)
+      cache = true;
+    else if(strcmp(s,"xlib") == 0)
+      cache = true;
+    else if(strcmp(s,"xmultimedia") == 0)
+      cache = true;
+    else if(strstr(s,"-extra") != 0)
+      cache = true;
 
-    PM_LIST *list = pacman_db_getgrpcache(databases[i]);
-    
-    if(list == 0)
-      continue;
-    
-    for( ; list ; list = pacman_list_next(list) )
+    if(cache)
     {
-      const char *s = (const char *) pacman_list_getdata(list);
-      bool cache = false;
-      
-      if(s == 0)
-        continue;
-      
-      if(strcmp(s,"apps") == 0)
-        cache = true;
-      else if(strcmp(s,"base") == 0)
-        cache = true;
-      else if(strcmp(s,"devel") == 0)
-        cache = true;
-      else if(strcmp(s,"gnome") == 0)
-        cache = true;
-      else if(strcmp(s,"kde") == 0)
-        cache = true;
-      else if(strcmp(s,"lib") == 0)
-        cache = true;
-      else if(strcmp(s,"multimedia") == 0)
-        cache = true;
-      else if(strcmp(s,"network") == 0)
-        cache = true;
-      else if(strcmp(s,"x11") == 0)
-        cache = true;
-      else if(strcmp(s,"xapps") == 0)
-        cache = true;
-      else if(strcmp(s,"xfce4") == 0)
-        cache = true;
-      else if(strcmp(s,"xlib") == 0)
-        cache = true;
-      else if(strcmp(s,"xmultimedia") == 0)
-        cache = true;
-      else if(strstr(s,"-extra") != 0)
-        cache = true;
-      
-      if(cache)
-      {
-        grps[j].name = strdup(s);
-        grps[j].checked = false;
-        ++j;
-      }
+      grps[j].name = strdup(s);
+      grps[j].checked = false;
+      ++j;
     }
-
-    break;
   }
 
   grps[j].name = 0;
@@ -391,11 +394,16 @@ static int install_run(void)
   if(!install_setup())
     return 0;
 
-  if(g.netinstall && !install_databases_update())
+  if(g.netinstall && !install_database_update())
     return 0;
 
   if(!install_groups_get(&groups))
     return 0;
+
+  for( struct install *grp = groups ; grp->name ; ++grp )
+  {
+    fprintf(logfile,"%s\n",grp->name);
+  }
 
   if((order = ui_window_install(INSTALL_TITLE_TEXT,groups)) == 0)
     return 0;
@@ -407,21 +415,7 @@ static void install_reset(void)
 {
   pacman_release();
   
-  if(databases_names != 0)
-  {
-    for( char **s = databases_names ; *s ; ++s )
-      free(*s);
-  
-    free(databases_names);
-    
-    databases_names = 0;
-  }
-  
-  free(databases);
-  
-  databases = 0;
-  
-  databases_size = 1;
+  database = 0;
   
   memset(dl_filename,0,sizeof(dl_filename));
 
