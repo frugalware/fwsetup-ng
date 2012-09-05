@@ -9,6 +9,12 @@ extern int ui_main(int argc,char **argv)
   int w = 0;
   int h = 0;
 
+  // This parameter is never used.
+  argc = argc;
+
+  // This parameter is never used.
+  argv = argv;
+
   if(newtInit() != 0)
   {
     fprintf(logfile,NEWT_INIT_FAILURE_TEXT);

@@ -36,6 +36,11 @@ static void install_database_callback(const char *name,PM_DB *db)
 
 static void install_log_callback(unsigned short level,char *msg)
 {
+  // This paramater is never used.
+  level = level;
+  
+  // This parameter is never used.
+  msg = msg;
 }
 
 static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
@@ -53,6 +58,9 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
   char *s = 0;
   char *dl_file_text = 0;
   char dl_text[256] = {0};
+
+  // This parameter is never used.
+  ctl = ctl;
 
   dl_amount = dl_xfered0 + dl_offset;
 
@@ -115,13 +123,13 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
 
 #ifdef UI_NEWT
   int j = 70 - snprintf(0,0,"(%s) - %s - %s - %s - %s",dl_pkg_text,"",dl_size_text,dl_rate_text,dl_eta_text);
-  int k = strlen(dl_filename);
+  int k = strlen(dl_file_text);
 
   if(j > 0 && j < k)
-    dl_filename[j] = 0;
+    dl_file_text[j] = 0;
 #endif
 
-  snprintf(dl_text,256,"(%s) - %s - %s - %s - %s",dl_pkg_text,dl_filename,dl_size_text,dl_rate_text,dl_eta_text);
+  snprintf(dl_text,256,"(%s) - %s - %s - %s - %s",dl_pkg_text,dl_file_text,dl_size_text,dl_rate_text,dl_eta_text);
 
   return ui_dialog_progress(_("Downloading"),dl_text,dl_percent);
 }
