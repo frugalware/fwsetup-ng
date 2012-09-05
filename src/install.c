@@ -45,8 +45,14 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
   int dl_percent = 0;
   float dl_timediff = 0;
   struct timeval dl_time2 = {0};
-  struct dldata data = {{0}, {0}, {0}, {0}, 0, {0}, {0}, 0, 0};
+  char dl_eta_text[9] = {0};
+  char dl_rate_text[47] = {0};
+  char dl_size_text[20] = {0};
+  int dl_pkg_padding = 0;
+  char dl_pkg_text[10] = {0};
   char *s = 0;
+  char *dl_file_text = 0;
+  char dl_text[256] = {0};
 
   dl_amount = dl_xfered0 + dl_offset;
 
@@ -78,37 +84,36 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
     dl_eta_s = (int) ((dl_total - dl_amount) / (dl_rate * KIBIBYTE)) % 3600 % 60;
   }
 
-  snprintf(data.eta,9,"%u:%u:%u",dl_eta_h,dl_eta_m,dl_eta_s);
+  snprintf(dl_eta_text,9,"%.2u:%.2u:%.2u",dl_eta_h,dl_eta_m,dl_eta_s);
 
   if(dl_rate > KIBIBYTE)
-    snprintf(data.rate,47,"%.0fKiB/s",dl_rate);
+    snprintf(dl_rate_text,47,"%.0fKiB/s",dl_rate);
   else
-    snprintf(data.rate,47,"%.1fKiB/s",dl_rate);
+    snprintf(dl_rate_text,47,"%.1fKiB/s",dl_rate);
 
-  size_to_string(data.size,20,dl_amount);
+  size_to_string(dl_size_text,20,dl_amount);
 
-  snprintf(data.size+strlen(data.size),20-strlen(data.size),"/");
+  snprintf(dl_size_text+strlen(dl_size_text),20-strlen(dl_size_text),"/");
+  
+  size_to_string(dl_size_text+strlen(dl_size_text),20-strlen(dl_size_text),dl_total);
 
-  size_to_string(data.size+strlen(data.size),20-strlen(data.size),dl_total);
+  if(dl_howmany < 10)
+    dl_pkg_padding = 1;
+  else if(dl_howmany < 100)
+    dl_pkg_padding = 2;
+  else if(dl_howmany < 1000)
+    dl_pkg_padding = 3;
+  else if(dl_howmany < 10000)
+    dl_pkg_padding = 4;
 
-  snprintf(data.size_perc,5,"%d%%",dl_percent);
-
-  data.size_perc_int = dl_percent;
-
-  snprintf(data.pkg,12,"%d/%d",dl_remain,dl_howmany);
-
-  snprintf(data.pkg_perc,5,"%d%%",(int) (float) dl_remain / dl_howmany * 100);
-
-  data.pkg_perc_int = (int) (float) dl_remain / dl_howmany * 100;
+  snprintf(dl_pkg_text,10,"%.*d/%d",dl_pkg_padding,dl_remain,dl_howmany);
 
   if((s = strchr(dl_filename,' ')) != 0)
     *s = 0;
 
-  data.file = dl_filename;
+  dl_file_text = dl_filename;
 
-  ui_dialog_progress_install("Downloading...",&data);
-
-  return 1;
+  return true;
 }
 
 static bool install_setup(void)
@@ -394,16 +399,11 @@ static int install_run(void)
   if(!install_setup())
     return 0;
 
-  if(g.netinstall && !install_database_update())
+  if(!install_database_update())
     return 0;
 
   if(!install_groups_get(&groups))
     return 0;
-
-  for( struct install *grp = groups ; grp->name ; ++grp )
-  {
-    fprintf(logfile,"%s\n",grp->name);
-  }
 
   if((order = ui_window_install(INSTALL_TITLE_TEXT,groups)) == 0)
     return 0;

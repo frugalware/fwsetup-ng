@@ -32,19 +32,6 @@ struct install
   bool checked;
 };
 
-struct dldata
-{
-  char eta[9];
-  char rate[47];
-  char size[20];
-  char size_perc[5];
-  int size_perc_int;
-  char pkg[12];
-  char pkg_perc[5];
-  int pkg_perc_int;
-  char *file;
-};
-
 struct module
 {
   int (*run) (void);
