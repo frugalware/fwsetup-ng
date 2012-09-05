@@ -13,7 +13,7 @@
 #include "text.h"
 
 #define LOGFILE "fwsetup.log"
-#define INSTALL_ROOT "/home/ryuo/fwsetup-ng/root"
+#define INSTALL_ROOT "/home/vniklos/fwsetup-ng/root"
 #define KIBIBYTE (1LL << 10LL)
 #define MEBIBYTE (1LL << 20LL)
 #define GIBIBYTE (1LL << 30LL)
@@ -62,9 +62,8 @@ static inline long max(long a,long b) { return (a > b) ? a : b; }
 extern int ui_main(int argc,char **argv);
 extern void ui_dialog_text(const char *title,const char *text);
 extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno);
-extern bool ui_dialog_progress(const char *title,ui_dialog_progress_callback cb,void *data);
-extern int ui_window_install(const char *title,struct install *data);
-extern bool ui_dialog_progress_install(const char *title,const struct dldata *data);
+extern bool ui_dialog_progress(const char *title,const char *text,int percent);
+extern int ui_window_install(const char *title,struct install *groups);
 extern FILE *logfile;
 extern int main(int argc,char **argv);
 

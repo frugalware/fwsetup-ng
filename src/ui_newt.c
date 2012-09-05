@@ -26,6 +26,8 @@ extern int ui_main(int argc,char **argv)
 
   newtCls();
 
+  install_module.run();
+
   newtFinished();
 
   return 0;
@@ -155,77 +157,58 @@ extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno)
   return result;
 }
 
-extern bool ui_dialog_progress(const char *title,ui_dialog_progress_callback cb,void *data)
+extern bool ui_dialog_progress(const char *title,const char *text,int percent)
 {
-  char text[NEWT_WIDTH + 1] = {0};
-  int percent = 0;
-  newtComponent label = 0;
-  newtComponent scale = 0;
-  newtComponent form = 0;
-  struct newtExitStruct es = {0};
-  bool result = false;
+  static newtComponent label = 0;
+  static newtComponent scale = 0;
+  static newtComponent form = 0;
 
-  if(title == 0 || cb == 0)
+  if(title == 0 && text == 0 && percent == -1)
+  {
+    if(label != 0 && scale != 0 && form != 0)
+    {
+      newtFormDestroy(form);
+      newtPopWindow();
+      label = 0;
+      scale = 0;
+      form = 0;
+    }
+    return true;
+  }
+
+  if(title == 0 || text == 0 || percent < 0 || percent > 100)
   {
     errno = EINVAL;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
     return false;
   }
 
-  if(!cb(text,NEWT_WIDTH + 1,&percent,data))
+  if(label == 0 && scale == 0 && form == 0)
   {
-    fprintf(logfile,PROGRESS_DIALOG_CANCEL_TEXT);
-    return false;
+    if(newtCenteredWindow(NEWT_WIDTH,3,title) != 0)
+    {
+      fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
+      return false;
+    }
+    
+    label = newtLabel(0,0,"");
+    
+    scale = newtScale(0,2,NEWT_WIDTH,100);
+    
+    form = newtForm(0,0,NEWT_FLAG_NOF12);
+
+    newtFormAddComponents(form,label,scale,(void *) 0);
   }
 
-  if(newtCenteredWindow(NEWT_WIDTH,3,title) != 0)
-  {
-    fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
-    return false;
-  }
-  
-  label = newtLabel(0,0,text);
-  
-  scale = newtScale(0,2,NEWT_WIDTH,100);
+  newtLabelSetText(label,text);
   
   newtScaleSet(scale,percent);
-  
-  form = newtForm(0,0,NEWT_FLAG_NOF12);
-  
-  newtFormAddComponents(form,label,scale,(void *) 0);
-  
-  newtFormSetTimer(form,100);
-  
-  while(true)
-  {
-    newtFormRun(form,&es);
 
-    if(es.reason == NEWT_EXIT_TIMER)
-    {
-      if(!cb(text,NEWT_WIDTH + 1,&percent,data))
-      {
-        fprintf(logfile,PROGRESS_DIALOG_CANCEL_TEXT);
-        result = false;
-        break;
-      }
+  newtDrawForm(form);
+  
+  newtRefresh();
 
-      newtLabelSetText(label,text);
-      
-      newtScaleSet(scale,percent);
-    
-      if(percent > 100)
-      {
-        result = true;
-        break;
-      }
-    }    
-  }
-  
-  newtFormDestroy(form);
-  
-  newtPopWindow();
-  
-  return result;
+  return true;
 }
 
 extern int ui_window_install(const char *title,struct install *data)
@@ -319,57 +302,4 @@ extern int ui_window_install(const char *title,struct install *data)
   newtPopWindow();
 
   return result;
-}
-
-extern bool ui_dialog_progress_install(const char *title,const struct dldata *data)
-{
-  static newtComponent label = 0;
-  static newtComponent scale = 0;
-  static newtComponent form = 0;
-  char text[NEWT_WIDTH+1] = {0};
-
-  if(title == 0 && data == 0)
-  {
-    newtFormDestroy(form);
-    label = 0;
-    scale = 0;
-    form = 0;
-    return true;
-  }
-
-  if(title == 0 || data == 0)
-  {
-    errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
-    return false;
-  }
-
-  if(label == 0 && scale == 0 && form == 0)
-  {
-    if(newtCenteredWindow(NEWT_WIDTH,3,title) != 0)
-    {
-      fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
-      return false;
-    }
-    
-    label = newtLabel(0,0,"");
-    
-    scale = newtScale(0,2,NEWT_WIDTH,100);
-    
-    form = newtForm(0,0,NEWT_FLAG_NOF12);
-    
-    newtFormAddComponents(form,label,scale,(void *) 0);
-  }
-  
-  snprintf(text,NEWT_WIDTH+1,"%s - %s - %s - (%s)",data->file,data->rate,data->size,data->pkg);
-  
-  newtLabelSetText(label,text);
-  
-  newtScaleSet(scale,data->size_perc_int);
-
-  newtDrawForm(form);
-  
-  newtRefresh();
-  
-  return true;
 }
