@@ -159,21 +159,26 @@ extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno)
 
 extern bool ui_dialog_progress(const char *title,const char *text,int percent)
 {
+  static char *oldtitle = 0;
   static newtComponent label = 0;
   static newtComponent scale = 0;
   static newtComponent form = 0;
 
-  if(title == 0 && text == 0 && percent == -1)
+  if((title == 0 && text == 0 && percent == -1) || (oldtitle != 0 && strcmp(oldtitle,title) != 0))
   {
-    if(label != 0 && scale != 0 && form != 0)
+    if(label != 0 && scale != 0 && form != 0 && oldtitle != 0)
     {
+      free(oldtitle);
       newtFormDestroy(form);
       newtPopWindow();
+      oldtitle = 0;
       label = 0;
       scale = 0;
       form = 0;
     }
-    return true;
+    
+    if(title == 0 && text == 0 && percent == -1)
+      return true;
   }
 
   if(title == 0 || text == 0 || percent < 0 || percent > 100)
@@ -190,6 +195,8 @@ extern bool ui_dialog_progress(const char *title,const char *text,int percent)
       fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
       return false;
     }
+    
+    oldtitle = strdup(title);
     
     label = newtLabel(0,0,"");
     
