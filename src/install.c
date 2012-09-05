@@ -134,6 +134,18 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
   return ui_dialog_progress(_("Downloading"),dl_text,dl_percent);
 }
 
+static void install_event_callback(unsigned char event,void *data1,void *data2)
+{
+}
+
+static void install_conversation_callback(unsigned char event,void *data1,void *data2,void *data3,int *response)
+{
+}
+
+static void install_progress_callback(unsigned char event,char *pkg,int percent,int remain,int howmany)
+{
+}
+
 static bool install_setup(void)
 {
   char path[PATH_MAX] = {0};
@@ -298,6 +310,13 @@ static bool install_groups_get(struct install **groups)
   struct install *grps = 0;
   size_t j = 0;
 
+  if(groups == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }  
+
   if((list = pacman_db_getgrpcache(database)) == 0)
   {
     fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
@@ -409,6 +428,24 @@ static bool install_groups_get(struct install **groups)
   return true;
 }
 
+static bool install_groups_install(const struct install *groups)
+{
+  if(groups == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  if(pacman_trans_init(PM_TRANS_TYPE_SYNC,0,install_event_callback,install_conversation_callback,install_progress_callback) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    return false;
+  }
+  
+  return true;
+}
+
 static int install_run(void)
 {
   struct install *groups = 0;
@@ -426,11 +463,16 @@ static int install_run(void)
   if((order = ui_window_install(INSTALL_TITLE_TEXT,groups)) == 0)
     return 0;
 
+  if(!install_groups_install(groups))
+    return 0;
+
   return order;
 }
 
 static void install_reset(void)
 {
+  pacman_trans_release();
+
   pacman_release();
   
   database = 0;
