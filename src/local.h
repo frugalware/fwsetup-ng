@@ -69,4 +69,4 @@ extern FILE *logfile;
 extern int main(int argc,char **argv);
 
 extern struct global g;
-extern struct module module_install;
+extern struct module install_module;
