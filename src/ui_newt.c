@@ -8,6 +8,10 @@ extern int ui_main(int argc,char **argv)
 {
   int w = 0;
   int h = 0;
+  struct module *module = 0;
+  size_t n = 0;
+  char text[4096] = {0};
+  int code = EXIT_SUCCESS;
 
   // This parameter is never used.
   argc = argc;
@@ -32,11 +36,43 @@ extern int ui_main(int argc,char **argv)
 
   newtCls();
 
-  install_module.run();
+  while(true)
+  {
+    module = modules[n];
+  
+    if(module == 0)
+      break;
+  
+    if(module->run == 0 || module->reset == 0 || module->name == 0)
+    {
+      errno = EINVAL;
+      fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+      code = EXIT_FAILURE;
+      break;
+    }
+  
+    fprintf(logfile,_("About to run module '%s'.\n"),module->name);
+  
+    bool success = module->run();
+    
+    if(!success)
+    {
+      fprintf(logfile,_("A fatal error has been reported by module '%s'.\n"),module->name);
+      module->reset();
+      snprintf(text,4096,_("A fatal error has been reported by module '%s'.\n\nFor more information, please see the logfile at '%s'. Thank you.\n"),module->name,LOGFILE);
+      ui_dialog_text(_("Module Fatal Error"),text);
+      code = EXIT_FAILURE;
+      break;
+    }
+    
+    module->reset();
+    
+    ++n;
+  }
 
   newtFinished();
 
-  return 0;
+  return code;
 }
 
 extern void ui_dialog_text(const char *title,const char *text)

@@ -22,3 +22,9 @@ struct global g =
 {
   .netinstall = true
 };
+
+struct module *modules[] =
+{
+  &install_module,
+  0
+};
