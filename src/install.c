@@ -38,9 +38,8 @@ static void install_log_callback(unsigned short level,char *msg)
 {
   // This paramater is never used.
   level = level;
-  
-  // This parameter is never used.
-  msg = msg;
+
+  fprintf(logfile,"libpacman: %s\n",msg);
 }
 
 static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
@@ -418,6 +417,14 @@ static bool install_database_update(void)
   return true;
 }
 
+static void install_groups_free(struct install *groups)
+{
+  for( struct install *grp = groups ; grp->name != 0 ; ++grp )
+    free(grp->name);
+  
+  free(groups);
+}
+
 static bool install_groups_get(struct install **groups)
 {
   size_t matches = 0;
@@ -614,27 +621,31 @@ static bool install_groups_install(const struct install *groups)
   return true;
 }
 
-static int install_run(void)
+static bool install_run(void)
 {
   struct install *groups = 0;
-  int order = 0;
 
   if(!install_setup())
-    return 0;
+    return false;
 
   if(!install_database_update())
-    return 0;
+    return false;
 
   if(!install_groups_get(&groups))
-    return 0;
+    return false;
 
-  if((order = ui_window_install(INSTALL_TITLE_TEXT,groups)) == 0)
-    return 0;
+  if(!ui_window_install(INSTALL_TITLE_TEXT,groups))
+    return false;
 
   if(!install_groups_install(groups))
-    return 0;
+  {
+    install_groups_free(groups);
+    return false;
+  }
 
-  return order;
+  install_groups_free(groups);
+
+  return true;
 }
 
 static void install_reset(void)

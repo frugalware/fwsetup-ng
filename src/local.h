@@ -28,13 +28,13 @@ struct global
 
 struct install
 {
-  const char *name;
+  char *name;
   bool checked;
 };
 
 struct module
 {
-  int (*run) (void);
+  bool (*run) (void);
   void (*reset) (void);
   const char *name;
 };
