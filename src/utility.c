@@ -38,7 +38,7 @@ extern bool mkdir_recurse(const char *path)
   return true;  
 }
 
-extern bool size_to_string(char *s,size_t n,long long size)
+extern bool size_to_string(char *s,size_t n,long long size,bool pad)
 {
   long long divisor = 0;
   const char *suffix = 0;
@@ -76,7 +76,7 @@ extern bool size_to_string(char *s,size_t n,long long size)
     suffix = "BiB";
   }
 
-  snprintf(s,n,"%6.1f%s",(double) size / divisor,suffix);
+  snprintf(s,n,"%*.1f%s",(pad) ? 6 : 0,(double) size / divisor,suffix);
   
   return true;
 }

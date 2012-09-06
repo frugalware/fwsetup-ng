@@ -40,7 +40,7 @@ struct module
 };
 
 extern bool mkdir_recurse(const char *path);
-extern bool size_to_string(char *s,size_t n,long long size);
+extern bool size_to_string(char *s,size_t n,long long size,bool pad);
 extern int get_text_screen_width(const char *s);
 extern bool get_text_screen_size(const char *text,int *width,int *height);
 extern bool get_button_screen_size(const char *text,int *width,int *height);
