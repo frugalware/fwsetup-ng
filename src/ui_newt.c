@@ -224,38 +224,32 @@ extern bool ui_dialog_progress(const char *title,const char *text,int percent)
   return true;
 }
 
-extern int ui_window_install(const char *title,struct install *data)
+extern bool ui_window_install(const char *title,struct install *data)
 {
   int textbox_width = 0;
   int textbox_height = 0;
-  int previous_width = 0;
-  int previous_height = 0;
   int next_width = 0;
   int next_height = 0;
   int checkboxtree_width = 0;
   int checkboxtree_height = 0;
   newtComponent textbox = 0;
-  newtComponent previous = 0;
   newtComponent next = 0;
   newtComponent checkboxtree = 0;
   int i = 0;
   struct install *pkg = 0;
   newtComponent form = 0;
   struct newtExitStruct es = {0};
-  int result = 0;
+  bool result = true;
 
   if(!get_text_screen_size(INSTALL_WINDOW_TEXT,&textbox_width,&textbox_height))
     return 0;
 
-  if(!get_button_screen_size(PREVIOUS_BUTTON_TEXT,&previous_width,&previous_height))
-    return 0;
-  
   if(!get_button_screen_size(NEXT_BUTTON_TEXT,&next_width,&next_height))
     return 0;
 
   checkboxtree_width = NEWT_WIDTH;
   
-  checkboxtree_height = NEWT_HEIGHT - textbox_height - max(previous_height,next_height) - 2;
+  checkboxtree_height = NEWT_HEIGHT - textbox_height - next_height - 2;
 
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
   {
@@ -266,8 +260,6 @@ extern int ui_window_install(const char *title,struct install *data)
   textbox = newtTextbox(0,0,textbox_width,textbox_height,0);
 
   newtTextboxSetText(textbox,INSTALL_WINDOW_TEXT);
-
-  previous = newtButton(NEWT_WIDTH-previous_width-next_width,NEWT_HEIGHT-previous_height,PREVIOUS_BUTTON_TEXT);
 
   next = newtButton(NEWT_WIDTH-next_width,NEWT_HEIGHT-next_height,NEXT_BUTTON_TEXT);
 
@@ -287,7 +279,7 @@ extern int ui_window_install(const char *title,struct install *data)
 
   form = newtForm(0,0,NEWT_FLAG_NOF12);
 
-  newtFormAddComponents(form,textbox,previous,next,checkboxtree,(void *) 0);
+  newtFormAddComponents(form,textbox,next,checkboxtree,(void *) 0);
 
   newtFormSetCurrent(form,checkboxtree);
 
@@ -295,9 +287,9 @@ extern int ui_window_install(const char *title,struct install *data)
   {
     newtFormRun(form,&es);
     
-    if(es.reason == NEWT_EXIT_COMPONENT && (es.u.co == previous || es.u.co == next))
+    if(es.reason == NEWT_EXIT_COMPONENT && es.u.co == next)
     {
-      result = (es.u.co == previous) ? -1 : 1;
+      result = true;
       break;
     }
   }
