@@ -39,7 +39,7 @@ static void install_log_callback(unsigned short level,char *msg)
   // This parameter is never used.
   level = level;
 
-  fprintf(logfile,"libpacman: %s%c",msg,(strchr(msg,'\n') == 0) ? '\n' : 0);
+  fprintf(logfile,"libpacman: %s%s",msg,(strchr(msg,'\n') == 0) ? "\n" : "");
 }
 
 static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
@@ -447,7 +447,7 @@ static bool install_groups_get(struct install **groups)
     fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
     return false;
   }
-    
+
   for( ; list ; list = pacman_list_next(list) )
   {
     const char *s = (const char *) pacman_list_getdata(list);
