@@ -4,6 +4,8 @@ FILE *logfile = 0;
 
 extern int main(int argc,char **argv)
 {
+  int code = EXIT_SUCCESS;
+
   logfile = fopen("fwsetup.log","w");
 
   if(logfile == 0)
@@ -15,7 +17,13 @@ extern int main(int argc,char **argv)
 
   setbuf(logfile,0);
 
-  return ui_main(argc,argv);
+  code = ui_main(argc,argv);
+
+  fclose(logfile);
+
+  logfile = 0;
+
+  return code;
 }
 
 struct global g =
