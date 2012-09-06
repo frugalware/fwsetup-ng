@@ -99,11 +99,11 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
   else
     snprintf(dl_rate_text,47,"%6.1fKiB/s",dl_rate);
 
-  size_to_string(dl_size_text,20,dl_amount);
+  size_to_string(dl_size_text,20,dl_amount,true);
 
   snprintf(dl_size_text+strlen(dl_size_text),20-strlen(dl_size_text),"/");
   
-  size_to_string(dl_size_text+strlen(dl_size_text),20-strlen(dl_size_text),dl_total);
+  size_to_string(dl_size_text+strlen(dl_size_text),20-strlen(dl_size_text),dl_total,false);
 
   if(dl_howmany < 10)
     dl_pkg_padding = 1;
@@ -122,14 +122,14 @@ static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
   dl_file_text = dl_filename;
 
 #ifdef UI_NEWT
-  int j = 70 - snprintf(0,0,"(%s) - %s - %s - %s - %s",dl_pkg_text,"",dl_size_text,dl_rate_text,dl_eta_text);
+  int j = 70 - snprintf(0,0,"(%s) %s (%s) %s %s",dl_pkg_text,"",dl_size_text,dl_rate_text,dl_eta_text);
   int k = strlen(dl_file_text);
 
   if(j > 0 && j < k)
     dl_file_text[j] = 0;
 #endif
 
-  snprintf(dl_text,256,"(%s) - %s - %s - %s - %s",dl_pkg_text,dl_file_text,dl_size_text,dl_rate_text,dl_eta_text);
+  snprintf(dl_text,256,"(%s) %s (%s) %s %s",dl_pkg_text,dl_file_text,dl_size_text,dl_rate_text,dl_eta_text);
 
   return ui_dialog_progress(_("Downloading"),dl_text,dl_percent);
 }
