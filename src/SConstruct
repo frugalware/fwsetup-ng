@@ -35,5 +35,6 @@ env.Program('fwsetup',[
   'main.c',
   'utility.c',
   'install.c',
+  'postconfig.c',
   'ui_newt.c'
 ])
