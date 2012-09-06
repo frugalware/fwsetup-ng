@@ -7,7 +7,7 @@
 #define LOGMASK (PM_LOG_ERROR | PM_LOG_WARNING)
 #endif
 
-static PM_DB *database = 0;
+static PM_DB *dl_database = 0;
 static char dl_filename[PM_DLFNM_LEN+1] = {0};
 static int dl_offset = 0;
 static struct timeval dl_time0 = {0};
@@ -24,22 +24,22 @@ static void install_database_callback(const char *name,PM_DB *db)
 {
   if(strcmp(name,"frugalware") == 0 || strcmp(name,"frugalware-current") == 0)
   {
-    if(database != 0)
+    if(dl_database != 0)
     {
       fprintf(logfile,_("More than one valid database found in the config file, so skipping it.\n"));
       return;
     }
     
-    database = db;
+    dl_database = db;
   }
 }
 
 static void install_log_callback(unsigned short level,char *msg)
 {
-  // This paramater is never used.
+  // This parameter is never used.
   level = level;
 
-  fprintf(logfile,"libpacman: %s\n",msg);
+  fprintf(logfile,"libpacman: %s%c",msg,(strchr(msg,'\n') == 0) ? '\n' : 0);
 }
 
 static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
@@ -401,14 +401,14 @@ static bool install_setup(void)
 
 static bool install_database_update(void)
 {
-  if(database == 0)
+  if(dl_database == 0)
   {
     errno = EINVAL;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
     return false;
   }
 
-  if(pacman_db_update(1,database) == -1)
+  if(pacman_db_update(1,dl_database) == -1)
   {
     fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
     return false;  
@@ -442,7 +442,7 @@ static bool install_groups_get(struct install **groups)
     return false;
   }  
 
-  if((list = pacman_db_getgrpcache(database)) == 0)
+  if((list = pacman_db_getgrpcache(dl_database)) == 0)
   {
     fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
     return false;
@@ -491,7 +491,7 @@ static bool install_groups_get(struct install **groups)
     return false;
   }
 
-  if((list = pacman_db_getgrpcache(database)) == 0)
+  if((list = pacman_db_getgrpcache(dl_database)) == 0)
   {
     fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
     return false;
@@ -575,7 +575,7 @@ static bool install_groups_install(const struct install *groups)
     if(!i->checked)
       continue;
   
-    PM_GRP *grp = pacman_db_readgrp(database,(char *) i->name);
+    PM_GRP *grp = pacman_db_readgrp(dl_database,(char *) i->name);
     
     if(grp == 0)
     {
@@ -688,7 +688,7 @@ static void install_reset(void)
 
   ui_dialog_progress(0,0,-1);
   
-  database = 0;
+  dl_database = 0;
   
   memset(dl_filename,0,sizeof(dl_filename));
 
