@@ -1,5 +1,12 @@
 #include "local.h"
 
+#define TZSEARCHDIR "usr/share/zoneinfo/posix"
+#define TZSEARCHSIZE (sizeof(TZSEARCHDIR)-1)
+
+static size_t tz_size = 0;
+static size_t tz_count = 0;
+static char **tz_data = 0;
+
 static bool is_root_setup(void)
 {
   FILE *file = 0;
@@ -145,6 +152,55 @@ static void account_free(struct account *account)
   memset(account,0,sizeof(struct account));
 }
 
+static int timezone_nftw_callback(const char *path,const struct stat *st,int type,struct FTW *fb)
+{
+  if(type == FTW_D || type == FTW_DP)
+    return 0;
+
+  if(tz_data == 0)
+  {
+    ++tz_size;
+  }
+  else
+  {
+    tz_data[tz_count] = strdup(path + TZSEARCHSIZE + 1);
+    ++tz_count;
+  }
+
+  return 0;
+}
+
+static int timezone_cmp_callback(const void *a,const void *b)
+{
+  const char *A = *(const char **) a;
+  const char *B = *(const char **) b;
+
+  return strcmp(A,B);
+}
+
+static bool get_timezone_data(void)
+{
+  if(nftw(TZSEARCHDIR,timezone_nftw_callback,512,FTW_DEPTH|FTW_PHYS) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  tz_data = malloc(sizeof(char *) * (tz_size + 1));
+
+  if(nftw(TZSEARCHDIR,timezone_nftw_callback,512,FTW_DEPTH|FTW_PHYS) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  tz_data[tz_size] = 0;
+
+  qsort(tz_data,tz_size,sizeof(char *),timezone_cmp_callback);
+
+  return true;
+}
+
 static bool postconfig_run(void)
 {
   struct account account = {0};
@@ -212,6 +268,19 @@ static bool postconfig_run(void)
 
 static void postconfig_reset(void)
 {
+  tz_size = 0;
+
+  tz_count = 0;
+
+  if(tz_data != 0)
+  {
+    for( size_t i = 0 ; tz_data[i] != 0 ; ++i )
+      free(tz_data[i]);
+    
+    free(tz_data);
+    
+    tz_data = 0;
+  }
 }
 
 struct module postconfig_module =
