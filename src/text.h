@@ -7,8 +7,8 @@
 #define NO_BUTTON_TEXT _("No")
 #define PREVIOUS_BUTTON_TEXT _("Previous")
 #define NEXT_BUTTON_TEXT _("Next")
-#define PASSWORD_ENTER_TEXT _("Enter password:")
-#define PASSWORD_CONFIRM_TEXT _("Confirm password:")
+#define PASSWORD_ENTER_TEXT _("Enter Password")
+#define PASSWORD_CONFIRM_TEXT _("Confirm Password")
 #define PASSWORD_LENGTH 6
 #define PASSWORD_SHORT_TITLE _("Passwords Too Short")
 #define PASSWORD_SHORT_TEXT _("Your passwords must be at least 6 characters long.\n")

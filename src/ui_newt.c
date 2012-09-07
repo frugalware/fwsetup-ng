@@ -38,7 +38,7 @@ extern int ui_main(int argc,char **argv)
 
   while(true)
   {
-    module = modules[n];
+    module = modules[n + 1];
   
     if(module == 0)
       break;
@@ -69,6 +69,11 @@ extern int ui_main(int argc,char **argv)
     
     ++n;
   }
+
+  struct account root;
+
+  if(ui_window_root("test","Root!\n",&root))
+    fprintf(logfile,"%s\n",root.password);
 
   newtFinished();
 
@@ -268,10 +273,9 @@ extern bool ui_window_root(const char *title,const char *text,struct account *da
   int label1_height = 0;
   int label2_width = 0;
   int label2_height = 0;
-  int entry1_width = 0;
-  int entry1_height = 0;
-  int entry2_width = 0;
-  int entry2_height = 0;
+  int entry_left = 0;
+  int entry_width = 0;
+  int entry_height = 0;
   int next_width = 0;
   int next_height = 0;
   newtComponent textbox = 0;
@@ -301,13 +305,11 @@ extern bool ui_window_root(const char *title,const char *text,struct account *da
   if(!get_label_screen_size(PASSWORD_CONFIRM_TEXT,&label2_width,&label2_height))
     return false;
 
-  entry1_width = NEWT_WIDTH - label1_width;
-  
-  entry1_height = label1_height;
-  
-  entry2_width = NEWT_WIDTH - label2_width;
-  
-  entry2_height = label2_height;
+  entry_left = max(label1_width,label2_width) + 1;
+
+  entry_width = NEWT_WIDTH - entry_left;
+
+  entry_height = 1;
   
   if(!get_button_screen_size(NEXT_BUTTON_TEXT,&next_width,&next_height))
     return false;
@@ -320,13 +322,15 @@ extern bool ui_window_root(const char *title,const char *text,struct account *da
 
   textbox = newtTextbox(0,0,textbox_width,textbox_height,0);
   
-  label1 = newtLabel(0,textbox_height,PASSWORD_ENTER_TEXT);
+  newtTextboxSetText(textbox,text);
+  
+  label1 = newtLabel(0,textbox_height+1,PASSWORD_ENTER_TEXT);
     
-  entry1 = newtEntry(label1_width,textbox_height,"",entry1_width,&password1,NEWT_FLAG_PASSWORD);
+  entry1 = newtEntry(entry_left,textbox_height+1,"",entry_width,&password1,NEWT_FLAG_PASSWORD);
   
-  label2 = newtLabel(0,textbox_height+label1_height,PASSWORD_CONFIRM_TEXT);
+  label2 = newtLabel(0,textbox_height+label1_height+2,PASSWORD_CONFIRM_TEXT);
   
-  entry2 = newtEntry(label2_width,textbox_height+label1_height,"",entry2_width,&password2,NEWT_FLAG_PASSWORD);
+  entry2 = newtEntry(entry_left,textbox_height+label1_height+2,"",entry_width,&password2,NEWT_FLAG_PASSWORD);
   
   next = newtButton(NEWT_WIDTH-next_width,NEWT_HEIGHT-next_height,NEXT_BUTTON_TEXT);
 
@@ -345,7 +349,7 @@ extern bool ui_window_root(const char *title,const char *text,struct account *da
         ui_dialog_text(PASSWORD_SHORT_TITLE,PASSWORD_SHORT_TEXT);
         continue;
       }
-      
+
       if(strcmp(password1,password2) != 0)
       {
         ui_dialog_text(PASSWORD_MISMATCH_TITLE,PASSWORD_MISMATCH_TEXT);
