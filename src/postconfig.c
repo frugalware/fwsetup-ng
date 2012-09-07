@@ -95,6 +95,23 @@ static bool root_action(struct account *account)
   return execute(command,INSTALL_ROOT,0);
 }
 
+static bool user_action(struct account *account)
+{
+  char command[_POSIX_ARG_MAX] = {0};
+
+  snprintf(command,_POSIX_ARG_MAX,"useradd -D -m -c '%s' -g '%s' -G '%s' -d '%s' -s '%s' '%s'",(account->name != 0) ? account->name : "",account->group,account->groups,account->home,account->shell,account->user);
+
+  if(!execute(command,INSTALL_ROOT,0))
+    return false;
+  
+  snprintf(command,_POSIX_ARG_MAX,"echo '%s:%s' | chpasswd",account->user,account->password);
+  
+  if(!execute(command,INSTALL_ROOT,0))
+    return false;
+  
+  return true;
+}
+
 static void account_free(struct account *account)
 {
   if(account == 0)
@@ -127,10 +144,15 @@ static bool postconfig_run(void)
     return false;
   }
   
-  if(!is_root_setup() && !ui_window_root(&account))
+  if(!is_root_setup() && !ui_window_root(&account) && !root_action(&account))
+  {
+    account_free(&account);
     return false;
+  }
   
-  if(!root_action(&account))
+  account_free(&account);
+  
+  if(!is_user_setup() && !ui_window_user(&account) && !user_action(&account))
   {
     account_free(&account);
     return false;
