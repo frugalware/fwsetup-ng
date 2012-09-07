@@ -333,6 +333,8 @@ extern bool ui_window_root(struct account *data)
   
   newtFormAddComponents(form,textbox,label1,entry1,label2,entry2,next,(void *) 0);
   
+  newtFormSetCurrent(form,entry1);
+  
   while(true)
   {
     newtFormRun(form,&es);
@@ -473,6 +475,8 @@ extern bool ui_window_user(struct account *data)
   form = newtForm(0,0,NEWT_FLAG_NOF12);
   
   newtFormAddComponents(form,textbox,label1,entry1,label2,entry2,label3,entry3,label4,entry4,next,(void *) 0);
+
+  newtFormSetCurrent(form,entry1);
 
   while(true)
   {
