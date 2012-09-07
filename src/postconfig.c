@@ -19,10 +19,12 @@ static bool is_root_setup(void)
   
   while(fgets(line,LINE_MAX,file) != 0)
   {
-    if((user = strtok_r(line,":",&tmp)) == 0)
+    tmp = line;
+
+    if((user = strsep(&tmp,":")) == 0)
       continue;
     
-    if((pwd = strtok_r(0,":",&tmp)) == 0)
+    if((pwd = strsep(&tmp,":")) == 0)
       continue;
     
     if(strcmp(user,"root") == 0)
@@ -55,16 +57,18 @@ static bool is_user_setup(void)
   
   while(fgets(line,LINE_MAX,file) != 0)
   {
-    if(strtok_r(line,":",&tmp) == 0)
+    tmp = line;
+
+    if(strsep(&tmp,":") == 0)
       continue;
     
-    if(strtok_r(0,":",&tmp) == 0)
+    if(strsep(&tmp,":") == 0)
       continue;
     
-    if(strtok_r(0,":",&tmp) == 0)
+    if(strsep(&tmp,":") == 0)
       continue;
     
-    if((gid = strtok_r(0,":",&tmp)) == 0)
+    if((gid = strsep(&tmp,":")) == 0)
       continue;
     
     if(strcmp(gid,"100") == 0)
@@ -106,7 +110,7 @@ static bool user_action(struct account *account)
     return false;
   }
 
-  snprintf(command,_POSIX_ARG_MAX,"useradd -D -m -c '%s' -g '%s' -G '%s' -d '%s' -s '%s' '%s'",(account->name != 0) ? account->name : "",account->group,account->groups,account->home,account->shell,account->user);
+  snprintf(command,_POSIX_ARG_MAX,"useradd -m -c '%s' -g '%s' -G '%s' -d '%s' -s '%s' '%s'",(account->name != 0) ? account->name : "",account->group,account->groups,account->home,account->shell,account->user);
 
   if(!execute(command,INSTALL_ROOT,0))
     return false;
@@ -169,7 +173,7 @@ static bool postconfig_run(void)
     return false;
   }
   
-  if(!is_root_setup() && !ui_window_root(&account) && !root_action(&account))
+  if(!is_root_setup() && (!ui_window_root(&account) || !root_action(&account)))
   {
     account_free(&account);
     return false;
@@ -177,7 +181,7 @@ static bool postconfig_run(void)
   
   account_free(&account);
   
-  if(!is_user_setup() && !ui_window_user(&account) && !user_action(&account))
+  if(!is_user_setup() && (!ui_window_user(&account) || !user_action(&account)))
   {
     account_free(&account);
     return false;
