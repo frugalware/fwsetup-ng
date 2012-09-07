@@ -376,6 +376,87 @@ extern bool ui_window_root(struct account *data)
   return true;
 }
 
+extern bool ui_window_user(struct account *data)
+{
+  int textbox_width = 0;
+  int textbox_height = 0;
+  int label1_width = 0;
+  int label1_height = 0;
+  int label2_width = 0;
+  int label2_height = 0;
+  int label3_width = 0;
+  int label3_height = 0;
+  int label4_width = 0;
+  int label4_height = 0;
+  int entry_left = 0;
+  int entry_width = 0;
+  int entry_height = 0;
+  newtComponent textbox = 0;
+  newtComponent label1 = 0;
+  newtComponent entry1 = 0;
+  const char *name = 0;
+  newtComponent label2 = 0;
+  newtComponent entry2 = 0;
+  const char *user = 0;
+  newtComponent label3 = 0;
+  newtComponent entry3 = 0;
+  const char *password1 = 0;
+  newtComponent label4 = 0;
+  newtComponent entry4 = 0;
+  const char *password2 = 0;
+  newtComponent next = 0;
+  newtComponent form = 0;
+  struct newtExitStruct es = {0};
+  
+  if(data == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  if(!get_text_screen_size(USER_TEXT,&textbox_width,&textbox_height))
+    return false;
+
+  if(!get_label_screen_size(NAME_ENTRY_TEXT,&label1_width,&label1_height))
+    return false;
+
+  if(!get_label_screen_size(USER_ENTRY_TEXT,&label2_width,&label2_height))
+    return false;
+  
+  if(!get_label_screen_size(PASSWORD_ENTER_TEXT,&label3_width,&label3_height))
+    return false;
+  
+  if(!get_label_screen_size(PASSWORD_CONFIRM_TEXT,&label4_width,&label4_height))
+    return false;
+
+  entry_left = maxv( (long *) { label1_width, label2_width, label3_width, label4_width }, 4) + 1;
+  
+  entry_width = NEWT_WIDTH - entry_left;
+  
+  entry_height = 0;
+
+  if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,USER_TITLE) != 0)
+  {
+    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    return false;
+  }
+
+  textbox = newtTextbox(0,0,textbox_width,textbox_height,0);
+
+  newtTextboxSetText(textbox,USER_TEXT);
+  
+  label1 = newtLabel(0,textbox_height+1,NAME_ENTRY_TEXT);
+  
+  label2 = newtLabel(0,textbox_height+label1_height+2,USER_ENTRY_TEXT);
+  
+  label3 = newtLabel(0,textbox_height+label1_height+label2_height+3,PASSWORD_ENTER_TEXT);
+  
+  label4 = newtLabel(0,textbox_height+label1_height+label2_height+label3_height+4,PASSWORD_CONFIRM_TEXT);
+  
+  return true;
+}
+
 extern bool ui_window_install(struct install *data)
 {
   int textbox_width = 0;

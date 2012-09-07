@@ -20,3 +20,7 @@
 #define NO_BASE_TEXT _("You must select at least the base package group.\n")
 #define ROOT_TITLE _("Changing Root Password")
 #define ROOT_TEXT _("Please enter a password below that is at least 6 characters long.\n")
+#define NAME_ENTRY_TEXT _("Real Name")
+#define USER_ENTRY_TEXT _("User Name")
+#define USER_TITLE _("Initial User Setup")
+#define USER_TEXT _("Please enter information below for an initial user.\nThe password must be at least 6 characters long.\n")
