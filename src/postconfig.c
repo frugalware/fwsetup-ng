@@ -100,6 +100,8 @@ static void account_free(struct account *account)
   if(account == 0)
     return;
 
+  free(account->name);
+
   free(account->user);
   
   free(account->password);

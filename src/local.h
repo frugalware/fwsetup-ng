@@ -34,6 +34,7 @@ struct install
 
 struct account
 {
+  char *name;
   char *user;
   char *password;
   char *group;

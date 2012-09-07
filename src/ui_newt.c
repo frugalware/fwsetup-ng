@@ -354,6 +354,8 @@ extern bool ui_window_root(struct account *data)
       break;
     }
   }
+
+  data->name = 0;
   
   data->user = strdup("root");
   
