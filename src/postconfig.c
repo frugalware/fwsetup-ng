@@ -78,3 +78,44 @@ static bool is_user_setup(void)
   
   return result;
 }
+
+static void account_free(struct account *account)
+{
+  if(account == 0)
+    return;
+
+  free(account->user);
+  
+  free(account->password);
+  
+  free(account->group);
+  
+  free(account->groups);
+  
+  free(account->home);
+  
+  free(account->shell);
+  
+  memset(account,0,sizeof(struct account));
+}
+
+static bool postconfig_run(void)
+{
+  struct account account = {0};
+  
+  if(!is_root_setup() && !ui_window_root(&account))
+    return false;
+  
+  return true;
+}
+
+static void postconfig_reset(void)
+{
+}
+
+struct module postconfig_module =
+{
+  postconfig_run,
+  postconfig_reset,
+  __FILE__
+};

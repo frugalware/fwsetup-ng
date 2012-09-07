@@ -34,5 +34,6 @@ struct global g =
 struct module *modules[] =
 {
   &install_module,
+  &postconfig_module,
   0
 };
