@@ -639,7 +639,7 @@ static bool install_run(void)
 
   while(true)
   {
-    bool success = ui_window_install(INSTALL_TITLE_TEXT,groups);
+    bool success = ui_window_install(groups);
     struct install *grp = 0;
     
     if(!success)

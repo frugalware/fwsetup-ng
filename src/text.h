@@ -10,12 +10,11 @@
 #define PASSWORD_ENTER_TEXT _("Enter Password")
 #define PASSWORD_CONFIRM_TEXT _("Confirm Password")
 #define PASSWORD_LENGTH 6
-#define PASSWORD_SHORT_TITLE _("Passwords Too Short")
-#define PASSWORD_SHORT_TEXT _("Your passwords must be at least 6 characters long.\n")
+#define PASSWORD_SHORT_TITLE _("Password Too Short")
+#define PASSWORD_SHORT_TEXT _("Your password must be at least 6 characters long.\n")
 #define PASSWORD_MISMATCH_TITLE _("Passwords Do Not Match")
 #define PASSWORD_MISMATCH_TEXT _("The passwords you have entered do not match.\n")
-
-#define INSTALL_TITLE_TEXT _("Package Group Selection")
-#define INSTALL_WINDOW_TEXT _( \
-"It is now time to select which package groups to install.\n" \
-)
+#define INSTALL_TITLE _("Package Group Selection")
+#define INSTALL_TEXT _("Please select which package groups you wish to install.\n")
+#define ROOT_TITLE _("Changing Root Password")
+#define ROOT_TEXT _("Please enter a password below that is at least 6 characters long.\n")

@@ -38,7 +38,7 @@ extern int ui_main(int argc,char **argv)
 
   while(true)
   {
-    module = modules[n + 1];
+    module = modules[n];
   
     if(module == 0)
       break;
@@ -69,11 +69,6 @@ extern int ui_main(int argc,char **argv)
     
     ++n;
   }
-
-  struct account root;
-
-  if(ui_window_root("test","Root!\n",&root))
-    fprintf(logfile,"%s\n",root.password);
 
   newtFinished();
 
@@ -265,7 +260,7 @@ extern bool ui_dialog_progress(const char *title,const char *text,int percent)
   return true;
 }
 
-extern bool ui_window_root(const char *title,const char *text,struct account *data)
+extern bool ui_window_root(struct account *data)
 {
   int textbox_width = 0;
   int textbox_height = 0;
@@ -289,14 +284,14 @@ extern bool ui_window_root(const char *title,const char *text,struct account *da
   newtComponent form = 0;
   struct newtExitStruct es = {0};
 
-  if(title == 0 || text == 0 || data == 0)
+  if(data == 0)
   {
     errno = EINVAL;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
     return false;
   }
 
-  if(!get_text_screen_size(text,&textbox_width,&textbox_height))
+  if(!get_text_screen_size(ROOT_TEXT,&textbox_width,&textbox_height))
     return false;
 
   if(!get_label_screen_size(PASSWORD_ENTER_TEXT,&label1_width,&label1_height))
@@ -314,7 +309,7 @@ extern bool ui_window_root(const char *title,const char *text,struct account *da
   if(!get_button_screen_size(NEXT_BUTTON_TEXT,&next_width,&next_height))
     return false;
   
-  if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
+  if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,ROOT_TITLE) != 0)
   {
     fprintf(logfile,_("Failed to open a NEWT window.\n"));
     return false;
@@ -322,7 +317,7 @@ extern bool ui_window_root(const char *title,const char *text,struct account *da
 
   textbox = newtTextbox(0,0,textbox_width,textbox_height,0);
   
-  newtTextboxSetText(textbox,text);
+  newtTextboxSetText(textbox,ROOT_TEXT);
   
   label1 = newtLabel(0,textbox_height+1,PASSWORD_ENTER_TEXT);
     
@@ -379,7 +374,7 @@ extern bool ui_window_root(const char *title,const char *text,struct account *da
   return true;
 }
 
-extern bool ui_window_install(const char *title,struct install *data)
+extern bool ui_window_install(struct install *data)
 {
   int textbox_width = 0;
   int textbox_height = 0;
@@ -396,25 +391,32 @@ extern bool ui_window_install(const char *title,struct install *data)
   struct newtExitStruct es = {0};
   bool result = true;
 
-  if(!get_text_screen_size(INSTALL_WINDOW_TEXT,&textbox_width,&textbox_height))
-    return 0;
+  if(data == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  if(!get_text_screen_size(INSTALL_TEXT,&textbox_width,&textbox_height))
+    return false;
 
   if(!get_button_screen_size(NEXT_BUTTON_TEXT,&next_width,&next_height))
-    return 0;
+    return false;
 
   checkboxtree_width = NEWT_WIDTH;
   
   checkboxtree_height = NEWT_HEIGHT - textbox_height - next_height - 2;
 
-  if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
+  if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,INSTALL_TITLE) != 0)
   {
     fprintf(logfile,_("Failed to open a NEWT window.\n"));
-    return 0;
+    return false;
   }
   
   textbox = newtTextbox(0,0,textbox_width,textbox_height,0);
 
-  newtTextboxSetText(textbox,INSTALL_WINDOW_TEXT);
+  newtTextboxSetText(textbox,INSTALL_TEXT);
 
   next = newtButton(NEWT_WIDTH-next_width,NEWT_HEIGHT-next_height,NEXT_BUTTON_TEXT);
 
