@@ -60,6 +60,24 @@ extern bool get_button_screen_size(const char *text,int *width,int *height);
 extern bool get_label_screen_size(const char *text,int *width,int *height);
 static inline long min(long a,long b) { return (a < b) ? a : b; }
 static inline long max(long a,long b) { return (a > b) ? a : b; }
+static inline long minv(long *v,size_t size)
+{
+  long i = 0;
+  
+  for( size_t n = 0 ; n < size ; ++n )
+    i = min(i,v[n]);
+  
+  return i;
+}
+static inline long maxv(long *v,size_t size)
+{
+  long i = 0;
+  
+  for( size_t n = 0 ; n < size ; ++n )
+    i = max(i,v[n]);
+  
+  return i;
+}
 extern int ui_main(int argc,char **argv);
 extern void ui_dialog_text(const char *title,const char *text);
 extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno);
