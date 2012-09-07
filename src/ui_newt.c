@@ -21,7 +21,7 @@ extern int ui_main(int argc,char **argv)
 
   if(newtInit() != 0)
   {
-    fprintf(logfile,NEWT_INIT_FAILURE_TEXT);
+    fprintf(logfile,_("Could not initialize the NEWT user interface.\n"));
     return 1;
   }
 
@@ -29,7 +29,7 @@ extern int ui_main(int argc,char **argv)
 
   if(w < 80 || h < 24)
   {
-    fprintf(logfile,NEWT_TOO_SMALL_TEXT);
+    fprintf(logfile,_("We require a terminal of 80x24 or greater to use the NEWT user interface.\n"));
     newtFinished();
     return 1;
   }  
@@ -101,7 +101,7 @@ extern void ui_dialog_text(const char *title,const char *text)
 
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
   {
-    fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
+    fprintf(logfile,_("Failed to open a NEWT window.\n"));
     return;
   }
   
@@ -163,7 +163,7 @@ extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno)
 
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
   {
-    fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
+    fprintf(logfile,_("Failed to open a NEWT window.\n"));
     return false;
   }
 
@@ -234,7 +234,7 @@ extern bool ui_dialog_progress(const char *title,const char *text,int percent)
   {
     if(newtCenteredWindow(NEWT_WIDTH,3,title) != 0)
     {
-      fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
+      fprintf(logfile,_("Failed to open a NEWT window.\n"));
       return false;
     }
     
@@ -256,6 +256,121 @@ extern bool ui_dialog_progress(const char *title,const char *text,int percent)
   newtDrawForm(form);
   
   newtRefresh();
+
+  return true;
+}
+
+extern bool ui_window_root(const char *title,const char *text,struct account *data)
+{
+  int textbox_width = 0;
+  int textbox_height = 0;
+  int label1_width = 0;
+  int label1_height = 0;
+  int label2_width = 0;
+  int label2_height = 0;
+  int entry1_width = 0;
+  int entry1_height = 0;
+  int entry2_width = 0;
+  int entry2_height = 0;
+  int next_width = 0;
+  int next_height = 0;
+  newtComponent textbox = 0;
+  newtComponent label1 = 0;
+  newtComponent entry1 = 0;
+  const char *password1 = 0;
+  newtComponent label2 = 0;
+  newtComponent entry2 = 0;
+  const char *password2 = 0;
+  newtComponent next = 0;
+  newtComponent form = 0;
+  struct newtExitStruct es = {0};
+
+  if(title == 0 || text == 0 || data == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  if(!get_text_screen_size(text,&textbox_width,&textbox_height))
+    return false;
+
+  if(!get_label_screen_size(PASSWORD_ENTER_TEXT,&label1_width,&label1_height))
+    return false;
+
+  if(!get_label_screen_size(PASSWORD_CONFIRM_TEXT,&label2_width,&label2_height))
+    return false;
+
+  entry1_width = NEWT_WIDTH - label1_width;
+  
+  entry1_height = label1_height;
+  
+  entry2_width = NEWT_WIDTH - label2_width;
+  
+  entry2_height = label2_height;
+  
+  if(!get_button_screen_size(NEXT_BUTTON_TEXT,&next_width,&next_height))
+    return false;
+  
+  if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
+  {
+    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    return false;
+  }
+
+  textbox = newtTextbox(0,0,textbox_width,textbox_height,0);
+  
+  label1 = newtLabel(0,textbox_height,PASSWORD_ENTER_TEXT);
+    
+  entry1 = newtEntry(label1_width,textbox_height,"",entry1_width,&password1,NEWT_FLAG_PASSWORD);
+  
+  label2 = newtLabel(0,textbox_height+label1_height,PASSWORD_CONFIRM_TEXT);
+  
+  entry2 = newtEntry(label2_width,textbox_height+label1_height,"",entry2_width,&password2,NEWT_FLAG_PASSWORD);
+  
+  next = newtButton(NEWT_WIDTH-next_width,NEWT_HEIGHT-next_height,NEXT_BUTTON_TEXT);
+
+  form = newtForm(0,0,NEWT_FLAG_NOF12);
+  
+  newtFormAddComponents(form,textbox,label1,entry1,label2,entry2,next,(void *) 0);
+  
+  while(true)
+  {
+    newtFormRun(form,&es);
+    
+    if(es.reason == NEWT_EXIT_COMPONENT && es.u.co == next)
+    {
+      if(get_text_length(password1) < PASSWORD_LENGTH || get_text_length(password2) < PASSWORD_LENGTH)
+      {
+        ui_dialog_text(PASSWORD_SHORT_TITLE,PASSWORD_SHORT_TEXT);
+        continue;
+      }
+      
+      if(strcmp(password1,password2) != 0)
+      {
+        ui_dialog_text(PASSWORD_MISMATCH_TITLE,PASSWORD_MISMATCH_TEXT);
+        continue;
+      }
+      
+      break;
+    }
+  }
+  
+  data->user = strdup("root");
+  
+  data->password = strdup(password1);
+  
+  data->group = strdup("root");
+  
+  data->groups = 0;
+  
+  data->home = strdup("/root");
+  
+  data->shell = strdup("/bin/bash");
+  
+  newtFormDestroy(form);
+  
+  newtPopWindow();
 
   return true;
 }
@@ -289,7 +404,7 @@ extern bool ui_window_install(const char *title,struct install *data)
 
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
   {
-    fprintf(logfile,NEWT_WINDOW_FAILURE_TEXT);
+    fprintf(logfile,_("Failed to open a NEWT window.\n"));
     return 0;
   }
   
