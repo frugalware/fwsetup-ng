@@ -108,6 +108,9 @@ extern int get_text_length(const char *s)
       return -1;
     }
 
+    if(n == 0)
+      break;
+
     ++l;
 
     s += n;
