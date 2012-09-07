@@ -150,6 +150,24 @@ static bool postconfig_run(void)
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
     return false;
   }
+
+  if(mount("none",INSTALL_ROOT "/dev","devtmpfs",0,0) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  if(mount("none",INSTALL_ROOT "/proc","proc",0,0) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  if(mount("none",INSTALL_ROOT "/sys","sysfs",0,0) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
   
   if(!is_root_setup() && !ui_window_root(&account) && !root_action(&account))
   {
@@ -166,6 +184,24 @@ static bool postconfig_run(void)
   }
   
   account_free(&account);
+
+  if(umount2(INSTALL_ROOT "/dev",MNT_DETACH) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;    
+  }
+  
+  if(umount2(INSTALL_ROOT "/proc",MNT_DETACH) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  if(umount2(INSTALL_ROOT "/sys",MNT_DETACH) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
   
   return true;
 }
