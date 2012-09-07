@@ -81,6 +81,43 @@ extern bool size_to_string(char *s,size_t n,long long size,bool pad)
   return true;
 }
 
+extern int get_text_length(const char *s)
+{
+  wchar_t wc = 0;
+  size_t n = 0;
+  size_t len = 0;
+  mbstate_t mbs = {0};
+  int l = 0;
+  
+  if(s == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return -1;
+  }
+  
+  len = strlen(s);
+  
+  while(true)
+  {
+    n = mbrtowc(&wc,s,len,&mbs);
+
+    if(n == (size_t) -1 || n == (size_t) -2)
+    {
+      fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+      return -1;
+    }
+
+    ++l;
+
+    s += n;
+
+    len -= n;
+  }
+  
+  return l;
+}
+
 extern int get_text_screen_width(const char *s)
 {
   wchar_t wc = 0;
