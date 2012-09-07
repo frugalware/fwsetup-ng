@@ -121,6 +121,67 @@ extern int get_text_length(const char *s)
   return l;
 }
 
+extern bool execute(const char *command,const char *root,pid_t *cpid)
+{
+  pid_t pid = -1;
+  int status = 0;
+
+  if(command == 0 || root == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  fprintf(logfile,_("Attempting to execute command '%s' with root directory '%s'.\n"),command,root);
+  
+  if((pid = fork()) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  if(pid == 0)
+  {
+    int fd = open(LOGFILE,O_WRONLY|O_APPEND|O_CREAT,0644);
+    
+    if(fd == -1)
+      _exit(200);
+    
+    dup2(fd,STDOUT_FILENO);
+    
+    dup2(fd,STDERR_FILENO);
+    
+    close(fd);
+    
+    if(chroot(root) == -1)
+      _exit(210);
+      
+    if(chdir("/") == -1)
+      _exit(220);      
+    
+    execl("/bin/sh","/bin/sh","-c",command,(void *) 0);
+    
+    _exit(230);
+  }
+  
+  if(cpid != 0)
+  {
+    *cpid = pid;
+    return true;
+  }
+  
+  if(waitpid(pid,&status,0) == -1 || !WIFEXITED(status))
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  fprintf(logfile,_("Command '%s' which was executed with root directory '%s' has exitted with code '%d'.\n"),command,root,WEXITSTATUS(status));
+  
+  return (WEXITSTATUS(status) == 0);
+}
+
 extern int get_text_screen_width(const char *s)
 {
   wchar_t wc = 0;

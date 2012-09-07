@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 #include <wchar.h>
 #include <errno.h>
 #include <limits.h>
@@ -50,6 +52,7 @@ struct module
 extern bool mkdir_recurse(const char *path);
 extern bool size_to_string(char *s,size_t n,long long size,bool pad);
 extern int get_text_length(const char *s);
+extern bool execute(const char *command,const char *root,pid_t *cpid);
 extern int get_text_screen_width(const char *s);
 extern bool get_text_screen_size(const char *text,int *width,int *height);
 extern bool get_button_screen_size(const char *text,int *width,int *height);
