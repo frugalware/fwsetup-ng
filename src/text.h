@@ -16,5 +16,7 @@
 #define PASSWORD_MISMATCH_TEXT _("The passwords you have entered do not match.\n")
 #define INSTALL_TITLE _("Package Group Selection")
 #define INSTALL_TEXT _("Please select which package groups you wish to install.\n")
+#define NO_BASE_TITLE _("Group Selection Error")
+#define NO_BASE_TEXT _("You must select at least the base package group.\n")
 #define ROOT_TITLE _("Changing Root Password")
 #define ROOT_TEXT _("Please enter a password below that is at least 6 characters long.\n")

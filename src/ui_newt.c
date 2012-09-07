@@ -386,7 +386,7 @@ extern bool ui_window_install(struct install *data)
   newtComponent next = 0;
   newtComponent checkboxtree = 0;
   int i = 0;
-  struct install *pkg = 0;
+  struct install *grp = 0;
   newtComponent form = 0;
   struct newtExitStruct es = {0};
   bool result = true;
@@ -424,14 +424,14 @@ extern bool ui_window_install(struct install *data)
 
   newtCheckboxTreeSetWidth(checkboxtree,checkboxtree_width);
 
-  pkg = data;
+  grp = data;
 
-  while(pkg->name != 0)
+  while(grp->name != 0)
   {
-    newtCheckboxTreeAddItem(checkboxtree,pkg->name,&pkg->checked,0,i,NEWT_ARG_LAST);
-    newtCheckboxTreeSetEntryValue(checkboxtree,&pkg->checked,(pkg->checked) ? '*' : ' ');
+    newtCheckboxTreeAddItem(checkboxtree,grp->name,&grp->checked,0,i,NEWT_ARG_LAST);
+    newtCheckboxTreeSetEntryValue(checkboxtree,&grp->checked,(grp->checked) ? '*' : ' ');
     ++i;
-    ++pkg;
+    ++grp;
   }
 
   form = newtForm(0,0,NEWT_FLAG_NOF12);
@@ -446,17 +446,33 @@ extern bool ui_window_install(struct install *data)
     
     if(es.reason == NEWT_EXIT_COMPONENT && es.u.co == next)
     {
+      grp = data;
+
+      while(grp->name != 0)
+      {
+        if(strcmp(grp->name,"base") == 0)
+          break;
+        ++grp;
+      }
+
+      if(grp != 0 && newtCheckboxTreeGetEntryValue(checkboxtree,&grp->checked) != '*')
+      {
+        ui_dialog_text(NO_BASE_TITLE,NO_BASE_TEXT);
+        continue;
+      }
+
       result = true;
+
       break;
     }
   }
 
-  pkg = data;
+  grp = data;
 
-  while(pkg->name != 0)
+  while(grp->name != 0)
   {
-    pkg->checked = (newtCheckboxTreeGetEntryValue(checkboxtree,&pkg->checked) == '*');
-    ++pkg;
+    grp->checked = (newtCheckboxTreeGetEntryValue(checkboxtree,&grp->checked) == '*');
+    ++grp;
   }
 
   newtFormDestroy(form);

@@ -637,36 +637,10 @@ static bool install_run(void)
   if(!install_groups_get(&groups))
     return false;
 
-  while(true)
+  if(!ui_window_install(groups))
   {
-    bool success = ui_window_install(groups);
-    struct install *grp = 0;
-    
-    if(!success)
-    {
-      install_groups_free(groups);
-      return false;
-    }
-    
-    for( grp = groups ; grp->name != 0 ; ++grp )
-      if(strcmp(grp->name,"base") == 0)
-        break;
-    
-    if(grp == 0)
-    {
-      errno = EINVAL;
-      fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
-      install_groups_free(groups);
-      return false;
-    }
-
-    if(!grp->checked)
-    {
-      ui_dialog_text(_("Group Selection Error"),_("You must select at least the 'base' group.\n"));
-      continue;
-    }
-
-    break;
+    install_groups_free(groups);
+    return false;
   }
 
   if(!install_groups_install(groups))
