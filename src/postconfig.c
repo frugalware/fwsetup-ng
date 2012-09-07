@@ -99,6 +99,13 @@ static bool user_action(struct account *account)
 {
   char command[_POSIX_ARG_MAX] = {0};
 
+  if(account == 0 || account->user == 0 || account->password == 0 || account->group == 0 || account->groups == 0 || account->home == 0 || account->shell == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
   snprintf(command,_POSIX_ARG_MAX,"useradd -D -m -c '%s' -g '%s' -G '%s' -d '%s' -s '%s' '%s'",(account->name != 0) ? account->name : "",account->group,account->groups,account->home,account->shell,account->user);
 
   if(!execute(command,INSTALL_ROOT,0))
