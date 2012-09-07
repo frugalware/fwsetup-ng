@@ -391,6 +391,8 @@ extern bool ui_window_user(struct account *data)
   int entry_left = 0;
   int entry_width = 0;
   int entry_height = 0;
+  int next_width = 0;
+  int next_height = 0;
   newtComponent textbox = 0;
   newtComponent label1 = 0;
   newtComponent entry1 = 0;
@@ -407,6 +409,7 @@ extern bool ui_window_user(struct account *data)
   newtComponent next = 0;
   newtComponent form = 0;
   struct newtExitStruct es = {0};
+  char home[PATH_MAX] = {0};
   
   if(data == 0)
   {
@@ -430,11 +433,14 @@ extern bool ui_window_user(struct account *data)
   if(!get_label_screen_size(PASSWORD_CONFIRM_TEXT,&label4_width,&label4_height))
     return false;
 
-  entry_left = maxv( (long *) { label1_width, label2_width, label3_width, label4_width }, 4) + 1;
+  entry_left = maxv( (long []) { label1_width, label2_width, label3_width, label4_width }, 4) + 1;
   
   entry_width = NEWT_WIDTH - entry_left;
   
   entry_height = 0;
+
+  if(!get_button_screen_size(NEXT_BUTTON_TEXT,&next_width,&next_height))
+    return false;
 
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,USER_TITLE) != 0)
   {
@@ -447,12 +453,74 @@ extern bool ui_window_user(struct account *data)
   newtTextboxSetText(textbox,USER_TEXT);
   
   label1 = newtLabel(0,textbox_height+1,NAME_ENTRY_TEXT);
+
+  entry1 = newtEntry(entry_left,textbox_height+1,"",entry_width,&name,0);
   
   label2 = newtLabel(0,textbox_height+label1_height+2,USER_ENTRY_TEXT);
   
+  entry2 = newtEntry(entry_left,textbox_height+label1_height+2,"",entry_width,&user,0);
+  
   label3 = newtLabel(0,textbox_height+label1_height+label2_height+3,PASSWORD_ENTER_TEXT);
   
+  entry3 = newtEntry(entry_left,textbox_height+label1_height+label2_height+3,"",entry_width,&password1,NEWT_FLAG_PASSWORD);
+  
   label4 = newtLabel(0,textbox_height+label1_height+label2_height+label3_height+4,PASSWORD_CONFIRM_TEXT);
+  
+  entry4 = newtEntry(entry_left,textbox_height+label1_height+label2_height+label3_height+4,"",entry_width,&password2,NEWT_FLAG_PASSWORD);
+  
+  next = newtButton(NEWT_WIDTH-next_width,NEWT_HEIGHT-next_height,NEXT_BUTTON_TEXT);
+  
+  form = newtForm(0,0,NEWT_FLAG_NOF12);
+  
+  newtFormAddComponents(form,textbox,label1,entry1,label2,entry2,label3,entry3,label4,entry4,next,(void *) 0);
+
+  while(true)
+  {
+    newtFormRun(form,&es);
+    
+    if(es.reason == NEWT_EXIT_COMPONENT && es.u.co == next)
+    {
+      if(get_text_length(user) < 1)
+      {
+        ui_dialog_text(NO_USER_TITLE,NO_USER_TEXT);
+        continue;
+      }
+      
+      if(get_text_length(password1) < PASSWORD_LENGTH || get_text_length(password2) < PASSWORD_LENGTH)
+      {
+        ui_dialog_text(PASSWORD_SHORT_TITLE,PASSWORD_SHORT_TEXT);
+        continue;
+      }
+      
+      if(strcmp(password1,password2) != 0)
+      {
+        ui_dialog_text(PASSWORD_MISMATCH_TITLE,PASSWORD_MISMATCH_TEXT);
+        continue;
+      }
+      
+      break;
+    }
+  }
+  
+  data->name = (get_text_length(name) > 0) ? strdup(name) : 0;
+  
+  data->user = strdup(user);
+  
+  data->password = strdup(password1);
+  
+  data->group = strdup("users");
+  
+  data->groups = strdup("audio,camera,cdrom,floppy,scanner,video,uucp,storage,netdev,locate");
+  
+  snprintf(home,PATH_MAX,"/home/%s",user);
+  
+  data->home = strdup(home);
+  
+  data->shell = strdup("/bin/bash");
+
+  newtFormDestroy(form);
+  
+  newtPopWindow();
   
   return true;
 }
