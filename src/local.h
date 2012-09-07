@@ -19,8 +19,6 @@
 #define GIBIBYTE (1LL << 30LL)
 #define TEBIBYTE (1LL << 40LL)
 
-typedef bool (*ui_dialog_progress_callback) (char *text,size_t n,int *percent,void *data);
-
 struct global
 {
   bool netinstall;
@@ -30,6 +28,16 @@ struct install
 {
   char *name;
   bool checked;
+};
+
+struct account
+{
+  char *name;
+  char *password;
+  char *group;
+  char *groups;
+  char *home;
+  char *shell;
 };
 
 struct module
@@ -44,6 +52,7 @@ extern bool size_to_string(char *s,size_t n,long long size,bool pad);
 extern int get_text_screen_width(const char *s);
 extern bool get_text_screen_size(const char *text,int *width,int *height);
 extern bool get_button_screen_size(const char *text,int *width,int *height);
+extern bool get_label_screen_size(const char *text,int *width,int *height);
 static inline long min(long a,long b) { return (a < b) ? a : b; }
 static inline long max(long a,long b) { return (a > b) ? a : b; }
 extern int ui_main(int argc,char **argv);
