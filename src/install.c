@@ -497,7 +497,7 @@ static bool install_groups_get(struct install **groups)
     return false;
   }
   
-  grps = malloc(sizeof(struct install) * (matches + 1));
+  grps = malloc0(sizeof(struct install) * (matches + 1));
 
   for( ; list ; list = pacman_list_next(list) )
   {
