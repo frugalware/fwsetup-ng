@@ -61,6 +61,7 @@ extern int get_text_screen_width(const char *s);
 extern bool get_text_screen_size(const char *text,int *width,int *height);
 extern bool get_button_screen_size(const char *text,int *width,int *height);
 extern bool get_label_screen_size(const char *text,int *width,int *height);
+extern bool get_checkbox_screen_size(const char *text,int *width,int *height);
 static inline long min(long a,long b) { return (a < b) ? a : b; }
 static inline long max(long a,long b) { return (a > b) ? a : b; }
 static inline long minv(long *v,size_t size)
@@ -87,6 +88,7 @@ extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno);
 extern bool ui_dialog_progress(const char *title,const char *text,int percent);
 extern bool ui_window_root(struct account *data);
 extern bool ui_window_user(struct account *data);
+extern bool ui_window_time(char **data,char **zone,bool *utc);
 extern bool ui_window_install(struct install *groups);
 extern FILE *logfile;
 extern int main(int argc,char **argv);
