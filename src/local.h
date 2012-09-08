@@ -56,6 +56,7 @@ extern bool mkdir_recurse(const char *path);
 extern bool size_to_string(char *s,size_t n,long long size,bool pad);
 extern int get_text_length(const char *s);
 extern bool execute(const char *command,const char *root,pid_t *cpid);
+extern void *malloc0(size_t size);
 extern int get_text_screen_width(const char *s);
 extern bool get_text_screen_size(const char *text,int *width,int *height);
 extern bool get_button_screen_size(const char *text,int *width,int *height);

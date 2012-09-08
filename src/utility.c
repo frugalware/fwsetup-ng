@@ -182,6 +182,18 @@ extern bool execute(const char *command,const char *root,pid_t *cpid)
   return (WEXITSTATUS(status) == 0);
 }
 
+extern void *malloc0(size_t size)
+{
+  if(size == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return 0;
+  }
+  
+  return memset(malloc(size),0,size);
+}
+
 extern int get_text_screen_width(const char *s)
 {
   wchar_t wc = 0;
