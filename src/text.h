@@ -26,6 +26,6 @@
 #define USER_TEXT _("Enter the information for an initial user.\nThe password must be at least 6 characters long.\n")
 #define TIME_TITLE _("Initial Time Setup")
 #define TIME_TEXT _("Select the timezone relevant to you from the list below.\n")
-#define TIME_CHECKBOX _("Universal Time Clock")
+#define UTC_TEXT _("Universal Time Clock")
 #define NO_USER_TITLE _("No User Name")
 #define NO_USER_TEXT _("You must specify a user name.\n")

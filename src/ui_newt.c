@@ -59,7 +59,7 @@ extern int ui_main(int argc,char **argv)
     {
       fprintf(logfile,_("A fatal error has been reported by module '%s'.\n"),module->name);
       module->reset();
-      snprintf(text,4096,_("A fatal error has been reported by module '%s'.\n\nFor more information, please see the logfile at '%s'. Thank you.\n"),module->name,LOGFILE);
+      snprintf(text,4096,_("A fatal error has been reported by module '%s'.\n\nPlease read the logfile at '%s'.\nThank you.\n"),module->name,LOGFILE);
       ui_dialog_text(_("Module Fatal Error"),text);
       code = EXIT_FAILURE;
       break;
@@ -526,6 +526,92 @@ extern bool ui_window_user(struct account *data)
   
   newtPopWindow();
   
+  return true;
+}
+
+extern bool ui_window_time(char **data,char **zone,bool *utc)
+{
+  int textbox_width = 0;
+  int textbox_height = 0;
+  int next_width = 0;
+  int next_height = 0;
+  int checkbox_width = 0;
+  int checkbox_height = 0;
+  int listbox_width = 0;
+  int listbox_height = 0;
+  newtComponent textbox = 0;
+  newtComponent next = 0;
+  newtComponent checkbox = 0;
+  char result = '*';
+  newtComponent listbox = 0;
+  newtComponent form = 0;
+  struct newtExitStruct es = {0};
+
+  if(data == 0 || zone == 0 || utc == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  if(!get_text_screen_size(TIME_TEXT,&textbox_width,&textbox_height))
+    return false;
+
+  if(!get_button_screen_size(NEXT_BUTTON_TEXT,&next_width,&next_height))
+    return false;
+
+  if(!get_checkbox_screen_size(UTC_TEXT,&checkbox_width,&checkbox_height))
+    return false;
+  
+  listbox_width = NEWT_WIDTH;
+
+  listbox_height = NEWT_HEIGHT - textbox_height - next_height - checkbox_height - 3;
+
+  if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,TIME_TITLE) != 0)
+  {
+    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    return false;
+  }
+
+  textbox = newtTextbox(0,0,textbox_width,textbox_height,0);
+  
+  newtTextboxSetText(textbox,TIME_TEXT);
+  
+  next = newtButton(NEWT_WIDTH-next_width,NEWT_HEIGHT-next_height,NEXT_BUTTON_TEXT);
+
+  checkbox = newtCheckbox(0,textbox_height+1,UTC_TEXT,'*',0,&result);
+
+  listbox = newtListbox(0,textbox_height+checkbox_height+2,listbox_height,NEWT_FLAG_SCROLL);
+  
+  newtListboxSetWidth(listbox,listbox_width);
+
+  for( char **p = data ; *p != 0 ; ++p )
+    newtListboxAppendEntry(listbox,*p,*p);
+
+  newtListboxSetCurrent(listbox,0);
+
+  form = newtForm(0,0,NEWT_FLAG_NOF12);
+
+  newtFormAddComponents(form,textbox,next,checkbox,listbox,(void *) 0);
+
+  newtFormSetCurrent(form,listbox);
+
+  while(true)
+  {
+    newtFormRun(form,&es);
+    
+    if(es.reason == NEWT_EXIT_COMPONENT && es.u.co == next)
+      break;
+  }
+
+  *zone = newtListboxGetCurrent(listbox);
+
+  *utc = (result == '*');
+
+  newtFormDestroy(form);
+
+  newtPopWindow();
+
   return true;
 }
 
