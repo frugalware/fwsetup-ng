@@ -1,6 +1,8 @@
 #include "local.h"
 
 #define TZSEARCHDIR "usr/share/zoneinfo/posix"
+#define TZDIR "usr/share/zoneinfo"
+#define TZFILE "etc/localtime"
 #define TZSEARCHSIZE (sizeof(TZSEARCHDIR)-1)
 
 static size_t tz_size = 0;
@@ -186,7 +188,7 @@ static bool get_timezone_data(void)
     return false;
   }
   
-  tz_data = malloc(sizeof(char *) * (tz_size + 1));
+  tz_data = malloc0(sizeof(char *) * (tz_size + 1));
 
   if(nftw(TZSEARCHDIR,timezone_nftw_callback,512,FTW_DEPTH|FTW_PHYS) == -1)
   {
@@ -194,9 +196,33 @@ static bool get_timezone_data(void)
     return false;
   }
 
-  tz_data[tz_size] = 0;
-
   qsort(tz_data,tz_size,sizeof(char *),timezone_cmp_callback);
+
+  return true;
+}
+
+static bool time_action(char *zone,bool utc)
+{
+  char buf[4096] = {0};
+
+  if(unlink(TZFILE) == -1 && errno != ENOENT)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  snprintf(buf,4096,"/" TZDIR "/%s",zone);
+  
+  if(symlink(buf,TZFILE) == -1)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  snprintf(buf,4096,"hwclock --systohc %s",(utc) ? "--utc" : "--localtime");
+
+  if(!execute(buf,INSTALL_ROOT,0))
+    return false;
 
   return true;
 }
@@ -204,6 +230,8 @@ static bool get_timezone_data(void)
 static bool postconfig_run(void)
 {
   struct account account = {0};
+  char *zone = 0;
+  bool utc = true;
   
   if(chdir(INSTALL_ROOT) == -1)
   {
@@ -244,6 +272,9 @@ static bool postconfig_run(void)
   }
   
   account_free(&account);
+
+  if(!get_timezone_data() || !ui_window_time(tz_data,&zone,&utc) || !time_action(zone,utc))
+    return false;
 
   if(umount2(INSTALL_ROOT "/dev",MNT_DETACH) == -1)
   {
