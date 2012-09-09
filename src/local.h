@@ -28,6 +28,42 @@ struct global
   bool netinstall;
 };
 
+struct device
+{
+  char *path;
+  long long sectorsize;
+  long long alignment;
+  long long sectors;
+  bool disk;
+  bool raid;
+  bool lvm;
+  bool dos;
+  bool gpt;
+  void *table;
+};
+
+struct dospartition
+{
+  long long number;
+  long long start;
+  long long end;
+  long long sectors; 
+  bool active;
+  unsigned char type;
+};
+
+struct gptpartition
+{
+  long long number;
+  long long start;
+  long long end;
+  long long sectors;
+  unsigned long long flags;
+  char *type;
+  char *name;
+  char *uuid;
+};
+
 struct install
 {
   char *name;
