@@ -28,43 +28,6 @@ struct global
   bool netinstall;
 };
 
-struct device
-{
-  char *path;
-  long long sectorsize;
-  long long alignment;
-  long long sectors;
-  bool disk;
-  bool raid;
-  bool lvm;
-  bool dos;
-  bool gpt;
-  void *table[128];
-  size_t size;
-};
-
-struct dospartition
-{
-  long long number;
-  long long start;
-  long long end;
-  long long sectors; 
-  bool active;
-  unsigned char type;
-};
-
-struct gptpartition
-{
-  long long number;
-  long long start;
-  long long end;
-  long long sectors;
-  unsigned long long flags;
-  char *type;
-  char *name;
-  char *uuid;
-};
-
 struct install
 {
   char *name;
@@ -94,7 +57,6 @@ extern bool size_to_string(char *s,size_t n,long long size,bool pad);
 extern int get_text_length(const char *s);
 extern bool execute(const char *command,const char *root,pid_t *cpid);
 extern void *malloc0(size_t size);
-extern struct device *device_read(const char *path);
 extern int get_text_screen_width(const char *s);
 extern bool get_text_screen_size(const char *text,int *width,int *height);
 extern bool get_button_screen_size(const char *text,int *width,int *height);
