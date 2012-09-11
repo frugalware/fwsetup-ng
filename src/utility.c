@@ -280,7 +280,7 @@ extern bool parted_new_disk_label(struct parted *parted,PedDiskType *type)
   return (parted->disk != 0);
 }
 
-extern bool parted_new_partition(struct parted *parted,const char *size)
+extern bool parted_partition_new(struct parted *parted,const char *size)
 {
   PedSector sector = 0;
   PedGeometry *range = 0;
@@ -351,7 +351,7 @@ extern bool parted_partition_unset_active(struct parted *parted,int n)
   return parted_partition_change_active(parted,n,false);
 }
 
-extern bool parted_delete_last_partition(struct parted *parted)
+extern bool parted_partition_delete_last(struct parted *parted)
 {
   PedPartition *part = 0;
   
