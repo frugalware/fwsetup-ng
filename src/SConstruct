@@ -16,9 +16,11 @@ if not conf.CheckPkg('libnewt'):
 
 if not conf.CheckPkg('pacman'):
   print 'pacman was not found.'
+  Exit(1)
 
-if not conf.CheckPkg('blkid'):
-  print 'blkid was not found.'
+if not conf.CheckPkg('libparted'):
+  print 'libparted was not found.'
+  Exit(1)
 
 conf.Finish()
 
@@ -32,7 +34,7 @@ env.Append(CFLAGS = cflags)
 
 env.Append(CFLAGS = '-std=gnu99 -Wall -Wextra -ggdb3 -D_GNU_SOURCE -DUI_NEWT')
 
-env.ParseConfig('pkg-config --cflags --libs pacman libnewt blkid')
+env.ParseConfig('pkg-config --cflags --libs pacman libnewt libparted')
 
 env.Program('fwsetup',[
   'main.c',
