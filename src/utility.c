@@ -244,6 +244,31 @@ extern bool parted_new_disk_label(struct parted *parted,PedDiskType *type)
   return (parted->disk != 0);
 }
 
+extern bool parted_delete_last_partition(struct parted *parted)
+{
+  PedPartition *part = 0;
+  
+  if(parted == 0 || parted->device == 0 || parted->disk == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  for( PedPartition *i = 0 ; (i = ped_disk_next_partition(parted->disk,i)) != 0 ; )
+  {
+    if(i->num > 0 && is_normal_partition(i->type))
+      part = i;
+  }
+
+  if(part == 0)
+    return true;
+  
+  parted->modified = true;
+  
+  return (ped_disk_delete_partition(parted->disk,part) != 0);
+}
+
 extern void parted_close(struct parted *parted)
 {
   if(parted != 0)

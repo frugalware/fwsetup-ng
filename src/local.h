@@ -69,6 +69,25 @@ extern bool execute(const char *command,const char *root,pid_t *cpid);
 extern void *malloc0(size_t size);
 extern struct parted *parted_open(const char *path);
 extern bool parted_new_disk_label(struct parted *parted,PedDiskType *type);
+static inline bool is_normal_partition(PedPartitionType type)
+{
+  switch(type)
+  {
+    case PED_PARTITION_NORMAL:
+    case PED_PARTITION_LOGICAL:
+    case PED_PARTITION_EXTENDED:
+      return true;
+
+    case PED_PARTITION_FREESPACE:
+    case PED_PARTITION_METADATA:
+    case PED_PARTITION_PROTECTED:
+      return false;
+    
+    default:
+      return false;    
+  }
+}
+extern bool parted_delete_last_partition(struct parted *parted);
 extern void parted_close(struct parted *parted);
 extern int get_text_screen_width(const char *s);
 extern bool get_text_screen_size(const char *text,int *width,int *height);
