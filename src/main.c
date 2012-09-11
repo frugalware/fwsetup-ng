@@ -2,6 +2,13 @@
 
 FILE *logfile = 0;
 
+static PedExceptionOption libparted_exception_callback(PedException *ex)
+{
+  fprintf(logfile,"libparted: %s %s\n",ped_exception_get_type_string(ex->type),ex->message);
+
+  return PED_EXCEPTION_IGNORE;
+}
+
 extern int main(int argc,char **argv)
 {
   int code = EXIT_SUCCESS;
@@ -16,6 +23,8 @@ extern int main(int argc,char **argv)
   }
 
   setbuf(logfile,0);
+
+  ped_exception_set_handler(libparted_exception_callback);
 
   code = ui_main(argc,argv);
 

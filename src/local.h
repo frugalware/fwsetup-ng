@@ -14,6 +14,7 @@
 #include <wchar.h>
 #include <errno.h>
 #include <limits.h>
+#include <parted/parted.h>
 #include "text.h"
 
 #define LOGFILE "fwsetup.log"
