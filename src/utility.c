@@ -236,7 +236,7 @@ extern struct parted *parted_open(const char *path)
 
 extern bool parted_new_disk_label(struct parted *parted,PedDiskType *type)
 {
-  if(parted == 0 || parted->device == 0 || type == 0)
+  if(parted == 0 || parted->device == 0 || parted->constraint == 0 || type == 0)
   {
     errno = EINVAL;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
@@ -258,9 +258,8 @@ extern bool parted_new_partition(struct parted *parted,const char *size)
   PedSector sector = 0;
   PedGeometry *range = 0;
   PedPartition *part = 0;
-  bool result = false;
   
-  if(parted == 0 || parted->device == 0 || parted->disk == 0 || size == 0)
+  if(parted == 0 || parted->device == 0 || parted->constraint == 0 || parted->disk == 0 || size == 0)
   {
     errno = EINVAL;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
@@ -294,7 +293,7 @@ extern bool parted_delete_last_partition(struct parted *parted)
 {
   PedPartition *part = 0;
   
-  if(parted == 0 || parted->device == 0 || parted->disk == 0)
+  if(parted == 0 || parted->device == 0 || parted->constraint == 0 || parted->disk == 0)
   {
     errno = EINVAL;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
@@ -321,6 +320,9 @@ extern void parted_close(struct parted *parted)
   {
     if(parted->disk != 0)
       ped_disk_destroy(parted->disk);
+
+    if(parted->constraint != 0)
+      ped_constraint_destroy(parted->constraint);
   
     if(parted->device != 0)
       ped_device_destroy(parted->device);
