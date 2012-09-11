@@ -1,4 +1,42 @@
+#include <parted/parted.h>
 #include "local.h"
+
+struct parted
+{
+  PedDevice *device;
+  PedConstraint *constraint;
+  PedDisk *disk;
+  bool modified;
+};
+
+static PedDiskType *p_doslabel;
+static PedDiskType *p_gptlabel;
+
+static inline bool is_normal_partition(PedPartitionType type)
+{
+  switch(type)
+  {
+    case PED_PARTITION_NORMAL:
+    case PED_PARTITION_LOGICAL:
+    case PED_PARTITION_EXTENDED:
+      return true;
+
+    case PED_PARTITION_FREESPACE:
+    case PED_PARTITION_METADATA:
+    case PED_PARTITION_PROTECTED:
+      return false;
+    
+    default:
+      return false;    
+  }
+}
+
+static PedExceptionOption libparted_exception_callback(PedException *ex)
+{
+  fprintf(logfile,"libparted: %s %s\n",ped_exception_get_type_string(ex->type),ex->message);
+
+  return PED_EXCEPTION_IGNORE;
+}
 
 static bool parted_partition_change_active(struct parted *parted,int n,bool state)
 {
@@ -15,9 +53,9 @@ static bool parted_partition_change_active(struct parted *parted,int n,bool stat
   if((part = ped_disk_get_partition(parted->disk,n)) == 0)
     return false;
 
-  if(parted->disk->type == g->doslabel)
+  if(parted->disk->type == p_doslabel)
     flag = PED_PARTITION_BOOT;
-  else if(parted->disk->type == g->gptlabel)
+  else if(parted->disk->type == p_gptlabel)
     flag = PED_PARTITION_LEGACY_BOOT;
   else
     return false;
@@ -221,6 +259,22 @@ extern void *malloc0(size_t size)
   return memset(malloc(size),0,size);
 }
 
+extern bool parted_initialize(void)
+{
+  ped_exception_set_handler(libparted_exception_callback);
+
+  ped_unit_set_default(PED_UNIT_SECTOR);
+
+  p_doslabel = ped_disk_type_get("msdos");
+  
+  p_gptlabel = ped_disk_type_get("gpt");
+  
+  if(p_doslabel == 0 || p_gptlabel == 0)
+    return false;
+  
+  return true;
+}
+
 extern struct parted *parted_open(const char *path)
 {
   PedDevice *device = 0;
@@ -245,7 +299,7 @@ extern struct parted *parted_open(const char *path)
     return 0;
   }
   
-  if((disktype = ped_disk_probe(device)) != 0 && (disktype == g->doslabel || disktype == g->gptlabel))
+  if((disktype = ped_disk_probe(device)) != 0 && (disktype == p_doslabel || disktype == p_gptlabel))
     disk = ped_disk_new(device);
 
   parted = malloc0(sizeof(struct parted));
@@ -261,14 +315,23 @@ extern struct parted *parted_open(const char *path)
   return parted;
 }
 
-extern bool parted_new_disk_label(struct parted *parted,PedDiskType *type)
+extern bool parted_new_disk_label(struct parted *parted,const char *label)
 {
-  if(parted == 0 || parted->device == 0 || parted->constraint == 0 || type == 0)
+  PedDiskType *type = 0;
+
+  if(parted == 0 || parted->device == 0 || parted->constraint == 0 || label == 0)
   {
     errno = EINVAL;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
     return false;
   }
+  
+  if(strcmp(label,"msdos") == 0)
+    type = p_doslabel;
+  else if(strcmp(label,"gpt") == 0)
+    type = p_gptlabel;
+  else
+    return false;
   
   if(parted->disk != 0)
     ped_disk_destroy(parted->disk);
@@ -331,9 +394,9 @@ extern bool parted_partition_get_active(struct parted *parted,int n)
   if((part = ped_disk_get_partition(parted->disk,n)) == 0)
     return false;
 
-  if(parted->disk->type == g->doslabel)
+  if(parted->disk->type == p_doslabel)
     flag = PED_PARTITION_BOOT;
-  else if(parted->disk->type == g->gptlabel)
+  else if(parted->disk->type == p_gptlabel)
     flag = PED_PARTITION_LEGACY_BOOT;
   else
     return false;

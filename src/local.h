@@ -14,7 +14,6 @@
 #include <wchar.h>
 #include <errno.h>
 #include <limits.h>
-#include <parted/parted.h>
 #include "text.h"
 
 #define LOGFILE "fwsetup.log"
@@ -26,18 +25,10 @@
 
 struct global
 {
-  PedDiskType *doslabel;
-  PedDiskType *gptlabel;
   bool netinstall;
 };
 
-struct parted
-{
-  PedDevice *device;
-  PedConstraint *constraint;
-  PedDisk *disk;
-  bool modified;
-};
+struct parted;
 
 struct install
 {
@@ -69,25 +60,8 @@ extern int get_text_length(const char *s);
 extern bool execute(const char *command,const char *root,pid_t *cpid);
 extern void *malloc0(size_t size);
 extern struct parted *parted_open(const char *path);
-extern bool parted_new_disk_label(struct parted *parted,PedDiskType *type);
-static inline bool is_normal_partition(PedPartitionType type)
-{
-  switch(type)
-  {
-    case PED_PARTITION_NORMAL:
-    case PED_PARTITION_LOGICAL:
-    case PED_PARTITION_EXTENDED:
-      return true;
-
-    case PED_PARTITION_FREESPACE:
-    case PED_PARTITION_METADATA:
-    case PED_PARTITION_PROTECTED:
-      return false;
-    
-    default:
-      return false;    
-  }
-}
+extern bool parted_initialize(void);
+extern bool parted_new_disk_label(struct parted *parted,const char *label);
 extern bool parted_partition_new(struct parted *parted,const char *size);
 extern bool parted_partition_get_active(struct parted *parted,int n);
 extern bool parted_partition_set_active(struct parted *parted,int n);
