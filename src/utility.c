@@ -9,8 +9,10 @@ struct parted
   bool modified;
 };
 
-static PedDiskType *p_doslabel;
-static PedDiskType *p_gptlabel;
+static PedDiskType *p_doslabel = 0;
+static PedDiskType *p_gptlabel = 0;
+static PedFileSystemType *p_datafs = 0;
+static PedFileSystemType *p_swapfs = 0;
 
 static inline bool is_normal_partition(PedPartitionType type)
 {
@@ -269,7 +271,11 @@ extern bool parted_initialize(void)
   
   p_gptlabel = ped_disk_type_get("gpt");
   
-  if(p_doslabel == 0 || p_gptlabel == 0)
+  p_datafs = 0;
+  
+  p_swapfs = ped_file_system_type_get("linux-swap");
+  
+  if(p_doslabel == 0 || p_gptlabel == 0 || p_datafs != 0 || p_swapfs == 0)
     return false;
   
   return true;
@@ -412,6 +418,41 @@ extern bool parted_partition_set_active(struct parted *parted,int n)
 extern bool parted_partition_unset_active(struct parted *parted,int n)
 {
   return parted_partition_change_active(parted,n,false);
+}
+
+extern bool parted_partition_set_purpose(struct parted *parted,int n,const char *purpose)
+{
+  PedPartition *part = 0;
+  PedFileSystemType *type = 0;
+  PedPartitionFlag flag = 0;
+
+  if(parted == 0 || parted->device == 0 || parted->constraint == 0 || parted->disk == 0 || n < 1 || purpose == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  if((part = ped_disk_get_partition(parted->disk,n)) == 0)
+    return false;
+
+  if(strcmp(purpose,"data") == 0)
+    type = p_datafs;   
+  else if(strcmp(purpose,"swap") == 0)
+    type = p_swapfs;
+  else if(strcmp(purpose,"raid") == 0)
+    flag = PED_PARTITION_RAID;
+  else if(strcmp(purpose,"lvm") == 0)
+    flag = PED_PARTITION_LVM;
+  else
+    return false;
+
+  if(flag != 0)
+    ped_partition_set_flag(part,flag,true);
+  else
+    ped_partition_set_system(part,type);
+
+  return true;
 }
 
 extern bool parted_partition_delete_last(struct parted *parted)
