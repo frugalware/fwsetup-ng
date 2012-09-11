@@ -28,6 +28,14 @@ extern int main(int argc,char **argv)
 
   ped_unit_set_default(PED_UNIT_SECTOR);
 
+  for( PedDiskType *i = 0 ; (i = ped_disk_type_get_next(i)) != 0 ; )
+  {
+    if(strcmp(i->name,"msdos") == 0)
+      g.doslabel = i;
+    else if(strcmp(i->name,"gpt") == 0)
+      g.gptlabel = i;
+  }
+
   code = ui_main(argc,argv);
 
   fclose(logfile);
@@ -39,6 +47,8 @@ extern int main(int argc,char **argv)
 
 struct global g =
 {
+  .doslabel = 0,
+  .gptlabel = 0,
   .netinstall = true
 };
 

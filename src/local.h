@@ -26,6 +26,8 @@
 
 struct global
 {
+  PedDiskType *doslabel;
+  PedDiskType *gptlabel;
   bool netinstall;
 };
 
