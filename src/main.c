@@ -26,6 +26,8 @@ extern int main(int argc,char **argv)
 
   ped_exception_set_handler(libparted_exception_callback);
 
+  ped_unit_set_default(PED_UNIT_SECTOR);
+
   code = ui_main(argc,argv);
 
   fclose(logfile);
