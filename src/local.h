@@ -31,6 +31,12 @@ struct global
   bool netinstall;
 };
 
+struct parted
+{
+  PedDevice *device;
+  PedDisk *disk;
+};
+
 struct install
 {
   char *name;
@@ -60,6 +66,8 @@ extern bool size_to_string(char *s,size_t n,long long size,bool pad);
 extern int get_text_length(const char *s);
 extern bool execute(const char *command,const char *root,pid_t *cpid);
 extern void *malloc0(size_t size);
+extern struct parted *parted_open(const char *path);
+extern void parted_close(struct parted *parted);
 extern int get_text_screen_width(const char *s);
 extern bool get_text_screen_size(const char *text,int *width,int *height);
 extern bool get_button_screen_size(const char *text,int *width,int *height);
@@ -96,7 +104,7 @@ extern bool ui_window_install(struct install *groups);
 extern FILE *logfile;
 extern int main(int argc,char **argv);
 
-extern struct global g;
+extern struct global *g;
 extern struct module install_module;
 extern struct module postconfig_module;
 extern struct module *modules[];

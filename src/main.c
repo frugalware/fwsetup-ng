@@ -31,9 +31,9 @@ extern int main(int argc,char **argv)
   for( PedDiskType *i = 0 ; (i = ped_disk_type_get_next(i)) != 0 ; )
   {
     if(strcmp(i->name,"msdos") == 0)
-      g.doslabel = i;
+      g->doslabel = i;
     else if(strcmp(i->name,"gpt") == 0)
-      g.gptlabel = i;
+      g->gptlabel = i;
   }
 
   code = ui_main(argc,argv);
@@ -45,12 +45,14 @@ extern int main(int argc,char **argv)
   return code;
 }
 
-struct global g =
+static struct global local =
 {
   .doslabel = 0,
   .gptlabel = 0,
   .netinstall = true
 };
+
+struct global *g = &local;
 
 struct module *modules[] =
 {

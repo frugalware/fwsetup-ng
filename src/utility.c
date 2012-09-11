@@ -194,6 +194,49 @@ extern void *malloc0(size_t size)
   return memset(malloc(size),0,size);
 }
 
+extern struct parted *parted_open(const char *path)
+{
+  PedDevice *device = 0;
+  PedDiskType *disktype = 0;
+  PedDisk *disk = 0;
+  struct parted *parted = 0;
+
+  if(path == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return 0;
+  }
+  
+  if((device = ped_device_get(path)) == 0)
+    return 0;
+  
+  if((disktype = ped_disk_probe(device)) != 0 && (disktype == g->doslabel || disktype == g->gptlabel))
+    disk = ped_disk_new(device);
+
+  parted = malloc0(sizeof(struct parted));
+
+  parted->device = device;
+
+  parted->disk = disk;
+
+  return parted;
+}
+
+extern void parted_close(struct parted *parted)
+{
+  if(parted != 0)
+  {
+    if(parted->disk != 0)
+      ped_disk_destroy(parted->disk);
+  
+    if(parted->device != 0)
+      ped_device_destroy(parted->device);
+  
+    free(parted);
+  }
+}
+
 extern int get_text_screen_width(const char *s)
 {
   wchar_t wc = 0;
