@@ -34,6 +34,7 @@ struct global
 struct parted
 {
   PedDevice *device;
+  PedConstraint *constraint;
   PedDisk *disk;
   bool modified;
 };
@@ -87,6 +88,7 @@ static inline bool is_normal_partition(PedPartitionType type)
       return false;    
   }
 }
+extern bool parted_new_partition(struct parted *parted,const char *size);
 extern bool parted_delete_last_partition(struct parted *parted);
 extern void parted_close(struct parted *parted);
 extern int get_text_screen_width(const char *s);

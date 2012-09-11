@@ -197,6 +197,7 @@ extern void *malloc0(size_t size)
 extern struct parted *parted_open(const char *path)
 {
   PedDevice *device = 0;
+  PedConstraint *constraint = 0;
   PedDiskType *disktype = 0;
   PedDisk *disk = 0;
   struct parted *parted = 0;
@@ -211,12 +212,20 @@ extern struct parted *parted_open(const char *path)
   if((device = ped_device_get(path)) == 0)
     return 0;
   
+  if((constraint = ped_device_get_optimal_aligned_constraint(device)) == 0)
+  {
+    ped_device_destroy(device);
+    return 0;
+  }
+  
   if((disktype = ped_disk_probe(device)) != 0 && (disktype == g->doslabel || disktype == g->gptlabel))
     disk = ped_disk_new(device);
 
   parted = malloc0(sizeof(struct parted));
 
   parted->device = device;
+
+  parted->constraint = constraint;
 
   parted->disk = disk;
 
@@ -242,6 +251,43 @@ extern bool parted_new_disk_label(struct parted *parted,PedDiskType *type)
   parted->modified = true;
   
   return (parted->disk != 0);
+}
+
+extern bool parted_new_partition(struct parted *parted,const char *size)
+{
+  PedSector sector = 0;
+  PedGeometry *range = 0;
+  PedPartition *part = 0;
+  bool result = false;
+  
+  if(parted == 0 || parted->device == 0 || parted->disk == 0 || size == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  if(ped_unit_parse(size,parted->device,&sector,&range) == 0)
+    return false;
+
+  if((part = ped_partition_new(parted->disk,PED_PARTITION_NORMAL,0,range->start,range->end)) == 0)
+  {
+    ped_geometry_destroy(range);
+    return false;
+  }
+
+  if(ped_disk_add_partition(parted->disk,part,parted->constraint) == 0)
+  {
+    ped_geometry_destroy(range);
+    ped_partition_destroy(part);
+    return false;
+  }
+
+  parted->modified = true;
+  
+  ped_geometry_destroy(range);
+
+  return true;
 }
 
 extern bool parted_delete_last_partition(struct parted *parted)
