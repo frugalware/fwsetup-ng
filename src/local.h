@@ -35,6 +35,7 @@ struct parted
 {
   PedDevice *device;
   PedDisk *disk;
+  bool modified;
 };
 
 struct install
@@ -67,6 +68,7 @@ extern int get_text_length(const char *s);
 extern bool execute(const char *command,const char *root,pid_t *cpid);
 extern void *malloc0(size_t size);
 extern struct parted *parted_open(const char *path);
+extern bool parted_new_disk_label(struct parted *parted,PedDiskType *type);
 extern void parted_close(struct parted *parted);
 extern int get_text_screen_width(const char *s);
 extern bool get_text_screen_size(const char *text,int *width,int *height);

@@ -220,7 +220,28 @@ extern struct parted *parted_open(const char *path)
 
   parted->disk = disk;
 
+  parted->modified = false;
+
   return parted;
+}
+
+extern bool parted_new_disk_label(struct parted *parted,PedDiskType *type)
+{
+  if(parted == 0 || parted->device == 0 || type == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  if(parted->disk != 0)
+    ped_disk_destroy(parted->disk);
+
+  parted->disk = ped_disk_new_fresh(parted->device,type);
+  
+  parted->modified = true;
+  
+  return (parted->disk != 0);
 }
 
 extern void parted_close(struct parted *parted)
