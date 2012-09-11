@@ -89,6 +89,8 @@ static inline bool is_normal_partition(PedPartitionType type)
   }
 }
 extern bool parted_new_partition(struct parted *parted,const char *size);
+extern bool parted_partition_set_active(struct parted *parted,int n);
+extern bool parted_partition_unset_active(struct parted *parted,int n);
 extern bool parted_delete_last_partition(struct parted *parted);
 extern void parted_close(struct parted *parted);
 extern int get_text_screen_width(const char *s);

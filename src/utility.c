@@ -1,5 +1,30 @@
 #include "local.h"
 
+static parted_partition_change_active(struct parted *parted,int n,bool state)
+{
+  PedPartition *part = 0;
+  PedPartitionFlag flag = 0;
+
+  if(parted == 0 || parted->device == 0 || parted->constraint == 0 || parted->disk == 0 || n < 1)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  if((part = ped_disk_get_partition(parted->disk,n)) == 0)
+    return false;
+
+  if(parted->disk->type == g->doslabel)
+    flag = PED_PARTITION_BOOT;
+  else if(parted->disk->type == g->gptlabel)
+    flag = PED_PARTITION_LEGACY_BOOT;
+  else
+    return false;
+
+  return ped_partition_set_flag(part,flag,state);
+}
+
 extern bool mkdir_recurse(const char *path)
 {
   char buf[PATH_MAX] = {0};
@@ -287,6 +312,16 @@ extern bool parted_new_partition(struct parted *parted,const char *size)
   ped_geometry_destroy(range);
 
   return true;
+}
+
+extern bool parted_partition_set_active(struct parted *parted,int n)
+{
+  return parted_partition_change_active(parted,n,true);
+}
+
+extern bool parted_partition_unset_active(struct parted *parted,int n)
+{
+  return parted_partition_change_active(parted,n,false);
 }
 
 extern bool parted_delete_last_partition(struct parted *parted)
