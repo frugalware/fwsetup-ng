@@ -28,13 +28,9 @@ extern int main(int argc,char **argv)
 
   ped_unit_set_default(PED_UNIT_SECTOR);
 
-  for( PedDiskType *i = 0 ; (i = ped_disk_type_get_next(i)) != 0 ; )
-  {
-    if(strcmp(i->name,"msdos") == 0)
-      g->doslabel = i;
-    else if(strcmp(i->name,"gpt") == 0)
-      g->gptlabel = i;
-  }
+  g->doslabel = ped_disk_type_get("msdos");
+
+  g->gptlabel = ped_disk_type_get("gpt");
 
   code = ui_main(argc,argv);
 
