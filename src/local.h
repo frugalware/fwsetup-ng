@@ -28,8 +28,6 @@ struct global
   bool netinstall;
 };
 
-struct parted;
-
 struct install
 {
   char *name;
@@ -60,15 +58,6 @@ extern int get_text_length(const char *s);
 extern bool execute(const char *command,const char *root,pid_t *cpid);
 extern void *memdup(const void *mem,size_t size);
 extern void *malloc0(size_t size);
-extern struct parted *parted_open(const char *path);
-extern bool parted_initialize(void);
-extern bool parted_new_disk_label(struct parted *parted,const char *label);
-extern bool parted_partition_new(struct parted *parted,const char *size);
-extern bool parted_partition_get_active(struct parted *parted,int n);
-extern bool parted_partition_set_active(struct parted *parted,int n);
-extern bool parted_partition_unset_active(struct parted *parted,int n);
-extern bool parted_partition_delete_last(struct parted *parted);
-extern void parted_close(struct parted *parted);
 extern int get_text_screen_width(const char *s);
 extern bool get_text_screen_size(const char *text,int *width,int *height);
 extern bool get_button_screen_size(const char *text,int *width,int *height);

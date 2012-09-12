@@ -17,8 +17,6 @@ extern int main(int argc,char **argv)
 
   setbuf(logfile,0);
 
-  parted_initialize();
-
   code = ui_main(argc,argv);
 
   fclose(logfile);
