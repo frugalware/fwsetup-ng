@@ -249,6 +249,18 @@ extern bool execute(const char *command,const char *root,pid_t *cpid)
   return (WEXITSTATUS(status) == 0);
 }
 
+extern void *memdup(const void *mem,size_t size)
+{
+  if(mem == 0 || size == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return 0;
+  }
+  
+  return memcpy(malloc0(size),mem,size);
+}
+
 extern void *malloc0(size_t size)
 {
   if(size == 0)
