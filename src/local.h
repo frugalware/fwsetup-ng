@@ -28,6 +28,8 @@ struct global
   bool netinstall;
 };
 
+struct device;
+
 struct install
 {
   char *name;
@@ -83,6 +85,8 @@ static inline long maxv(long *v,size_t size)
   
   return i;
 }
+extern struct device *device_open(const char *path);
+extern void device_close(struct device *device);
 extern int ui_main(int argc,char **argv);
 extern void ui_dialog_text(const char *title,const char *text);
 extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno);
