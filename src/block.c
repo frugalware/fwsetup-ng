@@ -1,5 +1,11 @@
 #include "local.h"
 
+enum disktype
+{
+  DISK_TYPE_DOS,
+  DISK_TYPE_GPT
+};
+
 struct device
 {
   char *path;
@@ -7,6 +13,30 @@ struct device
   long long sectorsize;
   long long alignment;
   long long sectors;
+};
+
+struct partition
+{
+  long long number;
+  long long start;
+  long long size;
+  long long end;
+  char gptname[37];
+  char gptuuid[37];
+  char gpttype[37];
+  unsigned long long gptflags;
+  unsigned char dostype;
+  bool dosactive;
+};
+
+struct disk
+{
+  struct device *device;
+  enum disktype type;
+  char gptuuid[37];
+  unsigned int dosuuid;
+  struct partition[128];
+  int size;
 };
 
 extern struct device *device_open(const char *path)
