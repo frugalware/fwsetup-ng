@@ -18,6 +18,36 @@ struct device
   enum devicetype type;
 };
 
+enum disktype
+{
+  DISKTYPE_DOS,
+  DISKTYPE_GPT
+};
+
+struct partition
+{
+  struct disk *disk;
+  char number;
+  long long start;
+  long long end;
+  long long size;
+  unsigned char dostype;
+  bool dosactive;
+  char gptname[37];
+  char gptuuid[37];
+  char gpttype[37];
+  unsigned long long gptflags;
+};
+
+struct disk
+{
+  struct device *device;
+  enum disktype type;
+  unsigned int dosuuid;
+  char gptuuid[37];
+  struct partition table[129];
+};
+
 static inline bool isdisk(const struct stat *st)
 {
   switch(major(st->st_rdev))
