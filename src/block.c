@@ -1,9 +1,11 @@
+#include <linux/major.h>
 #include "local.h"
 
-enum disktype
+enum devicetype
 {
-  DISK_TYPE_DOS,
-  DISK_TYPE_GPT
+  DEVICETYPE_FILE,
+  DEVICETYPE_DISK,
+  DEVICETYPE_UNKNOWN
 };
 
 struct device
@@ -13,31 +15,53 @@ struct device
   long long sectorsize;
   long long alignment;
   long long sectors;
+  enum devicetype type;
 };
 
-struct partition
+static inline bool isdisk(const struct stat *st)
 {
-  long long number;
-  long long start;
-  long long size;
-  long long end;
-  char gptname[37];
-  char gptuuid[37];
-  char gpttype[37];
-  unsigned long long gptflags;
-  unsigned char dostype;
-  bool dosactive;
-};
+  switch(major(st->st_rdev))
+  {
+    // IDE disks
+    case IDE0_MAJOR:
+    case IDE1_MAJOR:
+    case IDE2_MAJOR:
+    case IDE3_MAJOR:
+    case IDE4_MAJOR:
+    case IDE5_MAJOR:
+    case IDE6_MAJOR:
+    case IDE7_MAJOR:
+    case IDE8_MAJOR:
+    case IDE9_MAJOR:
+      return true;
 
-struct disk
-{
-  struct device *device;
-  enum disktype type;
-  char gptuuid[37];
-  unsigned int dosuuid;
-  struct partition[128];
-  int size;
-};
+    // SCSI disks
+    case SCSI_DISK0_MAJOR:
+    case SCSI_DISK1_MAJOR:
+    case SCSI_DISK2_MAJOR:
+    case SCSI_DISK3_MAJOR:
+    case SCSI_DISK4_MAJOR:
+    case SCSI_DISK5_MAJOR:
+    case SCSI_DISK6_MAJOR:
+    case SCSI_DISK7_MAJOR:
+    case SCSI_DISK8_MAJOR:
+    case SCSI_DISK9_MAJOR:
+    case SCSI_DISK10_MAJOR:
+    case SCSI_DISK11_MAJOR:
+    case SCSI_DISK12_MAJOR:
+    case SCSI_DISK13_MAJOR:
+    case SCSI_DISK14_MAJOR:
+    case SCSI_DISK15_MAJOR:
+      return true;
+
+    // virtio disks
+    case 253:
+      return true;
+    
+    default:
+      return false;
+  }
+}
 
 extern struct device *device_open(const char *path)
 {
@@ -47,6 +71,7 @@ extern struct device *device_open(const char *path)
   long long sectorsize = 0;
   long long alignment = 0;
   long long sectors = 0;
+  enum devicetype type = DEVICETYPE_UNKNOWN;
   struct device *device = 0;
   
   if(path == 0)
@@ -90,6 +115,13 @@ extern struct device *device_open(const char *path)
     goto bail;
   }
   
+  if(S_ISREG(st.st_mode))
+    type = DEVICETYPE_FILE;
+  else if(isdisk(&st))
+    type = DEVICETYPE_DISK;
+  else
+    type = DEVICETYPE_UNKNOWN;
+  
   device = malloc0(sizeof(struct device));
   
   device->path = strdup(path);
@@ -101,6 +133,8 @@ extern struct device *device_open(const char *path)
   device->alignment = alignment;
   
   device->sectors = sectors;
+  
+  device->type = type;
   
 bail:
 
