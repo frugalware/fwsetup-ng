@@ -28,7 +28,7 @@ enum disktype
 struct partition
 {
   struct disk *disk;
-  char number;
+  int number;
   long long start;
   long long size;
   long long end;
@@ -46,7 +46,8 @@ struct disk
   enum disktype type;
   unsigned int dosuuid;
   char gptuuid[37];
-  struct partition table[129];
+  struct partition table[128];
+  int size;
 };
 
 static inline bool isdisk(const struct stat *st)
@@ -185,7 +186,7 @@ extern void device_close(struct device *device)
   free(device);
 }
 
-extern struct disk *disk_open(const struct device *device)
+extern struct disk *disk_open(struct device *device)
 {
   int fd = -1;
   blkid_probe probe = 0;
@@ -196,6 +197,7 @@ extern struct disk *disk_open(const struct device *device)
   int i = 0;
   int j = 0;
   blkid_partition partition = 0;
+  struct disk *result = 0;
 
   if(device == 0)
   {
@@ -232,6 +234,8 @@ extern struct disk *disk_open(const struct device *device)
     fprintf(logfile,"%s: %s\n",__func__,_("no partition table"));
     goto bail;
   }
+
+  disk.device = device;
 
   if(strcmp(label,"dos") == 0)
     disk.type = DISKTYPE_DOS;
@@ -286,7 +290,14 @@ extern struct disk *disk_open(const struct device *device)
         continue;
       }
     }
+    
+    disk.size = j;
   }
+
+  result = memdup(&disk,sizeof(struct disk));
+
+  for( i = 0 ; i < j ; ++i )
+    result->table[i].disk = result;
 
 bail:
 
