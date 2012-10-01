@@ -95,6 +95,42 @@ static inline bool isdisk(const struct stat *st)
   }
 }
 
+static bool getuuid(struct disk *disk)
+{
+  char command[_POSIX_ARG_MAX] = {0};
+  FILE *pipe = 0;
+  char line[LINE_MAX] = {0};
+  bool outputsuccess = false;
+  bool exitsuccess = false;
+
+  if(disk->type == DISKTYPE_DOS)
+    snprintf(command,_POSIX_ARG_MAX,"export LC_ALL=C;yes | fdisk -l '%s' 2> /dev/null | sed -rn 's|^Disk identifier: 0x([0-9a-fA-F]+)$|\1|p'",disk->device->path);
+  else if(disk->type == DISKTYPE_GPT)
+    snprintf(command,_POSIX_ARG_MAX,"export LC_ALL=C;yes | gdisk -l '%s' 2> /dev/null | sed -rn 's|^Disk identifier \\(GUID\\): ([0-9a-zA-Z-]+)$|\1|p'",disk->device->path);
+  else
+    return false;
+
+  if((pipe = popen(command,"r")) == 0)
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+
+  outputsuccess = (fgets(line,LINE_MAX,pipe) != 0);
+
+  exitsuccess = (pclose(pipe) != -1);
+
+  if(outputsuccess && exitsuccess)
+  {
+    if(disk->type == DISKTYPE_DOS)
+      disk->dosuuid = strtoul(line,0,16);
+    else if(disk->type == DISKTYPE_GPT)
+      snprintf(disk->gptuuid,37,"%s",line);
+  }
+
+  return (outputsuccess && exitsuccess);
+}
+
 extern struct device *device_open(const char *path)
 {
   int fd = -1;
@@ -307,5 +343,5 @@ bail:
   if(probe != 0)
     blkid_free_probe(probe);
   
-  return 0;
+  return result;
 }
