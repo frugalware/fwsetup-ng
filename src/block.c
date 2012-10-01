@@ -44,6 +44,7 @@ struct disk
 {
   struct device *device;
   enum disktype type;
+  bool modified;
   unsigned int dosuuid;
   char gptuuid[37];
   struct partition table[128];
@@ -355,6 +356,40 @@ bail:
     blkid_free_probe(probe);
   
   return result;
+}
+
+extern void disk_new_table(struct disk *disk,const char *type)
+{
+  struct device *device = 0;
+  enum disktype disktype = 0;
+
+  if(disk == 0 || type == 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return;
+  }
+  
+  device = disk->device;
+
+  if(strcmp(type,"dos") == 0)
+    disktype = DISKTYPE_DOS;
+  else if(strcmp(type,"gpt") == 0)
+    disktype = DISKTYPE_GPT;
+  else
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return;
+  }
+
+  memset(disk,0,sizeof(struct disk));
+  
+  disk->device = device;
+  
+  disk->type = disktype;
+
+  disk->modified = true;
 }
 
 extern void disk_close(struct disk *disk)
