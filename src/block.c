@@ -102,6 +102,7 @@ static bool getuuid(struct disk *disk)
   char line[LINE_MAX] = {0};
   bool outputsuccess = false;
   bool exitsuccess = false;
+  char *p = 0;
 
   if(disk->type == DISKTYPE_DOS)
     snprintf(command,_POSIX_ARG_MAX,"export LC_ALL=C;yes | fdisk -l '%s' 2> /dev/null | sed -rn 's|^Disk identifier: 0x([0-9a-fA-F]+)$|\1|p'",disk->device->path);
@@ -120,15 +121,22 @@ static bool getuuid(struct disk *disk)
 
   exitsuccess = (pclose(pipe) != -1);
 
+  if((p = strchr(line,'\n')) != 0)
+    *p = 0;
+
   if(outputsuccess && exitsuccess)
   {
     if(disk->type == DISKTYPE_DOS)
       disk->dosuuid = strtoul(line,0,16);
     else if(disk->type == DISKTYPE_GPT)
       snprintf(disk->gptuuid,37,"%s",line);
+    return true;
   }
-
-  return (outputsuccess && exitsuccess);
+  else
+  {
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
 }
 
 extern struct device *device_open(const char *path)
@@ -282,6 +290,9 @@ extern struct disk *disk_open(struct device *device)
     fprintf(logfile,"%s: %s\n",__func__,_("unknown partition table"));
     goto bail;
   }
+
+  if(!getuuid(&disk))
+    goto bail;
 
   if((j = blkid_partlist_numof_partitions(partlist)) > 0)
   {
