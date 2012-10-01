@@ -356,3 +356,11 @@ bail:
   
   return result;
 }
+
+extern void disk_close(struct disk *disk)
+{
+  if(disk == 0)
+    return;
+
+  free(disk);
+}
