@@ -392,6 +392,24 @@ extern void disk_new_table(struct disk *disk,const char *type)
   disk->modified = true;
 }
 
+extern void disk_delete_partition(struct disk *disk)
+{
+  struct partition *last = 0;
+
+  if(disk == 0 || disk->size <= 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return;
+  }
+  
+  last = &disk->table[--disk->size];
+  
+  memset(last,0,sizeof(struct partition));
+
+  disk->modified = true;
+}
+
 extern void disk_close(struct disk *disk)
 {
   if(disk == 0)
