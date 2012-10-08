@@ -140,6 +140,16 @@ static bool getuuid(struct disk *disk)
   }
 }
 
+static inline long long alignsector(const struct device *device,long long sector)
+{
+  long long alignment = device->alignment;
+
+  if((sector % alignment) == 0)
+    return sector;
+
+  return sector + (alignment - (sector % alignment));
+}
+
 extern struct device *device_open(const char *path)
 {
   int fd = -1;
@@ -390,6 +400,55 @@ extern void disk_new_table(struct disk *disk,const char *type)
   disk->type = disktype;
 
   disk->modified = true;
+}
+
+extern int disk_create_partition(struct disk *disk,long long size)
+{
+  struct partition part = {0};
+
+  if(disk == 0 || disk->size < 0 || size <= 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return 0;
+  }
+  
+  if(disk->size == 0)
+  {
+    part.number = 1;
+    part.start = disk->device->alignment;
+  }
+  else
+  {
+    struct partition *last = &disk->table[disk->size-1];
+    part.number = last->number + 1;
+    part.start = last->end + 1;
+  }
+
+  part.size = size / disk->device->sectorsize;
+
+  part.end = part.start + part.size - 1;
+
+  part.start = alignsector(disk->device,part.start);
+
+  part.end = alignsector(disk->device,part.end) - 1;
+  
+  part.size = (part.end - part.start) + 1;
+
+  if(
+    (disk->type == DISKTYPE_DOS && part.number > 60)  ||
+    (disk->type == DISKTYPE_GPT && part.number > 128) ||
+    part.size >= disk->device->sectors                
+  )
+  {
+    errno = ERANGE;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return 0;
+  }
+
+  memcpy(&disk->table[disk->size++],&part,sizeof(struct partition));
+
+  return part.number;
 }
 
 extern void disk_delete_partition(struct disk *disk)
