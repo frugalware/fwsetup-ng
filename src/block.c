@@ -44,6 +44,7 @@ struct disk
 {
   struct device *device;
   enum disktype type;
+  long long sectors;
   bool modified;
   unsigned int dosuuid;
   char gptuuid[37];
@@ -148,6 +149,22 @@ static inline long long alignsector(const struct device *device,long long sector
     return sector;
 
   return sector + (alignment - (sector % alignment));
+}
+
+static inline void getsectors(struct disk *disk)
+{
+  long long size = 0;
+  long long sectorsize = disk->device->sectorsize;
+  lldiv_t n = {0};
+
+  if(disk->type == DISKTYPE_DOS)
+    size = 512;
+  else if(disk->type == DISKTYPE_GPT)
+    size = 512 + 512 + (128 * 128);
+
+  n = lldiv(size,sectorsize);
+
+  disk->sectors = disk->device->sectors - n.quot - (n.rem == 0) ? 0 : 1;
 }
 
 extern struct device *device_open(const char *path)
@@ -302,6 +319,8 @@ extern struct disk *disk_open(struct device *device)
     goto bail;
   }
 
+  getsectors(&disk);
+
   if(!getuuid(&disk))
     goto bail;
 
@@ -398,6 +417,8 @@ extern void disk_new_table(struct disk *disk,const char *type)
   disk->device = device;
   
   disk->type = disktype;
+
+  getsectors(disk);
 
   disk->modified = true;
 }
