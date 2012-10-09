@@ -178,6 +178,53 @@ static inline void getsectors(struct disk *disk)
   disk->sectors = sectors;
 }
 
+static int newpartition(struct disk *disk,long long size)
+{
+  struct partition *last = 0;
+  struct partition part = {0};
+  
+  if(disk->size == 0)
+  {
+    part.number = 1;
+    part.start = disk->device->alignment;
+  }
+  else
+  {
+    last = &disk->table[disk->size-1];
+    part.number = last->number + 1;
+    part.start = last->end + 1;
+  }
+
+  part.size = size / disk->device->sectorsize;
+
+  part.end = part.start + part.size - 1;
+
+  part.start = alignsector(disk->device,part.start);
+
+  part.end = alignsector(disk->device,part.end) - 1;
+
+  if(part.end > disk->sectors)
+    part.end = disk->sectors;
+  
+  part.size = (part.end - part.start) + 1;
+
+  if(
+    part.size >= disk->sectors                ||
+    (last != 0 && last->end >= disk->sectors)               
+  )
+  {
+    errno = ERANGE;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return -1;
+  }  
+
+  memcpy(&disk->table[disk->size++],&part,sizeof(struct partition));
+
+  disk->modified = true;
+
+  return disk->size;
+}
+
 extern struct device *device_open(const char *path)
 {
   int fd = -1;
@@ -443,7 +490,7 @@ extern int disk_create_partition(struct disk *disk,long long size)
   {
     errno = EINVAL;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
-    return 0;
+    return -1;
   }
   
   if(disk->size == 0)
@@ -480,7 +527,7 @@ extern int disk_create_partition(struct disk *disk,long long size)
   {
     errno = ERANGE;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
-    return 0;
+    return -1;
   }  
 
   if(disk->type == DISKTYPE_DOS)
