@@ -472,7 +472,7 @@ extern int disk_create_partition(struct disk *disk,long long size)
   part.size = (part.end - part.start) + 1;
 
   if(
-    (disk->type == DISKTYPE_DOS && part.number > 60)  ||
+    (disk->type == DISKTYPE_DOS && part.number > 4)   ||
     (disk->type == DISKTYPE_GPT && part.number > 128) ||
     part.size >= disk->sectors                        ||
     (last != 0 && last->end >= disk->sectors)               
@@ -584,6 +584,11 @@ extern void disk_partition_set_active(struct disk *disk,int n,bool active)
   }
   
   disk->modified = true;
+}
+
+extern int disk_partition_get_count(struct disk *disk)
+{
+  return disk->size;
 }
 
 extern const char *disk_partition_get_purpose(struct disk *disk,int n)
