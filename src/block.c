@@ -478,7 +478,12 @@ extern int disk_create_partition(struct disk *disk,long long size)
     errno = ERANGE;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
     return 0;
-  }
+  }  
+
+  if(disk->type == DISKTYPE_DOS)
+    part.dostype = DOS_DATA;
+  else if(disk->type == DISKTYPE_GPT)
+    snprintf(part.gpttype,37,"%s",GPT_DATA);
 
   memcpy(&disk->table[disk->size++],&part,sizeof(struct partition));
 
