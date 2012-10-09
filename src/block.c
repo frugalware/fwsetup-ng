@@ -492,7 +492,7 @@ extern int disk_create_partition(struct disk *disk,long long size)
 
   disk->modified = true;
 
-  return part.number;
+  return disk->size;
 }
 
 extern void disk_delete_partition(struct disk *disk)
@@ -510,6 +510,53 @@ extern void disk_delete_partition(struct disk *disk)
   
   memset(last,0,sizeof(struct partition));
 
+  disk->modified = true;
+}
+
+extern void disk_partition_set_purpose(struct disk *disk,int n,const char *purpose)
+{
+  struct partition *part = 0;
+
+  if(disk == 0 || n < 0 || n > disk->size)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return;
+  }
+
+  part = &disk->table[n];
+  
+  if(disk->type == DISKTYPE_DOS)
+  {
+    if(strcmp(purpose,"data") == 0)
+      part->dostype = DOS_DATA;
+    else if(strcmp(purpose,"swap") == 0)
+      part->dostype = DOS_SWAP;
+    else if(strcmp(purpose,"raid") == 0)
+      part->dostype = DOS_RAID;
+    else if(strcmp(purpose,"lvm") == 0)
+      part->dostype = DOS_LVM;
+    else if(strcmp(purpose,"efi") == 0)
+      part->dostype = DOS_EFI;
+    else if(strcmp(purpose,"extended") == 0)
+      part->dostype = DOS_EXTENDED;
+  }
+  else if(disk->type == DISKTYPE_GPT)
+  {
+    if(strcmp(purpose,"data") == 0)
+      snprintf(part->gpttype,37,"%s",GPT_DATA);
+    else if(strcmp(purpose,"swap") == 0)
+      snprintf(part->gpttype,37,"%s",GPT_SWAP);
+    else if(strcmp(purpose,"raid") == 0)
+      snprintf(part->gpttype,37,"%s",GPT_RAID);
+    else if(strcmp(purpose,"lvm") == 0)
+      snprintf(part->gpttype,37,"%s",GPT_LVM);
+    else if(strcmp(purpose,"efi") == 0)
+      snprintf(part->gpttype,37,"%s",GPT_EFI);
+    else if(strcmp(purpose,"bios") == 0)
+      snprintf(part->gpttype,37,"%s",GPT_BIOS);
+  }
+  
   disk->modified = true;
 }
 
