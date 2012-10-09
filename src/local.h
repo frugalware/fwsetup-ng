@@ -91,6 +91,7 @@ extern struct device *device_open(const char *path);
 extern void device_close(struct device *device);
 extern struct disk *disk_open(struct device *device);
 extern void disk_new_table(struct disk *disk,const char *type);
+extern int disk_create_partition(struct disk *disk,long long size);
 extern void disk_delete_partition(struct disk *disk);
 extern void disk_close(struct disk *disk);
 extern int ui_main(int argc,char **argv);
