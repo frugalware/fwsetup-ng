@@ -2,6 +2,8 @@
 #include <blkid.h>
 #include "local.h"
 
+#define EMPTY_PARTITION &(struct partition) {0}
+
 #define DOS_DATA     0x83
 #define DOS_SWAP     0x82
 #define DOS_RAID     0xFD
@@ -508,6 +510,54 @@ extern void disk_delete_partition(struct disk *disk)
   memset(last,0,sizeof(struct partition));
 
   disk->modified = true;
+}
+
+extern const char *disk_partition_get_purpose(struct disk *disk,int n)
+{
+  struct partition *part = 0;
+  const char *purpose = "unknown";
+
+  if(disk == 0 || n <= 0 || n > disk->size)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return 0;
+  }
+
+  part = &disk->table[n];
+  
+  if(disk->type == DISKTYPE_DOS)
+  {
+    if(part->dostype == DOS_DATA)
+      purpose = "data";
+    else if(part->dostype == DOS_SWAP)
+      purpose = "swap";
+    else if(part->dostype == DOS_RAID)
+      purpose = "raid";
+    else if(part->dostype == DOS_LVM)
+      purpose = "lvm";
+    else if(part->dostype == DOS_EFI)
+      purpose = "efi";
+    else if(part->dostype == DOS_EXTENDED)
+      purpose = "extended";
+  }
+  else if(disk->type == DISKTYPE_GPT)
+  {
+     if(strcmp(part->gpttype,GPT_DATA) == 0)
+       purpose = "data";
+     else if(strcmp(part->gpttype,GPT_SWAP) == 0)
+       purpose = "swap";
+     else if(strcmp(part->gpttype,GPT_RAID) == 0)
+       purpose = "raid";
+     else if(strcmp(part->gpttype,GPT_LVM) == 0)
+       purpose = "lvm";
+     else if(strcmp(part->gpttype,GPT_EFI) == 0)
+       purpose = "efi";
+     else if(strcmp(part->gpttype,GPT_BIOS) == 0)
+       purpose = "bios";
+  }
+  
+  return purpose;
 }
 
 extern void disk_close(struct disk *disk)
