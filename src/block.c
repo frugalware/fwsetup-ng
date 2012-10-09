@@ -509,7 +509,39 @@ extern int disk_create_partition(struct disk *disk,long long size)
 
   disk->modified = true;
 
-  return disk->size;
+  return disk->size - 1;
+}
+
+extern int disk_create_extended_partition(struct disk *disk)
+{
+  int i = 0;
+  struct partition part = {0};
+  
+  if(disk == 0 || disk->size < 0 || disk->type != DISKTYPE_DOS)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return -1;
+  }
+  
+  for( ; i < disk->size ; ++i )
+    if(disk->table[i].dostype == DOS_EXTENDED)
+    {
+      errno = EINVAL;
+      fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+      return -1;
+    }
+  
+  if(!newpartition(disk,disk->sectors,&part))
+    return -1;
+  
+  part.dostype = DOS_EXTENDED;
+  
+  memcpy(&disk->table[disk->size++],&part,sizeof(struct partition));
+
+  disk->modified = true;  
+  
+  return disk->size - 1;
 }
 
 extern void disk_delete_partition(struct disk *disk)
