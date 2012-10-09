@@ -517,7 +517,7 @@ extern void disk_partition_set_purpose(struct disk *disk,int n,const char *purpo
 {
   struct partition *part = 0;
 
-  if(disk == 0 || n < 0 || n > disk->size)
+  if(disk == 0 || n < 0 || n > disk->size || purpose == 0)
   {
     errno = EINVAL;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
@@ -555,6 +555,32 @@ extern void disk_partition_set_purpose(struct disk *disk,int n,const char *purpo
       snprintf(part->gpttype,37,"%s",GPT_EFI);
     else if(strcmp(purpose,"bios") == 0)
       snprintf(part->gpttype,37,"%s",GPT_BIOS);
+  }
+  
+  disk->modified = true;
+}
+
+extern void disk_partition_set_active(struct disk *disk,int n,bool active)
+{
+  struct partition *part = 0;
+
+  if(disk == 0 || n < 0 || n > disk->size)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return;
+  }
+
+  part = &disk->table[n];
+  
+  if(disk->type == DISKTYPE_DOS)
+    part->dosactive = active;
+  else if(disk->type == DISKTYPE_GPT)
+  {
+    if(active)
+      part->gptflags |= GPT_BOOT_FLAG;
+    else if((part->gptflags & GPT_BOOT_FLAG) != 0)
+      part->gptflags ^= GPT_BOOT_FLAG;
   }
   
   disk->modified = true;
