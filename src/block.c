@@ -3,6 +3,7 @@
 #include "local.h"
 
 #define EMPTY_PARTITION &(struct partition) {0}
+#define GPT_BOOT_FLAG (1ULL << 2ULL)
 
 #define DOS_DATA     0x83
 #define DOS_SWAP     0x82
@@ -558,6 +559,28 @@ extern const char *disk_partition_get_purpose(struct disk *disk,int n)
   }
   
   return purpose;
+}
+
+extern bool disk_partition_get_active(struct disk *disk,int n)
+{
+  struct partition *part = 0;
+  bool active = false;
+  
+  if(disk == 0 || n <= 0 || n > disk->size)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
+  
+  part = &disk->table[n];
+  
+  if(disk->type == DISKTYPE_DOS)
+    active = part->dosactive;
+  else if(disk->type == DISKTYPE_GPT)
+    active = (part->gptflags & GPT_BOOT_FLAG) != 0;
+  
+  return active;
 }
 
 extern void disk_close(struct disk *disk)
