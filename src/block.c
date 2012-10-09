@@ -518,7 +518,7 @@ extern const char *disk_partition_get_purpose(struct disk *disk,int n)
   struct partition *part = 0;
   const char *purpose = "unknown";
 
-  if(disk == 0 || n <= 0 || n > disk->size)
+  if(disk == 0 || n < 0 || n > disk->size)
   {
     errno = EINVAL;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
@@ -566,7 +566,7 @@ extern bool disk_partition_get_active(struct disk *disk,int n)
   struct partition *part = 0;
   bool active = false;
   
-  if(disk == 0 || n <= 0 || n > disk->size)
+  if(disk == 0 || n < 0 || n > disk->size)
   {
     errno = EINVAL;
     fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
@@ -581,6 +581,38 @@ extern bool disk_partition_get_active(struct disk *disk,int n)
     active = (part->gptflags & GPT_BOOT_FLAG) != 0;
   
   return active;
+}
+
+extern int disk_partition_get_number(struct disk *disk,int n)
+{
+  struct partition *part = 0;
+  
+  if(disk == 0 || n < 0 || n > disk->size)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return 0;
+  }
+  
+  part = &disk->table[n];
+  
+  return part->number;
+}
+
+extern long long disk_partition_get_size(struct disk *disk,int n)
+{
+  struct partition *part = 0;
+  
+  if(disk == 0 || n < 0 || n > disk->size)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return 0;
+  }
+  
+  part = &disk->table[n];
+  
+  return part->size * disk->device->sectorsize;
 }
 
 extern void disk_close(struct disk *disk)
