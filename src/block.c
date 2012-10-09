@@ -153,18 +153,13 @@ static inline long long alignsector(const struct device *device,long long sector
 
 static inline void getsectors(struct disk *disk)
 {
-  long long size = 0;
   long long sectorsize = disk->device->sectorsize;
-  lldiv_t n = {0};
+  long long sectors = disk->device->sectors - 1;
 
-  if(disk->type == DISKTYPE_DOS)
-    size = 512;
-  else if(disk->type == DISKTYPE_GPT)
-    size = 512 + 512 + (128 * 128);
+  if(disk->type == DISKTYPE_GPT)
+    sectors -= 1 + ((128 * 128) / sectorsize);
 
-  n = lldiv(size,sectorsize);
-
-  disk->sectors = disk->device->sectors - n.quot - (n.rem == 0) ? 0 : 1;
+  disk->sectors = sectors;
 }
 
 extern struct device *device_open(const char *path)
