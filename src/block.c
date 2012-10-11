@@ -544,6 +544,74 @@ extern int disk_create_extended_partition(struct disk *disk)
   return disk->size - 1;
 }
 
+extern int disk_create_logical_partition(struct disk *disk,long long size)
+{
+  int i = 0;
+  struct partition *ext = 0;
+  struct partition *last = 0;
+  struct partition part = {0};
+  
+  if(disk == 0 || disk->size < 0 || disk->type != DISKTYPE_DOS || size <= 0)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return -1;
+  }
+  
+  for( ; i < disk->size ; ++i )
+  {
+    struct partition *part = &disk->table[i];
+    
+    if(part->dostype == DOS_EXTENDED && ext == 0)
+      ext = part;
+    
+    last = part;
+  }
+  
+  if(ext == 0 || ext->number > 4)
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return -1;
+  }
+    
+  part.number = (ext == last) ? 5 : last->number + 1;
+  
+  part.start = last->end + 1 + disk->device->alignment;
+  
+  part.size = size / disk->device->sectorsize;
+  
+  part.end = part.start + part.size - 1;
+  
+  part.start = alignsector(disk->device,part.start);
+  
+  part.end = alignsector(disk->device,part.end) - 1;
+  
+  if(part.end > disk->sectors)
+    part.end = disk->sectors;
+  
+  part.size = (part.end - part.start) + 1;
+  
+  if(
+    part.size >= disk->sectors ||
+    last->end >= disk->sectors ||
+    part.number > 60
+  )
+  {
+    errno = ERANGE;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return -1;
+  }
+  
+  part.dostype = DOS_DATA;
+  
+  memcpy(&disk->table[disk->size++],&part,sizeof(struct partition));
+
+  disk->modified = true;
+  
+  return disk->size - 1;
+}
+
 extern void disk_delete_partition(struct disk *disk)
 {
   struct partition *last = 0;
