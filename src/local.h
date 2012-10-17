@@ -119,6 +119,7 @@ extern FILE *logfile;
 extern int main(int argc,char **argv);
 
 extern struct global *g;
+extern struct module format_module;
 extern struct module install_module;
 extern struct module postconfig_module;
 extern struct module *modules[];
