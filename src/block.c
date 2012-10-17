@@ -859,6 +859,41 @@ extern bool disk_flush(struct disk *disk)
     
     n = strlen(command);    
   }
+  else if(disk->type == DISKTYPE_GPT)
+  {
+    snprintf(command,_POSIX_ARG_MAX,"set -e;sgdisk --clear --disk-guid='%s'",
+      (strlen(disk->gptuuid) == 0) ? "R" : disk->gptuuid
+    );
+    
+    n = strlen(command);
+    
+    for( ; i < disk->size ; ++i )
+    {
+      part = &disk->table[i];
+      
+      snprintf(command+n,_POSIX_ARG_MAX-n," --new='%d:%lld:%lld' --change-name='%d:%s' --partition-guid='%d:%s' --typecode='%d:%s' --attributes='%d:=:0x%.16llx'",
+        part->number,
+        part->start,
+        part->end,
+        part->number,
+        part->gptname,
+        part->number,
+        (strlen(part->gptuuid) == 0) ? "R" : part->gptuuid,
+        part->number,
+        part->gpttype,
+        part->number,
+        part->gptflags
+      );
+
+      n = strlen(command);
+    }
+    
+    snprintf(command+n,_POSIX_ARG_MAX-n," '%s'",
+      disk->device->path
+    );
+    
+    n = strlen(command);  
+  }
   
   return true;
 }
