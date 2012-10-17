@@ -263,121 +263,121 @@ static bool install_setup(void)
 
   if(pacman_initialize(INSTALL_ROOT) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_db_register("local") == 0)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_parse_config("/etc/pacman-g2.conf",install_database_callback,"") == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_LOGMASK,(long) LOGMASK) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_LOGCB,(long) install_log_callback) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }  
 
   if(pacman_set_option(PM_OPT_DLCB,(long) install_download_callback) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_DLFNM,(long) dl_filename) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_DLOFFSET,(long) &dl_offset) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_DLT0,(long) &dl_time0) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_DLT,(long) &dl_time1) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_DLRATE,(long) &dl_rate) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_DLXFERED1,(long) &dl_xfered1) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_DLETA_H,(long) &dl_eta_h) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_DLETA_M,(long) &dl_eta_m) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_DLETA_S,(long) &dl_eta_s) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_DLREMAIN,(long) &dl_remain) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_set_option(PM_OPT_DLHOWMANY,(long) &dl_howmany) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_get_option(PM_OPT_DBPATH,(long *) &dbdir) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_get_option(PM_OPT_CACHEDIR,(long *) &cachedir) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_get_option(PM_OPT_HOOKSDIR,(long *) &hooksdir) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
@@ -410,7 +410,7 @@ static bool install_database_update(void)
 
   if(pacman_db_update(1,dl_database) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;  
   }
   
@@ -444,7 +444,7 @@ static bool install_groups_get(struct install **groups)
 
   if((list = pacman_db_getgrpcache(dl_database)) == 0)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
@@ -493,7 +493,7 @@ static bool install_groups_get(struct install **groups)
 
   if((list = pacman_db_getgrpcache(dl_database)) == 0)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
   
@@ -566,7 +566,7 @@ static bool install_groups_install(const struct install *groups)
 
   if(pacman_trans_init(PM_TRANS_TYPE_SYNC,0,install_event_callback,install_conversation_callback,install_progress_callback) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
@@ -579,7 +579,7 @@ static bool install_groups_install(const struct install *groups)
     
     if(grp == 0)
     {
-      fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+      error(pacman_strerror(pm_errno));
       return false;
     }
     
@@ -587,7 +587,7 @@ static bool install_groups_install(const struct install *groups)
     
     if(pkgs == 0)
     {
-      fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+      error(pacman_strerror(pm_errno));
       return false;
     }
     
@@ -597,13 +597,13 @@ static bool install_groups_install(const struct install *groups)
       
       if(pkg == 0)
       {
-        fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+        error(pacman_strerror(pm_errno));
         return false;
       }
 
       if(pacman_trans_addtarget(pkg) == -1)
       {
-        fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+        error(pacman_strerror(pm_errno));
         return false;
       }
     }
@@ -611,13 +611,13 @@ static bool install_groups_install(const struct install *groups)
 
   if(pacman_trans_prepare(&data) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 
   if(pacman_trans_commit(&data) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,pacman_strerror(pm_errno));
+    error(pacman_strerror(pm_errno));
     return false;
   }
 

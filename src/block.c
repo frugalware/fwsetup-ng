@@ -365,7 +365,7 @@ extern struct disk *disk_open(struct device *device)
     (label = blkid_parttable_get_type(parttable))    == 0
   )
   {
-    fprintf(logfile,"%s: %s\n",__func__,_("no partition table"));
+    error("no partition table");
     goto bail;
   }
 
@@ -377,7 +377,7 @@ extern struct disk *disk_open(struct device *device)
     disk.type = DISKTYPE_GPT;
   else
   {
-    fprintf(logfile,"%s: %s\n",__func__,_("unknown partition table"));
+    error("unknown partition table");
     goto bail;
   }
 
@@ -390,7 +390,7 @@ extern struct disk *disk_open(struct device *device)
   {
     if((disk.type == DISKTYPE_DOS && j > 60) || (disk.type == DISKTYPE_GPT && j > 128))
     {
-      fprintf(logfile,"%s: %s\n",__func__,_("partition table too big"));
+      error("partition table too big");
       goto bail;
     }
     
