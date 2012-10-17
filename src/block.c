@@ -835,6 +835,9 @@ extern bool disk_flush(struct disk *disk)
     return false;
   }
 
+  if(!disk->modified)
+    return true;
+
   if(disk->type == DISKTYPE_DOS)
   {
     snprintf(command,_POSIX_ARG_MAX,"set -e;echo -n -e '");
