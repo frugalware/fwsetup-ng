@@ -23,6 +23,7 @@
 #define GIBIBYTE (1LL << 30LL)
 #define TEBIBYTE (1LL << 40LL)
 #define error(S) fprintf(logfile,"%s: %s\n",__func__,S)
+#define eprintf(...) fprintf(logfile,__VA_ARGS__)
 
 struct global
 {

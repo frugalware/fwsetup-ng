@@ -26,7 +26,7 @@ static void install_database_callback(const char *name,PM_DB *db)
   {
     if(dl_database != 0)
     {
-      fprintf(logfile,_("More than one valid database found in the config file, so skipping it.\n"));
+      eprintf("More than one valid database found in the config file, so skipping it.\n");
       return;
     }
     
@@ -39,7 +39,7 @@ static void install_log_callback(unsigned short level,char *msg)
   // This parameter is never used.
   level = level;
 
-  fprintf(logfile,"libpacman: %s%s",msg,(strchr(msg,'\n') == 0) ? "\n" : "");
+  eprintf("libpacman: %s%s",msg,(strchr(msg,'\n') == 0) ? "\n" : "");
 }
 
 static int install_download_callback(PM_NETBUF *ctl,int dl_xfered0,void *arg)
@@ -197,7 +197,7 @@ static void install_event_callback(unsigned char event,void *data1,void *data2)
       break;
     
     default:
-      fprintf(logfile,_("Unhandled pacman transaction event: %hhu\n"),event);
+      eprintf("Unhandled pacman transaction event: %hhu\n",event);
       return;
   }
   
@@ -207,7 +207,7 @@ static void install_event_callback(unsigned char event,void *data1,void *data2)
 
 static void install_conversation_callback(unsigned char event,void *data1,void *data2,void *data3,int *response)
 {
-  fprintf(logfile,"Unhandled pacman conversation event: %hhu\n",event);
+  eprintf("Unhandled pacman conversation event: %hhu\n",event);
   *response = 0;
 }
 
@@ -246,7 +246,7 @@ static void install_progress_callback(unsigned char event,char *pkg,int percent,
       break;
     
     default:
-      fprintf(logfile,"Unhandled pacman progress event: %hhu\n",event);
+      eprintf("Unhandled pacman progress event: %hhu\n",event);
       break;
   }
   
@@ -487,7 +487,7 @@ static bool install_groups_get(struct install **groups)
   
   if(matches == 0)
   {
-    fprintf(logfile,_("Could not find any matching groups in the database.\n"));
+    eprintf("Could not find any matching groups in the database.\n");
     return false;
   }
 
