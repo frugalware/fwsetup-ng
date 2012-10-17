@@ -810,6 +810,59 @@ extern long long disk_partition_get_size(struct disk *disk,int n)
   return part->size * disk->device->sectorsize;
 }
 
+extern bool disk_flush(struct disk *disk)
+{
+  char command[_POSIX_ARG_MAX] = {0};
+  int i = 0;
+  int j = 0;
+  struct partition *part = 0;
+  struct partition *prev = 0;
+  size_t n = 0;
+
+  if(disk->type == DISKTYPE_DOS)
+  {
+    snprintf(command,_POSIX_ARG_MAX,"set -e;echo -n -e '");
+    
+    n = strlen(command);
+    
+    for( ; i < disk->size ; ++i )
+    {
+      part = &disk->table[i];
+      
+      if(prev != 0)
+        j = part->number - prev->number;
+      
+      for( ; j > 1 ; --j )
+      {
+        snprintf(command+n,_POSIX_ARG_MAX-n,"0 0 0x0 -\\n");
+        
+        n = strlen(command);
+      }
+      
+      snprintf(command+n,_POSIX_ARG_MAX-n,"%lld %lld 0x%hhx %c\\n",
+        part->start,
+        part->size,
+        part->dostype,
+        (part->dosactive) ? '*' : '-'
+      );
+      
+      n = strlen(command);
+      
+      prev = part;
+    }
+    
+    snprintf(command+n,_POSIX_ARG_MAX-n,"' | sfdisk --unit S --Linux '%s';echo -n -e 'x\\ni\\n0x%.8x\\nw\\n' | fdisk '%s'",
+      disk->device->path,
+      (disk->dosuuid == 0) ? (unsigned int) rand() : disk->dosuuid,
+      disk->device->path
+    );
+    
+    n = strlen(command);    
+  }
+  
+  return true;
+}
+
 extern void disk_close(struct disk *disk)
 {
   if(disk == 0)
