@@ -102,6 +102,7 @@ extern bool disk_partition_get_active(struct disk *disk,int n);
 extern int disk_partition_get_number(struct disk *disk,int n);
 extern long long disk_partition_get_size(struct disk *disk,int n);
 extern void disk_delete_partition(struct disk *disk);
+extern bool disk_flush(struct disk *disk);
 extern void disk_close(struct disk *disk);
 extern int ui_main(int argc,char **argv);
 extern void ui_dialog_text(const char *title,const char *text);
