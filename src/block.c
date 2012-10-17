@@ -911,6 +911,12 @@ extern bool disk_flush(struct disk *disk)
     n = strlen(command);  
   }
   
+  if(!zapdisk(disk->device->path))
+    return false;
+  
+  if(!execute(command,"/",0))
+    return false;
+  
   return true;
 }
 
