@@ -91,6 +91,7 @@ static inline long maxv(long *v,size_t size)
 }
 extern struct device **device_probe_all(bool disk);
 extern struct device *device_open(const char *path);
+extern const char *device_get_path(struct device *device);
 extern const char *device_get_type(struct device *device);
 extern void device_close(struct device *device);
 extern struct disk *disk_open(struct device *device);

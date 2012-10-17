@@ -360,6 +360,18 @@ bail:
   return device;
 }
 
+extern const char *device_get_path(struct device *device)
+{
+  if(device == 0)
+  {
+    errno = EINVAL;
+    error(strerror(errno));
+    return 0;
+  }
+
+  return device->path;
+}
+
 extern const char *device_get_type(struct device *device)
 {
   if(device == 0)
