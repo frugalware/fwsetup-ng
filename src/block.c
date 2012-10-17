@@ -449,6 +449,24 @@ bail:
   return result;
 }
 
+extern struct disk *disk_open_empty(struct device *device,const char *type)
+{
+  struct disk disk = {0};
+
+  if(device == 0 || type == 0 || (strcmp(type,"dos") != 0 && strcmp(type,"gpt") != 0))
+  {
+    errno = EINVAL;
+    error(strerror(errno));
+    return 0;
+  }
+  
+  disk.device = device;
+  
+  disk_new_table(&disk,type);
+
+  return memdup(&disk,sizeof(struct disk));
+}
+
 extern void disk_new_table(struct disk *disk,const char *type)
 {
   struct device *device = 0;
