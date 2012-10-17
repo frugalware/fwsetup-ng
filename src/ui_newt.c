@@ -46,7 +46,7 @@ extern int ui_main(int argc,char **argv)
     if(module->run == 0 || module->reset == 0 || module->name == 0)
     {
       errno = EINVAL;
-      fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+      error(strerror(errno));
       code = EXIT_FAILURE;
       break;
     }
@@ -89,7 +89,7 @@ extern void ui_dialog_text(const char *title,const char *text)
   if(title == 0 || text == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return;
   }
 
@@ -148,7 +148,7 @@ extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno)
   if(title == 0 || text == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
@@ -226,7 +226,7 @@ extern bool ui_dialog_progress(const char *title,const char *text,int percent)
   if(title == 0 || text == 0 || percent < 0 || percent > 100)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -287,7 +287,7 @@ extern bool ui_window_root(struct account *data)
   if(data == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -416,7 +416,7 @@ extern bool ui_window_user(struct account *data)
   if(data == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -550,7 +550,7 @@ extern bool ui_window_time(char **data,char **zone,bool *utc)
   if(data == 0 || zone == 0 || utc == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -635,7 +635,7 @@ extern bool ui_window_install(struct install *data)
   if(data == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 

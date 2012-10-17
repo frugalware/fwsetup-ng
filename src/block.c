@@ -131,7 +131,7 @@ static bool getuuid(struct disk *disk)
 
   if((pipe = popen(command,"r")) == 0)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -152,7 +152,7 @@ static bool getuuid(struct disk *disk)
   }
   else
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 }
@@ -222,7 +222,7 @@ static bool newpartition(struct disk *disk,long long size,struct partition *part
   )
   {
     errno = ERANGE;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }  
 
@@ -243,19 +243,19 @@ extern struct device *device_open(const char *path)
   if(path == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     goto bail;
   }
   
   if((fd = open(path,O_RDONLY)) == -1 || fstat(fd,&st) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     goto bail;
   }
 
   if(S_ISBLK(st.st_mode) && (ioctl(fd,BLKGETSIZE64,&size) == -1 || ioctl(fd,BLKSSZGET,&sectorsize) == -1))
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     goto bail;
   }
   else if(S_ISREG(st.st_mode))
@@ -266,7 +266,7 @@ extern struct device *device_open(const char *path)
   else
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     goto bail;
   }
   
@@ -277,7 +277,7 @@ extern struct device *device_open(const char *path)
   if(size <= 0 || sectorsize <= 0 || (MEBIBYTE % sectorsize) != 0 || (size % sectorsize) != 0)
   {
     errno = ERANGE;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     goto bail;
   }
   
@@ -336,26 +336,26 @@ extern struct disk *disk_open(struct device *device)
   if(device == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     goto bail;
   }
 
   if((fd = open(device->path,O_RDONLY)) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     goto bail;
   }
 
   if((probe = blkid_new_probe()) == 0)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     goto bail;
   }
 
   if(blkid_probe_set_device(probe,fd,0,0) == -1)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     goto bail;
   }
 
@@ -457,7 +457,7 @@ extern void disk_new_table(struct disk *disk,const char *type)
   if(disk == 0 || type == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return;
   }
   
@@ -470,7 +470,7 @@ extern void disk_new_table(struct disk *disk,const char *type)
   else
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return;
   }
 
@@ -492,7 +492,7 @@ extern int disk_create_partition(struct disk *disk,long long size)
   if(disk == 0 || disk->size < 0 || size <= 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return -1;
   }
 
@@ -505,7 +505,7 @@ extern int disk_create_partition(struct disk *disk,long long size)
   )
   {
     errno = ERANGE;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return -1;
   }  
 
@@ -529,7 +529,7 @@ extern int disk_create_extended_partition(struct disk *disk)
   if(disk == 0 || disk->size < 0 || disk->type != DISKTYPE_DOS)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return -1;
   }
   
@@ -537,7 +537,7 @@ extern int disk_create_extended_partition(struct disk *disk)
     if(disk->table[i].dostype == DOS_EXTENDED)
     {
       errno = EINVAL;
-      fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+      error(strerror(errno));
       return -1;
     }
   
@@ -563,7 +563,7 @@ extern int disk_create_logical_partition(struct disk *disk,long long size)
   if(disk == 0 || disk->size < 0 || disk->type != DISKTYPE_DOS || size <= 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return -1;
   }
   
@@ -580,7 +580,7 @@ extern int disk_create_logical_partition(struct disk *disk,long long size)
   if(ext == 0 || ext->number > 4)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return -1;
   }
     
@@ -608,7 +608,7 @@ extern int disk_create_logical_partition(struct disk *disk,long long size)
   )
   {
     errno = ERANGE;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return -1;
   }
   
@@ -628,7 +628,7 @@ extern void disk_delete_partition(struct disk *disk)
   if(disk == 0 || disk->size <= 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return;
   }
   
@@ -646,7 +646,7 @@ extern void disk_partition_set_purpose(struct disk *disk,int n,const char *purpo
   if(disk == 0 || n < 0 || n > disk->size || purpose == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return;
   }
 
@@ -693,7 +693,7 @@ extern void disk_partition_set_active(struct disk *disk,int n,bool active)
   if(disk == 0 || n < 0 || n > disk->size)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return;
   }
 
@@ -725,7 +725,7 @@ extern const char *disk_partition_get_purpose(struct disk *disk,int n)
   if(disk == 0 || n < 0 || n > disk->size)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return 0;
   }
 
@@ -773,7 +773,7 @@ extern bool disk_partition_get_active(struct disk *disk,int n)
   if(disk == 0 || n < 0 || n > disk->size)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
@@ -794,7 +794,7 @@ extern int disk_partition_get_number(struct disk *disk,int n)
   if(disk == 0 || n < 0 || n > disk->size)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return 0;
   }
   
@@ -810,7 +810,7 @@ extern long long disk_partition_get_size(struct disk *disk,int n)
   if(disk == 0 || n < 0 || n > disk->size)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return 0;
   }
   
@@ -831,7 +831,7 @@ extern bool disk_flush(struct disk *disk)
   if(disk == 0 || (disk->type != DISKTYPE_DOS && disk->type != DISKTYPE_GPT))
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 

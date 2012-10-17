@@ -404,7 +404,7 @@ static bool install_database_update(void)
   if(dl_database == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -438,7 +438,7 @@ static bool install_groups_get(struct install **groups)
   if(groups == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }  
 
@@ -560,7 +560,7 @@ static bool install_groups_install(const struct install *groups)
   if(groups == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 

@@ -22,7 +22,7 @@ static bool is_root_setup(void)
 
   if(file == 0)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
@@ -60,7 +60,7 @@ static bool is_user_setup(void)
   
   if(file == 0)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;    
   }
   
@@ -99,7 +99,7 @@ static bool root_action(struct account *account)
   if(account == 0 || account->user == 0 || account->password == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -115,7 +115,7 @@ static bool user_action(struct account *account)
   if(account == 0 || account->user == 0 || account->password == 0 || account->group == 0 || account->groups == 0 || account->home == 0 || account->shell == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -184,7 +184,7 @@ static bool get_timezone_data(void)
 {
   if(nftw(TZSEARCHDIR,timezone_nftw_callback,512,FTW_DEPTH|FTW_PHYS) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
@@ -192,7 +192,7 @@ static bool get_timezone_data(void)
 
   if(nftw(TZSEARCHDIR,timezone_nftw_callback,512,FTW_DEPTH|FTW_PHYS) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -207,7 +207,7 @@ static bool time_action(char *zone,bool utc)
 
   if(unlink(TZFILE) == -1 && errno != ENOENT)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
@@ -215,7 +215,7 @@ static bool time_action(char *zone,bool utc)
   
   if(symlink(buf,TZFILE) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
@@ -235,25 +235,25 @@ static bool postconfig_run(void)
   
   if(chdir(INSTALL_ROOT) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
   if(mount("none",INSTALL_ROOT "/dev","devtmpfs",0,0) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
   if(mount("none",INSTALL_ROOT "/proc","proc",0,0) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
   if(mount("none",INSTALL_ROOT "/sys","sysfs",0,0) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
@@ -278,19 +278,19 @@ static bool postconfig_run(void)
 
   if(umount2(INSTALL_ROOT "/dev",MNT_DETACH) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;    
   }
   
   if(umount2(INSTALL_ROOT "/proc",MNT_DETACH) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
   if(umount2(INSTALL_ROOT "/sys",MNT_DETACH) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   

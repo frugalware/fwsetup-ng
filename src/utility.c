@@ -8,7 +8,7 @@ extern bool mkdir_recurse(const char *path)
   if(path == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -20,7 +20,7 @@ extern bool mkdir_recurse(const char *path)
 
     if(mkdir(buf,0755) == -1 && errno != EEXIST)
     {
-      fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+      error(strerror(errno));
       return false;
     }
     
@@ -31,7 +31,7 @@ extern bool mkdir_recurse(const char *path)
   
   if(mkdir(buf,0755) == -1 && errno != EEXIST)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -46,7 +46,7 @@ extern bool size_to_string(char *s,size_t n,long long size,bool pad)
   if(s == 0 || n == 0 || size < 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -92,7 +92,7 @@ extern int get_text_length(const char *s)
   if(s == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return -1;
   }
   
@@ -104,7 +104,7 @@ extern int get_text_length(const char *s)
 
     if(n == (size_t) -1 || n == (size_t) -2)
     {
-      fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+      error(strerror(errno));
       return -1;
     }
 
@@ -129,7 +129,7 @@ extern bool execute(const char *command,const char *root,pid_t *cpid)
   if(command == 0 || root == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
@@ -137,7 +137,7 @@ extern bool execute(const char *command,const char *root,pid_t *cpid)
   
   if((pid = fork()) == -1)
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
@@ -173,7 +173,7 @@ extern bool execute(const char *command,const char *root,pid_t *cpid)
   
   if(waitpid(pid,&status,0) == -1 || !WIFEXITED(status))
   {
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
@@ -187,7 +187,7 @@ extern void *memdup(const void *mem,size_t size)
   if(mem == 0 || size == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return 0;
   }
   
@@ -199,7 +199,7 @@ extern void *malloc0(size_t size)
   if(size == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return 0;
   }
   
@@ -218,7 +218,7 @@ extern int get_text_screen_width(const char *s)
   if(s == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return -1;
   }
   
@@ -230,7 +230,7 @@ extern int get_text_screen_width(const char *s)
     
     if(n == (size_t) -1 || n == (size_t) -2)
     {
-      fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+      error(strerror(errno));
       return -1;
     }
     
@@ -267,7 +267,7 @@ extern bool get_text_screen_size(const char *text,int *width,int *height)
   if(text == 0 || width == 0 || height == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
@@ -304,7 +304,7 @@ extern bool get_button_screen_size(const char *text,int *width,int *height)
   if(text == 0 || width == 0 || height == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
   
@@ -330,7 +330,7 @@ extern bool get_label_screen_size(const char *text,int *width,int *height)
   if(text == 0 || width == 0 || height == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
@@ -354,7 +354,7 @@ extern bool get_checkbox_screen_size(const char *text,int *width,int *height)
   if(text == 0 || width == 0 || height == 0)
   {
     errno = EINVAL;
-    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    error(strerror(errno));
     return false;
   }
 
