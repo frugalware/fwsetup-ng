@@ -157,6 +157,15 @@ static bool getuuid(struct disk *disk)
   }
 }
 
+static bool zapdisk(const char *path)
+{
+  char command[_POSIX_ARG_MAX] = {0};
+  
+  snprintf(command,_POSIX_ARG_MAX,"sgdisk --zap-all '%s'",path);
+  
+  return execute(command,"/",0);
+}
+
 static inline long long alignsector(const struct device *device,long long sector)
 {
   long long alignment = device->alignment;
@@ -818,6 +827,13 @@ extern bool disk_flush(struct disk *disk)
   struct partition *part = 0;
   struct partition *prev = 0;
   size_t n = 0;
+
+  if(disk == 0 || (disk->type != DISKTYPE_DOS && disk->type != DISKTYPE_GPT))
+  {
+    errno = EINVAL;
+    fprintf(logfile,"%s: %s\n",__func__,strerror(errno));
+    return false;
+  }
 
   if(disk->type == DISKTYPE_DOS)
   {
