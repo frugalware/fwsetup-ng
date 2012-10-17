@@ -1,5 +1,6 @@
 #include <linux/major.h>
 #include <blkid.h>
+#include <glob.h>
 #include "local.h"
 
 #define EMPTY_PARTITION &(struct partition) {0}
@@ -227,6 +228,55 @@ static bool newpartition(struct disk *disk,long long size,struct partition *part
   }  
 
   return true;
+}
+
+extern struct device **device_probe_all(bool disk)
+{
+  glob_t ge = {0};
+  int flags = 0;
+  struct device **devices = 0;
+  size_t i = 0;
+  size_t n = 0;
+  struct device *device = 0;
+
+  if(disk == false)
+  {
+    errno = EINVAL;
+    error(strerror(errno));
+    return 0;
+  }
+  
+  if(disk)
+  {
+    if(glob("/dev/[hsv]d[a-z]",flags,0,&ge) != 0)
+    {
+      globfree(&ge);
+      error(strerror(errno));
+      return 0;
+    }
+    
+    flags |= GLOB_APPEND;
+  }
+  
+  devices = malloc(ge.gl_pathc * sizeof(struct device *));
+  
+  for( ; i < ge.gl_pathc ; ++i )
+  {
+    device = device_open(ge.gl_pathv[i]);
+    
+    if(device == 0)
+      continue;
+    
+    devices[n++] = device;
+  }
+  
+  devices[n] = 0;
+  
+  devices = realloc(devices,(n + 1) * sizeof(struct device *));
+  
+  globfree(&ge);
+  
+  return devices;
 }
 
 extern struct device *device_open(const char *path)
