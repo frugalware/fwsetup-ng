@@ -21,7 +21,7 @@ extern int ui_main(int argc,char **argv)
 
   if(newtInit() != 0)
   {
-    fprintf(logfile,_("Could not initialize the NEWT user interface.\n"));
+    eprintf("Could not initialize the NEWT user interface.\n");
     return 1;
   }
 
@@ -29,7 +29,7 @@ extern int ui_main(int argc,char **argv)
 
   if(w < 80 || h < 24)
   {
-    fprintf(logfile,_("We require a terminal of 80x24 or greater to use the NEWT user interface.\n"));
+    eprintf("We require a terminal of 80x24 or greater to use the NEWT user interface.\n");
     newtFinished();
     return 1;
   }  
@@ -51,13 +51,13 @@ extern int ui_main(int argc,char **argv)
       break;
     }
   
-    fprintf(logfile,_("About to run module '%s'.\n"),module->name);
+    eprintf("About to run module '%s'.\n",module->name);
   
     bool success = module->run();
     
     if(!success)
     {
-      fprintf(logfile,_("A fatal error has been reported by module '%s'.\n"),module->name);
+      eprintf("A fatal error has been reported by module '%s'.\n",module->name);
       module->reset();
       snprintf(text,4096,_("A fatal error has been reported by module '%s'.\n\nPlease read the logfile at '%s'.\nThank you.\n"),module->name,LOGFILE);
       ui_dialog_text(_("Module Fatal Error"),text);
@@ -101,7 +101,7 @@ extern void ui_dialog_text(const char *title,const char *text)
 
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
   {
-    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    eprintf("Failed to open a NEWT window.\n");
     return;
   }
   
@@ -163,7 +163,7 @@ extern bool ui_dialog_yesno(const char *title,const char *text,bool defaultno)
 
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,title) != 0)
   {
-    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    eprintf("Failed to open a NEWT window.\n");
     return false;
   }
 
@@ -234,7 +234,7 @@ extern bool ui_dialog_progress(const char *title,const char *text,int percent)
   {
     if(newtCenteredWindow(NEWT_WIDTH,3,title) != 0)
     {
-      fprintf(logfile,_("Failed to open a NEWT window.\n"));
+      eprintf("Failed to open a NEWT window.\n");
       return false;
     }
     
@@ -311,7 +311,7 @@ extern bool ui_window_root(struct account *data)
   
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,ROOT_TITLE) != 0)
   {
-    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    eprintf("Failed to open a NEWT window.\n");
     return false;
   }
 
@@ -446,7 +446,7 @@ extern bool ui_window_user(struct account *data)
 
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,USER_TITLE) != 0)
   {
-    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    eprintf("Failed to open a NEWT window.\n");
     return false;
   }
 
@@ -569,7 +569,7 @@ extern bool ui_window_time(char **data,char **zone,bool *utc)
 
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,TIME_TITLE) != 0)
   {
-    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    eprintf("Failed to open a NEWT window.\n");
     return false;
   }
 
@@ -651,7 +651,7 @@ extern bool ui_window_install(struct install *data)
 
   if(newtCenteredWindow(NEWT_WIDTH,NEWT_HEIGHT,INSTALL_TITLE) != 0)
   {
-    fprintf(logfile,_("Failed to open a NEWT window.\n"));
+    eprintf("Failed to open a NEWT window.\n");
     return false;
   }
   

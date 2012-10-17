@@ -133,7 +133,7 @@ extern bool execute(const char *command,const char *root,pid_t *cpid)
     return false;
   }
   
-  fprintf(logfile,_("Attempting to execute command '%s' with root directory '%s'.\n"),command,root);
+  eprintf("Attempting to execute command '%s' with root directory '%s'.\n",command,root);
   
   if((pid = fork()) == -1)
   {
@@ -177,7 +177,7 @@ extern bool execute(const char *command,const char *root,pid_t *cpid)
     return false;
   }
   
-  fprintf(logfile,_("Command '%s' which was executed with root directory '%s' has exitted with code '%d'.\n"),command,root,WEXITSTATUS(status));
+  eprintf("Command '%s' which was executed with root directory '%s' has exitted with code '%d'.\n",command,root,WEXITSTATUS(status));
   
   return (WEXITSTATUS(status) == 0);
 }
