@@ -834,12 +834,12 @@ extern bool disk_flush(struct disk *disk)
       
       for( ; j > 1 ; --j )
       {
-        snprintf(command+n,_POSIX_ARG_MAX-n,"0 0 0x0 -\\n");
+        snprintf(command+n,_POSIX_ARG_MAX-n,"0 0 0x00 -\\n");
         
         n = strlen(command);
       }
       
-      snprintf(command+n,_POSIX_ARG_MAX-n,"%lld %lld 0x%hhx %c\\n",
+      snprintf(command+n,_POSIX_ARG_MAX-n,"%lld %lld 0x%.2hhx %c\\n",
         part->start,
         part->size,
         part->dostype,
