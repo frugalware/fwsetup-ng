@@ -360,6 +360,25 @@ bail:
   return device;
 }
 
+extern const char *device_get_type(struct device *device)
+{
+  if(device == 0)
+  {
+    errno = EINVAL;
+    error(strerror(errno));
+    return 0;
+  }
+  
+  if(device->type == DEVICETYPE_FILE)
+    return "file";
+  else if(device->type == DEVICETYPE_DISK)
+    return "disk";
+  else if(device->type == DEVICETYPE_UNKNOWN)
+    return "unknown";
+  else
+    return 0;
+}
+
 extern void device_close(struct device *device)
 {
   if(device == 0)
