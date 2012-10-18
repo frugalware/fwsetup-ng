@@ -372,6 +372,18 @@ extern const char *device_get_path(struct device *device)
   return device->path;
 }
 
+extern long long device_get_size(struct device *device)
+{
+  if(device == 0)
+  {
+    errno = EINVAL;
+    error(strerror(errno));
+    return 0;
+  }
+  
+  return device->size;
+}
+
 extern const char *device_get_type(struct device *device)
 {
   if(device == 0)
