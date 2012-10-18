@@ -46,7 +46,7 @@ static inline void probe_filesystem(struct format *target)
   if(blkid_probe_set_superblocks_flags(probe,BLKID_SUBLKS_TYPE) == -1)
     goto bail;
 
-  if(blkid_do_probe(probe) != 0)
+  if(blkid_do_probe(probe) == -1)
     goto bail;
 
   if(blkid_probe_lookup_value(probe,"TYPE",&result,0) == -1)
@@ -138,6 +138,8 @@ static bool format_setup(void)
 
 static bool format_run(void)
 {
+  if(!format_setup())
+    return false;
 
   return true;
 }

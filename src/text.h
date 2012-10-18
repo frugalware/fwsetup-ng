@@ -14,6 +14,8 @@
 #define PASSWORD_SHORT_TEXT _("Your password must be at least 6 characters long.\n")
 #define PASSWORD_MISMATCH_TITLE _("Passwords Do Not Match")
 #define PASSWORD_MISMATCH_TEXT _("The passwords you have entered do not match.\n")
+#define FORMAT_TITLE _("Filesystem Setup")
+#define FORMAT_TEXT _("Select a device to setup from the list below.\n")
 #define INSTALL_TITLE _("Package Group Selection")
 #define INSTALL_TEXT _("Select which package groups you wish to install.\n")
 #define NO_BASE_TITLE _("Group Selection Error")
@@ -29,3 +31,4 @@
 #define UTC_TEXT _("Universal Time Clock")
 #define NO_USER_TITLE _("No User Name")
 #define NO_USER_TEXT _("You must specify a user name.\n")
+
